@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"unsafe"
 
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
@@ -19,8 +20,10 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 
 var vertices = []float32{-0.5, 0.0, 0.5, 0.5, 0.5, -0.5, // triange 1
 	-0.8, -0.8, -0.3, -0.8, -0.8, -0.3} // Triangle 2
+var colors = []float32{1.0, 0, 0}
 
 var prg gl.Program
+var buffer gl.Buffer
 
 func main() {
 	glfw.SetErrorCallback(errorCallback)
@@ -32,10 +35,11 @@ func main() {
 
 	//showVersion()
 	//glfw.WindowHint(glfw.ContextVersionMajor, 3)
-	//glfw.WindowHint(glfw.ContextVersionMinor, 2)
+	//glfw.WindowHint(glfw.ContextVersionMinor, 3)
 	//glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True)
 	//glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
-	showVersion()
+	//showVersion()
+
 	window, err := glfw.CreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, TITLE, nil, nil)
 	if err != nil {
 		panic(err)
@@ -46,9 +50,7 @@ func main() {
 	glfw.SwapInterval(1)
 
 	gl.Init()
-	if err := initScene(); err != nil {
-		panic(err)
-	}
+	//initScene()
 	defer destroyScene()
 
 	for !window.ShouldClose() {
@@ -64,22 +66,34 @@ func showVersion() {
 }
 
 func initScene() error {
+	buffer = gl.GenBuffer()
+	buffer.Bind(gl.ARRAY_BUFFER)
+	var f float32
+	floatSize := int(unsafe.Sizeof(f))
+	sizeVert := len(vertices) * floatSize
+	sizeColors := len(colors) * floatSize
+
+	gl.BufferData(gl.ARRAY_BUFFER, sizeVert+sizeColors, nil, gl.STATIC_DRAW)
+	gl.BufferSubData(gl.ARRAY_BUFFER, 0, sizeVert, vertices)
+	gl.BufferSubData(gl.ARRAY_BUFFER, sizeVert, sizeColors, vertices)
+	buffer.Unbind(gl.ARRAY_BUFFER)
+
 	//gl.Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 	//gl.MatrixMode(gl.PROJECTION)
 	vs := `
-uniform vec2 offset;
-	attribute vec4 vPosition;
+	#version 330
+	in vec3 in_vertex;
 
 		void main() {
-				gl_Position = vec4(vPosition.xy+offset, vPosition.zw);
+			gl_Position = vec4(in_vertex, 0.0);
 				}
 				`
 	fs := `
-//precision mediump float;
-	uniform vec3 color;
+	#version 330
+	out vec4 out_color;
 
 		void main() {
-				gl_FragColor = vec4(color.xyz, 1.0);
+			out_color= vec4(1.0,1.0,1.0,1.0);
 				}
 				`
 	vshader := gl.CreateShader(gl.VERTEX_SHADER)
@@ -96,10 +110,10 @@ uniform vec2 offset;
 	}
 
 	prg = gl.CreateProgram()
-	prg.AttachShader(vshader)
-	prg.AttachShader(fshader)
-	prg.BindAttribLocation(0, "vPosition")
-	prg.BindAttribLocation(1, "offset")
+	//prg.AttachShader(vshader)
+	//prg.AttachShader(fshader)
+	//prg.BindAttribLocation(0, "in_vertex")
+	//prg.BindAttribLocation(1, "out_color")
 	prg.Link()
 	if prg.Get(gl.LINK_STATUS) != gl.TRUE {
 		panic("linker error: " + prg.GetInfoLog())
