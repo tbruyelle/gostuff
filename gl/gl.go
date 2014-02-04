@@ -30,10 +30,17 @@ func main() {
 	}
 	defer glfw.Terminate()
 
+	//showVersion()
+	//glfw.WindowHint(glfw.ContextVersionMajor, 3)
+	//glfw.WindowHint(glfw.ContextVersionMinor, 2)
+	//glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True)
+	//glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
+	showVersion()
 	window, err := glfw.CreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, TITLE, nil, nil)
 	if err != nil {
 		panic(err)
 	}
+	defer window.Destroy()
 	window.MakeContextCurrent()
 
 	glfw.SwapInterval(1)
@@ -50,23 +57,31 @@ func main() {
 	}
 }
 
+func showVersion() {
+	//maj, min, v := glfw.GetVersion()
+	//fmt.Println("version=", maj, min, v)
+	fmt.Println("version=", glfw.GetVersionString())
+}
+
 func initScene() error {
 	//gl.Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 	//gl.MatrixMode(gl.PROJECTION)
 	vs := `
-		in vec2 in_vertex;
-		void main()
-		{
-			gl_Position = vec4(in_vertex, 0.0, 1.0);
-		}`
+uniform vec2 offset;
+	attribute vec4 vPosition;
 
+		void main() {
+				gl_Position = vec4(vPosition.xy+offset, vPosition.zw);
+				}
+				`
 	fs := `
-		out vec4 out_color;
-		void main()
-		{
-			out_color = vec4(1.0, 1.0, 1.0, 1.0);
-		}`
+//precision mediump float;
+	uniform vec3 color;
 
+		void main() {
+				gl_FragColor = vec4(color.xyz, 1.0);
+				}
+				`
 	vshader := gl.CreateShader(gl.VERTEX_SHADER)
 	vshader.Source(vs)
 	vshader.Compile()
@@ -83,9 +98,8 @@ func initScene() error {
 	prg = gl.CreateProgram()
 	prg.AttachShader(vshader)
 	prg.AttachShader(fshader)
-	prg.BindAttribLocation(0, "in_vertex")
-	prg.BindAttribLocation(1, "out_color")
-
+	prg.BindAttribLocation(0, "vPosition")
+	prg.BindAttribLocation(1, "offset")
 	prg.Link()
 	if prg.Get(gl.LINK_STATUS) != gl.TRUE {
 		panic("linker error: " + prg.GetInfoLog())
@@ -100,7 +114,7 @@ func destroyScene() {
 
 func drawScene() {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-	prg.Use()
+	//prg.Use()
 	gl.EnableClientState(gl.VERTEX_ARRAY)
 	gl.VertexPointer(2, gl.FLOAT, 0, vertices)
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
