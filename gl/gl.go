@@ -66,12 +66,12 @@ func showVersion() {
 }
 
 func initScene() {
-	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 	triangle = NewTriangle(vertices, colors)
 	triangle.Load()
 }
 
 func drawScene() {
+	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	triangle.Draw()
 }
@@ -90,13 +90,15 @@ func attachShaders(prg gl.Program, shaders ...gl.Shader) {
 	for _, shader := range shaders {
 		prg.AttachShader(shader)
 	}
-	prg.BindAttribLocation(0, "position")
-	prg.BindAttribLocation(1, "outColor")
 	prg.Link()
 	if prg.Get(gl.LINK_STATUS) != gl.TRUE {
 		panic("linker error: " + prg.GetInfoLog())
 	}
 	prg.Validate()
+	for _, shader := range shaders {
+		prg.DetachShader(shader)
+		shader.Delete()
+	}
 }
 
 func destroyScene() {
