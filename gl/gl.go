@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
@@ -53,6 +54,8 @@ func main() {
 	for !window.ShouldClose() {
 		drawScene()
 		window.SwapBuffers()
+		<-time.After(time.Second * 2)
+		break
 	}
 }
 
@@ -87,6 +90,8 @@ func attachShaders(prg gl.Program, shaders ...gl.Shader) {
 	for _, shader := range shaders {
 		prg.AttachShader(shader)
 	}
+	prg.BindAttribLocation(0, "position")
+	prg.BindAttribLocation(1, "outColor")
 	prg.Link()
 	if prg.Get(gl.LINK_STATUS) != gl.TRUE {
 		panic("linker error: " + prg.GetInfoLog())
