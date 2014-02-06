@@ -22,12 +22,13 @@ func NewTriangle(vertices []Vertex) *Triangle {
 	t.sizeVertices = len(t.vertices) * sizeVertex
 
 	vshader := loadShader(gl.VERTEX_SHADER, "shaders/rotateOffset.vert")
-	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/colorv.frag")
+	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/offset.frag")
 	t.prg = NewProgram(vshader, fshader)
 	t.posLoc = gl.AttribLocation(0)
 	t.colLoc = gl.AttribLocation(1)
 	t.timeLoc = t.prg.GetUniformLocation("time")
 	loopLoc := t.prg.GetUniformLocation("loopDuration")
+	fragLoopLoc := t.prg.GetUniformLocation("fragLoopDuration")
 
 	t.buffer = gl.GenBuffer()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
@@ -42,6 +43,7 @@ func NewTriangle(vertices []Vertex) *Triangle {
 
 	t.prg.Use()
 	loopLoc.Uniform1f(5)
+	fragLoopLoc.Uniform1f(10)
 	gl.ProgramUnuse()
 
 	return t
