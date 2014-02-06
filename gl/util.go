@@ -9,13 +9,27 @@ import (
 )
 
 type Vertex struct {
-	X, Y, Z, W float32
-	R, G, B, A float32
+	Coords Coords
+	Color  Color
+}
+
+func NewVertex(X, Y, Z float32, color Color) Vertex {
+	return Vertex{Coords: Coords{X, Y, Z, 1.0}, Color: color}
 }
 
 var (
+	Red   = Color{1.0, 0.0, 0.0, 1.0}
+	Green = Color{0.0, 1.0, 0.0, 1.0}
+	Blue  = Color{0.0, 0.0, 1.0, 1.0}
+)
+
+type Coords struct{ X, Y, Z, W float32 }
+type Color struct{ R, G, B, A float32 }
+
+var (
+	sizeFloat  = int(unsafe.Sizeof(float32(0)))
+	sizeCoords = sizeFloat * 4
 	sizeVertex = int(unsafe.Sizeof(Vertex{}))
-	sizeFloat = int(unsafe.Sizeof(float32(0)))
 )
 
 func showVersion() {

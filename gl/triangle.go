@@ -45,7 +45,7 @@ func (t *Triangle) Draw() {
 	t.posLoc.EnableArray()
 	t.posLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(0))
 	t.colLoc.EnableArray()
-	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(4*sizeFloat))
+	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
 
 	//t.colLoc.AttribPointer(4, gl.FLOAT, false, 0, uintptr(t.sizeVertices))
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)

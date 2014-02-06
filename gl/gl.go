@@ -54,16 +54,16 @@ func main() {
 	for !window.ShouldClose() {
 		world.drawScene()
 		window.SwapBuffers()
-		<-time.After(time.Second * 5)
+		<-time.After(time.Second * 4)
 		break
 	}
 }
 
 func (w *World) initScene() {
 	w.triangle = NewTriangle([]Vertex{
-		Vertex{0.0, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0},
-		Vertex{0.5, -0.366, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0},
-		Vertex{-0.5, -0.366, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0},
+		NewVertex(0.0, 0.5, 0.0, Red),
+		NewVertex(0.5, -0.366, 0.0, Green),
+		NewVertex(-0.5, -0.366, 0.0, Blue),
 	})
 }
 
