@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
@@ -54,8 +53,6 @@ func main() {
 	for !window.ShouldClose() {
 		world.drawScene()
 		window.SwapBuffers()
-		<-time.After(time.Second * 4)
-		break
 	}
 }
 

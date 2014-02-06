@@ -11,6 +11,7 @@ type Triangle struct {
 	prg          gl.Program
 	posLoc       gl.AttribLocation
 	colLoc       gl.AttribLocation
+	offsetLoc    gl.UniformLocation
 	vao          gl.VertexArray
 }
 
@@ -19,11 +20,12 @@ func NewTriangle(vertices []Vertex) *Triangle {
 	t.vertices = vertices
 	t.sizeVertices = len(t.vertices) * sizeVertex
 
-	vshader := loadShader(gl.VERTEX_SHADER, "shaders/colorv.vert")
+	vshader := loadShader(gl.VERTEX_SHADER, "shaders/offset.vert")
 	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/colorv.frag")
 	t.prg = NewProgram(vshader, fshader)
 	t.posLoc = gl.AttribLocation(0)
 	t.colLoc = gl.AttribLocation(1)
+	t.offsetLoc = t.prg.GetUniformLocation("offset")
 
 	t.buffer = gl.GenBuffer()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
@@ -39,7 +41,11 @@ func NewTriangle(vertices []Vertex) *Triangle {
 }
 
 func (t *Triangle) Draw() {
+	x, y := rotateOffsets(0, 0)
 	t.prg.Use()
+
+	t.offsetLoc.Uniform2f(x, y)
+
 	t.buffer.Bind(gl.ARRAY_BUFFER)
 
 	t.posLoc.EnableArray()

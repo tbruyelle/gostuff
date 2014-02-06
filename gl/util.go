@@ -5,6 +5,7 @@ import (
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
 	"io/ioutil"
+	"math"
 	"unsafe"
 )
 
@@ -67,4 +68,14 @@ func loadShader(type_ gl.GLenum, file string) gl.Shader {
 		panic("fragment error for source " + source + "\n" + shader.GetInfoLog())
 	}
 	return shader
+}
+
+func rotateOffsets(x, y float32) (float32, float32) {
+	const fLoopDuration = float64(5)
+	const fScale = 3.14159 * 2 / fLoopDuration
+
+	fElapsedTime := glfw.GetTime()
+	fCurrTimeThroughLoop := math.Mod(fElapsedTime, fLoopDuration)
+	return float32(math.Cos(fCurrTimeThroughLoop*fScale) * 0.5),
+		float32(math.Sin(fCurrTimeThroughLoop*fScale) * 0.5)
 }
