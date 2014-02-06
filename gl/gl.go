@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	WINDOW_WIDTH  = 640
-	WINDOW_HEIGHT = 480
+	WINDOW_WIDTH  = 500
+	WINDOW_HEIGHT = 500
 	TITLE         = "Fuck yeah opengl"
 )
 
@@ -54,7 +54,7 @@ func main() {
 	for !window.ShouldClose() {
 		world.drawScene()
 		window.SwapBuffers()
-		<-time.After(time.Second * 2)
+		<-time.After(time.Second * 5)
 		break
 	}
 }
@@ -70,9 +70,9 @@ func (w *World) initScene() {
 func (w *World) drawScene() {
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-		w.triangle.Draw()
+	w.triangle.Draw()
 }
 
 func (w *World) destroyScene() {
-		w.triangle.Destroy()
+	w.triangle.Destroy()
 }

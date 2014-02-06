@@ -27,7 +27,7 @@ func NewTriangle(vertices []float32) *Triangle {
 	t.sizeColors = len(t.colors) * floatSize
 
 	vshader := loadShader(gl.VERTEX_SHADER, "shaders/basic.vert")
-	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/basic.frag")
+	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/colory.frag")
 
 	t.prg = NewProgram(vshader, fshader)
 	t.posLoc = gl.AttribLocation(0)
@@ -44,7 +44,7 @@ func NewTriangle(vertices []float32) *Triangle {
 
 	t.vao = gl.GenVertexArray()
 	t.vao.Bind()
-return t
+	return t
 }
 
 func (t *Triangle) Draw() {
