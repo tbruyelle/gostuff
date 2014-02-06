@@ -3,8 +3,19 @@ package main
 import (
 	"fmt"
 	"github.com/go-gl/gl"
-glfw 	"github.com/go-gl/glfw3"
+	glfw "github.com/go-gl/glfw3"
 	"io/ioutil"
+	"unsafe"
+)
+
+type Vertex struct {
+	X, Y, Z, W float32
+	R, G, B, A float32
+}
+
+var (
+	sizeVertex = int(unsafe.Sizeof(Vertex{}))
+	sizeFloat = int(unsafe.Sizeof(float32(0)))
 )
 
 func showVersion() {
