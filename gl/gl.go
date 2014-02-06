@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	"github.com/go-gl/gl"
@@ -76,7 +77,12 @@ func drawScene() {
 	triangle.Draw()
 }
 
-func loadShader(type_ gl.GLenum, source string) gl.Shader {
+func loadShader(type_ gl.GLenum, file string) gl.Shader {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		panic(err)
+	}
+	source:=string(b)
 	shader := gl.CreateShader(type_)
 	shader.Source(source)
 	shader.Compile()

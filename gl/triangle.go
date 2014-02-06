@@ -7,30 +7,6 @@ import (
 	"github.com/go-gl/gl"
 )
 
-const shaderVert = `
-#version 330
-
-layout(location = 0) in vec4 vert;
-
-//uniform mat4 projection;
-//uniform mat4 view;
-//uniform mat4 model;
-
-void main()
-{
-    //gl_Position = projection * view * model * vert;
-    gl_Position = vert;
-}`
-
-const shaderFrag = `
-#version 330
-
-out vec4 fragColor;
-
-void main() {
-  fragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-}`
-
 type Triangle struct {
 	buffer       gl.Buffer
 	vertices     []float32
@@ -57,8 +33,8 @@ func NewTriangle(vertices [6]float32, colors [3]float32) *Triangle {
 	t.sizeVertices = len(t.vertices) * floatSize
 	t.sizeColors = len(t.colors) * floatSize
 
-	vshader := loadShader(gl.VERTEX_SHADER, shaderVert)
-	fshader := loadShader(gl.FRAGMENT_SHADER, shaderFrag)
+	vshader := loadShader(gl.VERTEX_SHADER, "shaders/basic.vert")
+	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/basic.frag")
 
 	t.prg = gl.CreateProgram()
 	attachShaders(t.prg, vshader, fshader)
