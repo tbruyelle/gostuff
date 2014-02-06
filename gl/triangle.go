@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-gl/gl"
+	glfw "github.com/go-gl/glfw3"
 )
 
 type Triangle struct {
@@ -11,7 +12,7 @@ type Triangle struct {
 	prg          gl.Program
 	posLoc       gl.AttribLocation
 	colLoc       gl.AttribLocation
-	offsetLoc    gl.UniformLocation
+	timeLoc      gl.UniformLocation
 	vao          gl.VertexArray
 }
 
@@ -20,12 +21,13 @@ func NewTriangle(vertices []Vertex) *Triangle {
 	t.vertices = vertices
 	t.sizeVertices = len(t.vertices) * sizeVertex
 
-	vshader := loadShader(gl.VERTEX_SHADER, "shaders/offset.vert")
+	vshader := loadShader(gl.VERTEX_SHADER, "shaders/rotateOffset.vert")
 	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/colorv.frag")
 	t.prg = NewProgram(vshader, fshader)
 	t.posLoc = gl.AttribLocation(0)
 	t.colLoc = gl.AttribLocation(1)
-	t.offsetLoc = t.prg.GetUniformLocation("offset")
+	t.timeLoc = t.prg.GetUniformLocation("time")
+	loopLoc := t.prg.GetUniformLocation("loopDuration")
 
 	t.buffer = gl.GenBuffer()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
@@ -37,14 +39,18 @@ func NewTriangle(vertices []Vertex) *Triangle {
 
 	t.vao = gl.GenVertexArray()
 	t.vao.Bind()
+
+	t.prg.Use()
+	loopLoc.Uniform1f(5)
+	gl.ProgramUnuse()
+
 	return t
 }
 
 func (t *Triangle) Draw() {
-	x, y := rotateOffsets(0, 0)
 	t.prg.Use()
 
-	t.offsetLoc.Uniform2f(x, y)
+	t.timeLoc.Uniform1f(float32(glfw.GetTime()))
 
 	t.buffer.Bind(gl.ARRAY_BUFFER)
 
@@ -53,11 +59,9 @@ func (t *Triangle) Draw() {
 	t.colLoc.EnableArray()
 	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
 
-	//t.colLoc.AttribPointer(4, gl.FLOAT, false, 0, uintptr(t.sizeVertices))
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 	t.posLoc.DisableArray()
-	//t.colLoc.DisableArray()
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
 	gl.ProgramUnuse()
 }
