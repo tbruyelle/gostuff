@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"unsafe"
 
 	"github.com/go-gl/gl"
@@ -19,56 +18,38 @@ type Triangle struct {
 	vao          gl.VertexArray
 }
 
-func NewTriangle(vertices [6]float32, colors [3]float32) *Triangle {
+func NewTriangle(vertices []float32) *Triangle {
 	t := &Triangle{}
-	t.vertices = []float32{
-		0.75, 0.75, 0.0, 1.0,
-		0.75, -0.75, 0.0, 1.0,
-		-0.75, -0.75, 0.0, 1.0,
-	}
-	t.colors = []float32{1.0, 0, 0, 1.0}
+	t.vertices = vertices
 
-	var f float32
-	floatSize := int(unsafe.Sizeof(f))
+	floatSize := int(unsafe.Sizeof(0))
 	t.sizeVertices = len(t.vertices) * floatSize
 	t.sizeColors = len(t.colors) * floatSize
 
 	vshader := loadShader(gl.VERTEX_SHADER, "shaders/basic.vert")
 	fshader := loadShader(gl.FRAGMENT_SHADER, "shaders/basic.frag")
 
-	t.prg = gl.CreateProgram()
-	attachShaders(t.prg, vshader, fshader)
-	t.posLoc = t.prg.GetAttribLocation("vert")
-	//t.colLoc = t.prg.GetAttribLocation("outColor")
-	fmt.Println("postLoc=", t.posLoc)
-	//fmt.Println("colLoc=", t.colLoc)
-	return t
-}
-
-func (t *Triangle) Load() {
+	t.prg = NewProgram(vshader, fshader)
+	t.posLoc = gl.AttribLocation(0)
 
 	//t.buffer.Delete()
 	t.buffer = gl.GenBuffer()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
 
-	gl.BufferData(gl.ARRAY_BUFFER, t.sizeVertices, t.vertices, gl.STATIC_DRAW)
-	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, t.sizeVertices, t.vertices)
+	gl.BufferData(gl.ARRAY_BUFFER, t.sizeVertices, nil, gl.STATIC_DRAW)
+	gl.BufferSubData(gl.ARRAY_BUFFER, 0, t.sizeVertices, t.vertices)
 	//gl.BufferSubData(gl.ARRAY_BUFFER, t.sizeVertices, t.sizeColors, t.colors)
 
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
 
 	t.vao = gl.GenVertexArray()
 	t.vao.Bind()
-
+return t
 }
 
 func (t *Triangle) Draw() {
 	t.prg.Use()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
-	//t.posLoc.EnableArray()
-	//t.colLoc.EnableArray()
-
-	//t.colLoc.EnableArray()
 
 	t.posLoc.AttribPointer(4, gl.FLOAT, false, 0, uintptr(0))
 	t.posLoc.EnableArray()
