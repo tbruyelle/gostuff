@@ -1,7 +1,7 @@
 package main
 
 func NewCube2() *Model {
-	return NewModel(readVertexFile("data/cube"), "shaders/cube.vert", "shaders/cube.frag")
+	return NewModel(readVertexFile("data/cube"), "shaders/rorateCube.vert", "shaders/cube.frag")
 }
 func NewTriangle() *Model {
 	return NewModel([]Vertex{
