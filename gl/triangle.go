@@ -61,7 +61,10 @@ func (t *Triangle) Draw() {
 	t.colLoc.EnableArray()
 	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
 
-	gl.DrawArrays(gl.TRIANGLES, 0, 3)
+	for i := float64(0); i < 30; i++ {
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
+		t.timeLoc.Uniform1f(float32(glfw.GetTime() + i/20))
+	}
 
 	t.posLoc.DisableArray()
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
