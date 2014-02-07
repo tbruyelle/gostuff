@@ -18,7 +18,7 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 }
 
 type World struct {
-	triangle *Triangle
+	model *Model
 }
 
 var world = &World{}
@@ -46,6 +46,10 @@ func main() {
 
 	glfw.SwapInterval(1)
 
+	gl.Enable(gl.CULL_FACE)
+	gl.CullFace(gl.BACK)
+	gl.FrontFace(gl.CW)
+
 	gl.Init()
 	world.initScene()
 	defer world.destroyScene()
@@ -57,67 +61,16 @@ func main() {
 }
 
 func (w *World) initScene() {
-//	w.triangle = NewTriangle([]Vertex{
-//		NewVertex(0.0, 0.5, 0.0, Red),
-//		NewVertex(0.5, -0.366, 0.0, Green),
-//		NewVertex(-0.5, -0.366, 0.0, Blue),
-//	})
-	w.triangle = NewTriangle([]Vertex{
-NewVertex( 0.25,  0.25, 0.75, Red),
-	NewVertex( 0.25, -0.25, 0.75, Red),
-	NewVertex(-0.25,  0.25, 0.75, Red),
-
-	NewVertex( 0.25, -0.25, 0.75, Red),
-	NewVertex(-0.25, -0.25, 0.75, Red),
-	NewVertex(-0.25,  0.25, 0.75, Red),
-
-	NewVertex( 0.25,  0.25, -0.75, Red),
-	NewVertex(-0.25,  0.25, -0.75, Red),
-	NewVertex( 0.25, -0.25, -0.75, Red),
-
-	NewVertex( 0.25, -0.25, -0.75, Red),
-	NewVertex(-0.25,  0.25, -0.75, Red),
-	NewVertex(-0.25, -0.25, -0.75, Red),
-
-	NewVertex(-0.25,  0.25,  0.75, Red),
-	NewVertex(-0.25, -0.25,  0.75, Red),
-	NewVertex(-0.25, -0.25, -0.75, Red),
-
-	NewVertex(-0.25,  0.25,  0.75, Red),
-	NewVertex(-0.25, -0.25, -0.75, Red),
-	NewVertex(-0.25,  0.25, -0.75, Red),
-
-	NewVertex( 0.25,  0.25,  0.75, Red),
-	NewVertex( 0.25, -0.25, -0.75, Red),
-	NewVertex( 0.25, -0.25,  0.75, Red),
-
-	NewVertex( 0.25,  0.25,  0.75, Red),
-	NewVertex( 0.25,  0.25, -0.75, Red),
-	NewVertex( 0.25, -0.25, -0.75, Red),
-
-	NewVertex( 0.25,  0.25, -0.75, Red),
-	NewVertex( 0.25,  0.25,  0.75, Red),
-	NewVertex(-0.25,  0.25,  0.75, Red),
-
-	NewVertex( 0.25,  0.25, -0.75, Red),
-	NewVertex(-0.25,  0.25,  0.75, Red),
-	NewVertex(-0.25,  0.25, -0.75, Red),
-
-	NewVertex( 0.25, -0.25, -0.75, Red),
-	NewVertex(-0.25, -0.25,  0.75, Red),
-	NewVertex( 0.25, -0.25,  0.75, Red),
-
-	NewVertex( 0.25, -0.25, -0.75, Red),
-	NewVertex(-0.25, -0.25, -0.75, Red),
-	})
+	//w.model = NewTriangle()
+	w.model = NewCube2()
 }
 
 func (w *World) drawScene() {
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-	w.triangle.Draw()
+	w.model.Draw()
 }
 
 func (w *World) destroyScene() {
-	w.triangle.Destroy()
+	w.model.Destroy()
 }

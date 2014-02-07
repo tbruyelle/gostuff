@@ -6,6 +6,8 @@ import (
 	glfw "github.com/go-gl/glfw3"
 	"io/ioutil"
 	"math"
+	"strconv"
+	"strings"
 	"unsafe"
 )
 
@@ -26,6 +28,61 @@ var (
 
 type Coords struct{ X, Y, Z, W float32 }
 type Color struct{ R, G, B, A float32 }
+
+func Sequence(seqSize, ind int) int {
+	r := ind / seqSize
+	for r >= seqSize {
+		r -= seqSize
+	}
+	return r
+
+}
+
+func readVertexFile(file string) []Vertex {
+	vertexes := make([]Vertex, 0)
+	b, err := ioutil.ReadFile(file + ".coords")
+	if err != nil {
+		panic(err)
+	}
+	lines := strings.Split(string(b), "\n")
+	for _, line := range lines {
+		coords := strings.Split(line, ",")
+		if len(coords) >= 4 {
+			v := Vertex{}
+			v.Coords.X = atof(coords[0])
+			v.Coords.Y = atof(coords[1])
+			v.Coords.Z = atof(coords[2])
+			v.Coords.W = atof(coords[3])
+			vertexes = append(vertexes, v)
+		}
+	}
+	b, err = ioutil.ReadFile(file + ".colors")
+	if err != nil {
+		panic(err)
+	}
+	vind := 0
+	lines = strings.Split(string(b), "\n")
+	for _, line := range lines {
+		colors := strings.Split(line, ",")
+		if len(colors) >= 4 {
+			v := &vertexes[vind]
+			v.Color.R = atof(colors[0])
+			v.Color.G = atof(colors[1])
+			v.Color.B = atof(colors[2])
+			v.Color.A = atof(colors[3])
+			vind++
+		}
+	}
+	return vertexes
+}
+
+func atof(s string) float32 {
+	f, err := strconv.ParseFloat(strings.TrimSpace(s), 10)
+	if err != nil {
+		panic(err)
+	}
+	return float32(f)
+}
 
 var (
 	sizeFloat  = int(unsafe.Sizeof(float32(0)))
