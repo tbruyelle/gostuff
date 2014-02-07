@@ -57,10 +57,58 @@ func main() {
 }
 
 func (w *World) initScene() {
+//	w.triangle = NewTriangle([]Vertex{
+//		NewVertex(0.0, 0.5, 0.0, Red),
+//		NewVertex(0.5, -0.366, 0.0, Green),
+//		NewVertex(-0.5, -0.366, 0.0, Blue),
+//	})
 	w.triangle = NewTriangle([]Vertex{
-		NewVertex(0.0, 0.5, 0.0, Red),
-		NewVertex(0.5, -0.366, 0.0, Green),
-		NewVertex(-0.5, -0.366, 0.0, Blue),
+NewVertex( 0.25,  0.25, 0.75, Red),
+	NewVertex( 0.25, -0.25, 0.75, Red),
+	NewVertex(-0.25,  0.25, 0.75, Red),
+
+	NewVertex( 0.25, -0.25, 0.75, Red),
+	NewVertex(-0.25, -0.25, 0.75, Red),
+	NewVertex(-0.25,  0.25, 0.75, Red),
+
+	NewVertex( 0.25,  0.25, -0.75, Red),
+	NewVertex(-0.25,  0.25, -0.75, Red),
+	NewVertex( 0.25, -0.25, -0.75, Red),
+
+	NewVertex( 0.25, -0.25, -0.75, Red),
+	NewVertex(-0.25,  0.25, -0.75, Red),
+	NewVertex(-0.25, -0.25, -0.75, Red),
+
+	NewVertex(-0.25,  0.25,  0.75, Red),
+	NewVertex(-0.25, -0.25,  0.75, Red),
+	NewVertex(-0.25, -0.25, -0.75, Red),
+
+	NewVertex(-0.25,  0.25,  0.75, Red),
+	NewVertex(-0.25, -0.25, -0.75, Red),
+	NewVertex(-0.25,  0.25, -0.75, Red),
+
+	NewVertex( 0.25,  0.25,  0.75, Red),
+	NewVertex( 0.25, -0.25, -0.75, Red),
+	NewVertex( 0.25, -0.25,  0.75, Red),
+
+	NewVertex( 0.25,  0.25,  0.75, Red),
+	NewVertex( 0.25,  0.25, -0.75, Red),
+	NewVertex( 0.25, -0.25, -0.75, Red),
+
+	NewVertex( 0.25,  0.25, -0.75, Red),
+	NewVertex( 0.25,  0.25,  0.75, Red),
+	NewVertex(-0.25,  0.25,  0.75, Red),
+
+	NewVertex( 0.25,  0.25, -0.75, Red),
+	NewVertex(-0.25,  0.25,  0.75, Red),
+	NewVertex(-0.25,  0.25, -0.75, Red),
+
+	NewVertex( 0.25, -0.25, -0.75, Red),
+	NewVertex(-0.25, -0.25,  0.75, Red),
+	NewVertex( 0.25, -0.25,  0.75, Red),
+
+	NewVertex( 0.25, -0.25, -0.75, Red),
+	NewVertex(-0.25, -0.25, -0.75, Red),
 	})
 }
 
