@@ -23,11 +23,18 @@ func assertPositions(t *testing.T, g *Game, x, y int) {
 	}
 }
 
-func TestSnakeBoot(t *testing.T) {
+func assertSize(t *testing.T, g *Game, size int) {
+	if len(g.snake) != size {
+		t.Errorf("Wrong size, expected %d, but was %s", size, len(g.snake))
+	}
+}
+
+func TestSnakeInit(t *testing.T) {
 	setup()
 
-	assertDirections(t, game, []Direction{RIGHT, RIGHT, RIGHT, RIGHT})
+	assertDirections(t, game, []Direction{START_DIR, START_DIR, START_DIR, START_DIR})
 	assertPositions(t, game, START_X, START_Y)
+	assertSize(t, game, START_LENGTH)
 }
 
 func TestNextDir(t *testing.T) {
