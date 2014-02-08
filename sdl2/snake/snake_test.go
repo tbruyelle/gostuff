@@ -43,10 +43,10 @@ func TestSnakeInit(t *testing.T) {
 	assertSize(t, START_LENGTH)
 }
 
-func TestNextDir(t *testing.T) {
+func TestCommand(t *testing.T) {
 	setup()
 
-	nextDir(game, UP)
+	game.Command(UP)
 
 	assertDirections(t, []Direction{UP, RIGHT, RIGHT, RIGHT})
 	assertPositions(t, START_X, START_Y)
@@ -55,28 +55,28 @@ func TestNextDir(t *testing.T) {
 func TestMoveSnake(t *testing.T) {
 	setup()
 
-	moveSnake(game)
+	game.Tick()
 
 	assertDirections(t, []Direction{RIGHT, RIGHT, RIGHT, RIGHT})
 	assertPositions(t, START_X+1, START_Y)
 }
 
-func TestMoveSnake_afterNextDir(t *testing.T) {
+func TestMoveSnake_afterCommand(t *testing.T) {
 	setup()
-	nextDir(game, UP)
+	game.Command(UP)
 
-	moveSnake(game)
+	game.Tick()
 
 	assertDirections(t, []Direction{UP, UP, RIGHT, RIGHT})
 	assertPositions(t, START_X, START_Y-1)
 }
 
-func TestMoveSnake_2_afterNextDir(t *testing.T) {
+func TestMoveSnake_2_afterCommand(t *testing.T) {
 	setup()
-	nextDir(game, UP)
+	game.Command(UP)
 
-	moveSnake(game)
-	moveSnake(game)
+	game.Tick()
+	game.Tick()
 
 	assertDirections(t, []Direction{UP, UP, UP, RIGHT})
 	assertPositions(t, START_X, START_Y-2)
@@ -87,7 +87,7 @@ func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
 
 	// move snake one block off the right screen limits
 	for i := 0; i < NB_BLOCK_WIDTH-START_X; i++ {
-		moveSnake(game)
+		game.Tick()
 	}
 
 	// assert it has poped to the right side
@@ -96,11 +96,11 @@ func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
 
 func TestMoveSnake_off_y_limits_pops_next_side(t *testing.T) {
 	setup()
-	nextDir(game, UP)
+	game.Command(UP)
 
 	// move snake one block off the right screen limits
 	for i := 0; i < NB_BLOCK_HEIGHT-START_Y+1; i++ {
-		moveSnake(game)
+		game.Tick()
 	}
 
 	// assert it has poped to the right side
@@ -111,7 +111,7 @@ func TestMoveSnake_on_apple(t *testing.T) {
 	setup()
 	game.grid[START_X+1][START_Y] = APPLE
 
-	moveSnake(game)
+	game.Tick()
 
 	// assert apple disapear
 	assertBlock(t, START_X+1, START_Y, EMPTY)
