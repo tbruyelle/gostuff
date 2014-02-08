@@ -66,6 +66,7 @@ const (
 )
 
 var block = sdl.Rect{W: BLOCK_SIZE, H: BLOCK_SIZE}
+var r *rand.Rand
 
 func main() {
 	window := sdl.CreateWindow("snake", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, sdl.WINDOW_SHOWN)
@@ -88,6 +89,7 @@ func main() {
 
 	running := true
 	prevTs := uint32(0)
+	r = rand.New(rand.NewSource(time.Now().Unix()))
 	game.Start()
 	for running {
 		event := sdl.PollEvent()
@@ -127,10 +129,10 @@ func thingPoper(g *Game, ticker *time.Ticker, thing BlockType) {
 }
 
 func newThing(g *Game, thing BlockType) {
-	// dtermine random coordinates
+	// determine random coordinates
 	var pos Position
-	pos.X = rand.Intn(NB_BLOCK_HEIGHT)
-	pos.Y = rand.Intn(NB_BLOCK_WIDTH)
+	pos.X = r.Intn(NB_BLOCK_HEIGHT)
+	pos.Y = r.Intn(NB_BLOCK_WIDTH)
 
 	g.grid[pos.X][pos.Y] = thing
 }
@@ -164,33 +166,32 @@ func moveSnake(g *Game) {
 	}
 }
 
-
 func movePos(dir Direction, pos *Position) {
 	switch dir {
 	case UP:
-		if pos.Y==0{
-		pos.Y=NB_BLOCK_HEIGHT-1
-	} else{
-		pos.Y--
+		if pos.Y == 0 {
+			pos.Y = NB_BLOCK_HEIGHT - 1
+		} else {
+			pos.Y--
 		}
 	case DOWN:
-		if pos.Y== NB_BLOCK_HEIGHT-1{
-		pos.Y=0
-	}else{
-		pos.Y++
-	}
+		if pos.Y == NB_BLOCK_HEIGHT-1 {
+			pos.Y = 0
+		} else {
+			pos.Y++
+		}
 	case LEFT:
-		if pos.X==0{
-		pos.X=NB_BLOCK_WIDTH-1
-	}else{
-		pos.X--
-	}
+		if pos.X == 0 {
+			pos.X = NB_BLOCK_WIDTH - 1
+		} else {
+			pos.X--
+		}
 	case RIGHT:
-		if pos.X==NB_BLOCK_WIDTH-1{
-		pos.X=0
-	}else{
-		pos.X++
-	}
+		if pos.X == NB_BLOCK_WIDTH-1 {
+			pos.X = 0
+		} else {
+			pos.X++
+		}
 	}
 }
 
