@@ -25,7 +25,11 @@ const (
 
 type Direction int
 type BlockType int
-type Position sdl.Rect
+
+//type Position sdl.Rect
+type Position struct {
+	X, Y int
+}
 type Sprite *sdl.Texture
 type Grid [NB_BLOCK_WIDTH][NB_BLOCK_HEIGHT]BlockType
 
@@ -125,8 +129,8 @@ func thingPoper(g *Game, ticker *time.Ticker, thing BlockType) {
 func newThing(g *Game, thing BlockType) {
 	// dtermine random coordinates
 	var pos Position
-	pos.X = int32(rand.Intn(NB_BLOCK_HEIGHT))
-	pos.Y = int32(rand.Intn(NB_BLOCK_WIDTH))
+	pos.X = rand.Intn(NB_BLOCK_HEIGHT)
+	pos.Y = rand.Intn(NB_BLOCK_WIDTH)
 
 	g.grid[pos.X][pos.Y] = thing
 }
@@ -148,7 +152,7 @@ func moveSnake(g *Game) {
 		dir, g.snake[i].nextDir = g.snake[i].nextDir, dir
 	}
 	// eat apple ?
-	if beyondLimits(head.pos)&&g.grid[head.pos.X][head.pos.Y] == APPLE {
+	if beyondLimits(head.pos) && g.grid[head.pos.X][head.pos.Y] == APPLE {
 		g.grid[head.pos.X][head.pos.Y] = EMPTY
 		queue := g.snake[len(g.snake)-1]
 		var pos Position
@@ -160,16 +164,33 @@ func moveSnake(g *Game) {
 	}
 }
 
+
 func movePos(dir Direction, pos *Position) {
 	switch dir {
 	case UP:
+		if pos.Y==0{
+		pos.Y=NB_BLOCK_HEIGHT-1
+	} else{
 		pos.Y--
+		}
 	case DOWN:
+		if pos.Y== NB_BLOCK_HEIGHT-1{
+		pos.Y=0
+	}else{
 		pos.Y++
+	}
 	case LEFT:
+		if pos.X==0{
+		pos.X=NB_BLOCK_WIDTH-1
+	}else{
 		pos.X--
+	}
 	case RIGHT:
+		if pos.X==NB_BLOCK_WIDTH-1{
+		pos.X=0
+	}else{
 		pos.X++
+	}
 	}
 }
 
@@ -179,7 +200,7 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	loopGrid(func(i, j int) {
 		b := game.grid[i][j]
 		if b != SNAKE && b != SNAKE_HEAD {
-			show(renderer, int32(i), int32(j), b, game)
+			show(renderer, i, j, b, game)
 		}
 	})
 	// show snake
@@ -193,12 +214,12 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.Present()
 }
 
-func show(renderer *sdl.Renderer, x, y int32, thing BlockType, game *Game) {
+func show(renderer *sdl.Renderer, x, y int, thing BlockType, game *Game) {
 	if thing == EMPTY {
 		return
 	}
-	block.X = x * BLOCK_SIZE
-	block.Y = y * BLOCK_SIZE
+	block.X = int32(x * BLOCK_SIZE)
+	block.Y = int32(y * BLOCK_SIZE)
 	switch thing {
 	case APPLE:
 		renderer.SetDrawColor(0, 255, 0, 255)
