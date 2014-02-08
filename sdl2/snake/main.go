@@ -62,15 +62,15 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.Clear()
 	// show level
 	loopGrid(func(i, j int) {
-		b := game.grid[i][j]
+		b := game.Grid[i][j]
 		if b != SNAKE && b != SNAKE_HEAD {
 			show(renderer, i, j, b, game)
 		}
 	})
 	// show snake
 	snakeType := SNAKE_HEAD
-	for _, sp := range game.snake {
-		show(renderer, sp.pos.X, sp.pos.Y, snakeType, game)
+	for _, sp := range game.Snake {
+		show(renderer, sp.Pos.X, sp.Pos.Y, snakeType, game)
 		if snakeType == SNAKE_HEAD {
 			snakeType = SNAKE
 		}

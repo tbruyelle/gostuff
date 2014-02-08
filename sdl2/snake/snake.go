@@ -33,8 +33,8 @@ type Grid [NB_BLOCK_WIDTH][NB_BLOCK_HEIGHT]BlockType
 type Players [4]*sdl.Texture
 
 type Game struct {
-	grid    Grid
-	snake   Snake
+	Grid    Grid
+	Snake   Snake
 	dir     Direction
 	invDir  map[Direction]Direction
 	tickers []*time.Ticker
@@ -44,7 +44,7 @@ type Game struct {
 type Snake []SnakePart
 
 type SnakePart struct {
-	pos     Position
+	Pos     Position
 	nextDir Direction
 }
 
@@ -77,7 +77,7 @@ func NewGame(renderer *sdl.Renderer) *Game {
 
 	// init the game map
 	loopGrid(func(i, j int) {
-		g.grid[i][j] = EMPTY
+		g.Grid[i][j] = EMPTY
 	})
 
 	// snake init
@@ -85,7 +85,7 @@ func NewGame(renderer *sdl.Renderer) *Game {
 	pos.X = START_X
 	pos.Y = START_Y
 	for i := 0; i < START_LENGTH; i++ {
-		g.snake = append(g.snake, SnakePart{pos: Position{X: pos.X, Y: pos.Y}, nextDir: START_DIR})
+		g.Snake = append(g.Snake, SnakePart{Pos: Position{X: pos.X, Y: pos.Y}, nextDir: START_DIR})
 		movePos(g.invDir[START_DIR], &pos)
 	}
 	return &g
@@ -111,11 +111,11 @@ func newThing(g *Game, thing BlockType) {
 	pos.X = r.Intn(NB_BLOCK_HEIGHT)
 	pos.Y = r.Intn(NB_BLOCK_WIDTH)
 
-	g.grid[pos.X][pos.Y] = thing
+	g.Grid[pos.X][pos.Y] = thing
 }
 
 func (g *Game) Command(dir Direction) {
-	g.snake[0].nextDir = dir
+	g.Snake[0].nextDir = dir
 }
 
 func beyondLimits(pos Position) bool {
@@ -123,23 +123,23 @@ func beyondLimits(pos Position) bool {
 }
 
 func (g *Game) Tick() {
-	head := &g.snake[0]
-	movePos(head.nextDir, &head.pos)
+	head := &g.Snake[0]
+	movePos(head.nextDir, &head.Pos)
 	dir := head.nextDir
-	for i := 1; i < len(g.snake); i++ {
-		movePos(g.snake[i].nextDir, &g.snake[i].pos)
-		dir, g.snake[i].nextDir = g.snake[i].nextDir, dir
+	for i := 1; i < len(g.Snake); i++ {
+		movePos(g.Snake[i].nextDir, &g.Snake[i].Pos)
+		dir, g.Snake[i].nextDir = g.Snake[i].nextDir, dir
 	}
 	// eat apple ?
-	if beyondLimits(head.pos) && g.grid[head.pos.X][head.pos.Y] == APPLE {
-		g.grid[head.pos.X][head.pos.Y] = EMPTY
-		queue := g.snake[len(g.snake)-1]
+	if beyondLimits(head.Pos) && g.Grid[head.Pos.X][head.Pos.Y] == APPLE {
+		g.Grid[head.Pos.X][head.Pos.Y] = EMPTY
+		queue := g.Snake[len(g.Snake)-1]
 		var pos Position
-		pos.X = queue.pos.X
-		pos.Y = queue.pos.Y
+		pos.X = queue.Pos.X
+		pos.Y = queue.Pos.Y
 		movePos(g.invDir[queue.nextDir], &pos)
 		// increase snake length
-		g.snake = append(g.snake, SnakePart{pos, queue.nextDir})
+		g.Snake = append(g.Snake, SnakePart{pos, queue.nextDir})
 	}
 }
 
