@@ -8,33 +8,39 @@ func setup() {
 	game = NewGame(nil)
 }
 
-func assertDirections(t *testing.T, g *Game, dirs []Direction) {
-	for i, _ := range g.snake {
-		if g.snake[i].nextDir != dirs[i] {
-			t.Errorf("Wrong direction part %d, expected %d but was %d", i, dirs[i], g.snake[i].nextDir)
+func assertDirections(t *testing.T, dirs []Direction) {
+	for i, _ := range game.snake {
+		if game.snake[i].nextDir != dirs[i] {
+			t.Errorf("Wrong direction part %d, expected %d but was %d", i, dirs[i], game.snake[i].nextDir)
 		}
 	}
 }
 
-func assertPositions(t *testing.T, g *Game, x, y int) {
-	pos := &g.snake[0].pos
+func assertPositions(t *testing.T, x, y int) {
+	pos := &game.snake[0].pos
 	if pos.X != x || pos.Y != y {
 		t.Errorf("Wrong position, expected (%d,%d), but was (%d,%d)", x, y, pos.X, pos.Y)
 	}
 }
 
-func assertSize(t *testing.T, g *Game, size int) {
-	if len(g.snake) != size {
-		t.Errorf("Wrong size, expected %d, but was %s", size, len(g.snake))
+func assertSize(t *testing.T, size int) {
+	if len(game.snake) != size {
+		t.Errorf("Wrong size, expected %d, but was %s", size, len(game.snake))
+	}
+}
+
+func assertBlock(t *testing.T, x, y int, bt BlockType) {
+	if game.grid[x][y] != bt {
+		t.Errorf("Wrong block at (%d,%d), expected %d but was %d", x, y, bt, game.grid[x][y])
 	}
 }
 
 func TestSnakeInit(t *testing.T) {
 	setup()
 
-	assertDirections(t, game, []Direction{START_DIR, START_DIR, START_DIR, START_DIR})
-	assertPositions(t, game, START_X, START_Y)
-	assertSize(t, game, START_LENGTH)
+	assertDirections(t, []Direction{START_DIR, START_DIR, START_DIR, START_DIR})
+	assertPositions(t, START_X, START_Y)
+	assertSize(t, START_LENGTH)
 }
 
 func TestNextDir(t *testing.T) {
@@ -42,8 +48,8 @@ func TestNextDir(t *testing.T) {
 
 	nextDir(game, UP)
 
-	assertDirections(t, game, []Direction{UP, RIGHT, RIGHT, RIGHT})
-	assertPositions(t, game, START_X, START_Y)
+	assertDirections(t, []Direction{UP, RIGHT, RIGHT, RIGHT})
+	assertPositions(t, START_X, START_Y)
 }
 
 func TestMoveSnake(t *testing.T) {
@@ -51,8 +57,8 @@ func TestMoveSnake(t *testing.T) {
 
 	moveSnake(game)
 
-	assertDirections(t, game, []Direction{RIGHT, RIGHT, RIGHT, RIGHT})
-	assertPositions(t, game, START_X+1, START_Y)
+	assertDirections(t, []Direction{RIGHT, RIGHT, RIGHT, RIGHT})
+	assertPositions(t, START_X+1, START_Y)
 }
 
 func TestMoveSnake_afterNextDir(t *testing.T) {
@@ -61,8 +67,8 @@ func TestMoveSnake_afterNextDir(t *testing.T) {
 
 	moveSnake(game)
 
-	assertDirections(t, game, []Direction{UP, UP, RIGHT, RIGHT})
-	assertPositions(t, game, START_X, START_Y-1)
+	assertDirections(t, []Direction{UP, UP, RIGHT, RIGHT})
+	assertPositions(t, START_X, START_Y-1)
 }
 
 func TestMoveSnake_2_afterNextDir(t *testing.T) {
@@ -72,8 +78,8 @@ func TestMoveSnake_2_afterNextDir(t *testing.T) {
 	moveSnake(game)
 	moveSnake(game)
 
-	assertDirections(t, game, []Direction{UP, UP, UP, RIGHT})
-	assertPositions(t, game, START_X, START_Y-2)
+	assertDirections(t, []Direction{UP, UP, UP, RIGHT})
+	assertPositions(t, START_X, START_Y-2)
 }
 
 func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
@@ -85,7 +91,7 @@ func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
 	}
 
 	// assert it has poped to the right side
-	assertPositions(t, game, 0, START_Y)
+	assertPositions(t, 0, START_Y)
 }
 
 func TestMoveSnake_off_y_limits_pops_next_side(t *testing.T) {
@@ -98,5 +104,17 @@ func TestMoveSnake_off_y_limits_pops_next_side(t *testing.T) {
 	}
 
 	// assert it has poped to the right side
-	assertPositions(t, game, START_X, NB_BLOCK_HEIGHT-1)
+	assertPositions(t, START_X, NB_BLOCK_HEIGHT-1)
+}
+
+func TestMoveSnake_on_apple(t *testing.T) {
+	setup()
+	game.grid[START_X+1][START_Y] = APPLE
+
+	moveSnake(game)
+
+	// assert apple disapear
+	assertBlock(t, START_X+1, START_Y, EMPTY)
+	// assert size increased
+	assertSize(t, START_LENGTH+1)
 }
