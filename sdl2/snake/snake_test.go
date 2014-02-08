@@ -69,14 +69,27 @@ func TestMoveSnake_2_afterNextDir(t *testing.T) {
 	assertPositions(t, game, START_X, START_Y-2)
 }
 
-func TestMoveSnake_off_screen_limits_pops_next_side(t *testing.T) {
+func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
 	setup()
 
 	// move snake one block off the right screen limits
-	for i := 0; i < NB_BLOCK_WIDTH/2; i++ {
+	for i := 0; i < NB_BLOCK_WIDTH-START_X; i++ {
 		moveSnake(game)
 	}
 
 	// assert it has poped to the right side
 	assertPositions(t, game, 0, START_Y)
+}
+
+func TestMoveSnake_off_y_limits_pops_next_side(t *testing.T) {
+	setup()
+	nextDir(game, UP)
+
+	// move snake one block off the right screen limits
+	for i := 0; i < NB_BLOCK_HEIGHT-START_Y+1; i++ {
+		moveSnake(game)
+	}
+
+	// assert it has poped to the right side
+	assertPositions(t, game, START_X, NB_BLOCK_HEIGHT-1)
 }
