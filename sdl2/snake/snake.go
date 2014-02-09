@@ -8,17 +8,17 @@ import (
 )
 
 const (
-	BLOCK_SIZE      = 12
-	NB_BLOCK_WIDTH  = 32
-	NB_BLOCK_HEIGHT = 32
-	WINDOW_HEIGHT   = BLOCK_SIZE * NB_BLOCK_HEIGHT
-	WINDOW_WIDTH    = BLOCK_SIZE * NB_BLOCK_WIDTH
-	START_LENGTH    = 4
-	START_X         = NB_BLOCK_WIDTH / 2
-	START_Y         = NB_BLOCK_HEIGHT / 2
-	TICK            = 360
-	START_DIR       = RIGHT
-	APPLE_TICK      = 2000
+	BLOCK_SIZE            = 12
+	NB_BLOCK_WIDTH        = 32
+	NB_BLOCK_HEIGHT       = 32
+	WINDOW_HEIGHT         = BLOCK_SIZE * NB_BLOCK_HEIGHT
+	WINDOW_WIDTH          = BLOCK_SIZE * NB_BLOCK_WIDTH
+	START_LENGTH          = 4
+	START_X               = NB_BLOCK_WIDTH / 2
+	START_Y               = NB_BLOCK_HEIGHT / 2
+	START_DIR             = RIGHT
+	START_APPLE_POP_SPEED = time.Second * 2
+	START_SPEED           = time.Second
 )
 
 type Direction int
@@ -34,12 +34,13 @@ type Grid [NB_BLOCK_WIDTH][NB_BLOCK_HEIGHT]BlockType
 type Players [4]*sdl.Texture
 
 type Game struct {
-	Grid    Grid
-	Snake   Snake
-	dir     Direction
-	tickers []*time.Ticker
-	running bool
-	loose   bool
+	Grid          Grid
+	Snake         Snake
+	dir           Direction
+	loose         bool
+	snakeSpeed    time.Duration
+	applePopSpeed time.Duration
+	EndLoop       chan bool
 }
 
 type Snake []SnakePart
@@ -69,7 +70,6 @@ var r = rand.New(rand.NewSource(time.Now().Unix()))
 func NewGame(renderer *sdl.Renderer) *Game {
 	g := Game{}
 	g.dir = START_DIR
-	g.running = true
 
 	// init the game map
 	loopGrid(func(i, j int) {
@@ -84,24 +84,17 @@ func NewGame(renderer *sdl.Renderer) *Game {
 		g.Snake = append(g.Snake, SnakePart{Pos: Position{X: pos.X, Y: pos.Y}, nextDir: START_DIR})
 		movePos(-START_DIR, &pos)
 	}
+	g.snakeSpeed = START_SPEED
+	g.applePopSpeed = START_APPLE_POP_SPEED
+	g.EndLoop = make(chan bool)
 	return &g
 }
 
-func (g *Game) Loop() bool {
-	return g.running && !g.loose
+func (g *Game) NewApple() {
+	g.newThing(APPLE)
 }
 
-func (g *Game) StopLoop() {
-	g.running = false
-}
-
-func thingPoper(g *Game, ticker *time.Ticker, thing BlockType) {
-	for _ = range ticker.C {
-		newThing(g, thing)
-	}
-}
-
-func newThing(g *Game, thing BlockType) {
+func (g *Game) newThing(thing BlockType) {
 	// determine random coordinates
 	var pos Position
 	pos.X = r.Intn(NB_BLOCK_HEIGHT)
@@ -130,6 +123,7 @@ func (g *Game) Tick() {
 		if part.Pos.X == head.Pos.X && part.Pos.Y == head.Pos.Y {
 			fmt.Println("Loose", head.Pos.X, head.Pos.Y)
 			g.loose = true
+			g.EndLoop <- true
 			return
 		}
 	}
@@ -184,20 +178,16 @@ func loopGrid(content func(i, j int)) {
 	}
 }
 
-func (g *Game) Start() {
-	g.NewTicker(APPLE_TICK, APPLE)
+func (g *Game) StopLoop() {
+	fmt.Println("endLoop")
+	g.EndLoop <- true
+	fmt.Println("endLoop2")
 }
 
-func (g *Game) NewTicker(tick time.Duration, thing BlockType) {
-	ticker := time.NewTicker(time.Millisecond * tick)
-	go thingPoper(g, ticker, thing)
-	g.tickers = append(g.tickers, ticker)
+func (g *Game) Start() {
 }
 
 func (g *Game) Stop() {
-	for _, t := range g.tickers {
-		t.Stop()
-	}
 }
 
 func (g *Game) Destroy() {
