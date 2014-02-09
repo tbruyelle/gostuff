@@ -151,3 +151,13 @@ func TestSnakeCollision(t *testing.T) {
 
 	assertRunning(t, false)
 }
+
+func TestCommandBack_is_ignored(t *testing.T) {
+	setup()
+
+	game.Command(-START_DIR)
+	game.Tick()
+
+	assertRunning(t, true)
+	assertHeadPosition(t, START_X+1, START_Y)
+}

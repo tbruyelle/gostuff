@@ -111,7 +111,10 @@ func newThing(g *Game, thing BlockType) {
 }
 
 func (g *Game) Command(dir Direction) {
-	g.Snake[0].nextDir = dir
+	// ignore command if direction its the inverse of current direction
+	if dir != -g.Snake[0].nextDir {
+		g.Snake[0].nextDir = dir
+	}
 }
 
 func (g *Game) Tick() {
