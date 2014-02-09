@@ -40,7 +40,7 @@ func assertBlock(t *testing.T, x, y int, bt BlockType) {
 
 func assertRunning(t *testing.T, running bool) {
 	if game.Loop() != running {
-		t.Errorf("Wrong loop status, expected %s but was %s", running, game.Loop())
+		t.Errorf("Wrong loop status, expected %t but was %t", running, game.Loop())
 	}
 }
 
@@ -58,6 +58,7 @@ func TestCommand(t *testing.T) {
 
 	game.Command(UP)
 
+	assertRunning(t, true)
 	assertSnakeDirections(t, -START_DIR, -START_DIR, -START_DIR)
 	assertHeadPosition(t, START_X, START_Y)
 }
@@ -67,6 +68,7 @@ func TestMoveSnake(t *testing.T) {
 
 	game.Tick()
 
+	assertRunning(t, true)
 	assertHeadPosition(t, START_X+1, START_Y)
 	assertSnakeDirections(t, -START_DIR, -START_DIR, -START_DIR)
 }
@@ -77,6 +79,7 @@ func TestMoveSnake_afterCommand(t *testing.T) {
 
 	game.Tick()
 
+	assertRunning(t, true)
 	assertHeadPosition(t, START_X, START_Y-1)
 	assertSnakeDirections(t, DOWN, -START_DIR, -START_DIR)
 }
@@ -88,6 +91,7 @@ func TestMoveSnake_2_afterCommand(t *testing.T) {
 	game.Tick()
 	game.Tick()
 
+	assertRunning(t, true)
 	assertHeadPosition(t, START_X, START_Y-2)
 	assertSnakeDirections(t, DOWN, DOWN, -START_DIR)
 }
@@ -100,6 +104,7 @@ func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
 		game.Tick()
 	}
 
+	assertRunning(t, true)
 	// assert it has poped to the right side
 	assertHeadPosition(t, 0, START_Y)
 }
@@ -113,6 +118,7 @@ func TestMoveSnake_off_y_limits_pops_next_side(t *testing.T) {
 		game.Tick()
 	}
 
+	assertRunning(t, true)
 	// assert it has poped to the right side
 	assertHeadPosition(t, START_X, NB_BLOCK_HEIGHT-1)
 }
@@ -123,8 +129,25 @@ func TestMoveSnake_on_apple(t *testing.T) {
 
 	game.Tick()
 
+	assertRunning(t, true)
 	// assert apple disapear
 	assertBlock(t, START_X+1, START_Y, EMPTY)
 	// assert size increased
 	assertSize(t, START_LENGTH+1)
+}
+
+func TestSnakeCollision(t *testing.T) {
+	setup()
+	// increase size because the snake must have at least a size of 5
+	// to make collision possible
+	game.grow()
+
+	game.Command(UP)
+	game.Tick()
+	game.Command(-START_DIR)
+	game.Tick()
+	game.Command(DOWN)
+	game.Tick()
+
+	assertRunning(t, false)
 }

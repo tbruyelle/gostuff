@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jackyb/go-sdl2/sdl"
 	"math/rand"
 	"time"
@@ -15,7 +16,7 @@ const (
 	START_LENGTH    = 4
 	START_X         = NB_BLOCK_WIDTH / 2
 	START_Y         = NB_BLOCK_HEIGHT / 2
-	TICK            = 60
+	TICK            = 360
 	START_DIR       = RIGHT
 	APPLE_TICK      = 2000
 )
@@ -38,6 +39,7 @@ type Game struct {
 	dir     Direction
 	tickers []*time.Ticker
 	running bool
+	loose   bool
 }
 
 type Snake []SnakePart
@@ -86,7 +88,7 @@ func NewGame(renderer *sdl.Renderer) *Game {
 }
 
 func (g *Game) Loop() bool {
-	return g.running
+	return g.running && !g.loose
 }
 
 func (g *Game) StopLoop() {
@@ -120,17 +122,26 @@ func (g *Game) Tick() {
 		movePos(g.Snake[i].nextDir, &g.Snake[i].Pos)
 		dir, g.Snake[i].nextDir = g.Snake[i].nextDir, dir
 	}
+	// snake collision?
+	for _, part := range g.Snake[1:] {
+		if part.Pos.X == head.Pos.X && part.Pos.Y == head.Pos.Y {
+			fmt.Println("Loose", head.Pos.X, head.Pos.Y)
+			g.loose = true
+			return
+		}
+	}
 	// eat apple ?
 	if g.Grid[head.Pos.X][head.Pos.Y] == APPLE {
 		g.Grid[head.Pos.X][head.Pos.Y] = EMPTY
-		queue := g.Snake[len(g.Snake)-1]
-		var pos Position
-		pos.X = queue.Pos.X
-		pos.Y = queue.Pos.Y
-		movePos(-queue.nextDir, &pos)
-		// increase snake length
-		g.Snake = append(g.Snake, SnakePart{pos, queue.nextDir})
+		g.grow()
 	}
+}
+
+func (g *Game) grow() {
+	queue := g.Snake[len(g.Snake)-1]
+	pos := queue.Pos
+	movePos(-queue.nextDir, &pos)
+	g.Snake = append(g.Snake, SnakePart{pos, queue.nextDir})
 }
 
 func movePos(dir Direction, pos *Position) {
