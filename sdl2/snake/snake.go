@@ -36,7 +36,6 @@ type Game struct {
 	Grid    Grid
 	Snake   Snake
 	dir     Direction
-	invDir  map[Direction]Direction
 	tickers []*time.Ticker
 	running bool
 }
@@ -49,10 +48,10 @@ type SnakePart struct {
 }
 
 const (
-	UP Direction = iota
-	DOWN
-	LEFT
-	RIGHT
+	UP    Direction = 1
+	DOWN  Direction = -1
+	LEFT  Direction = 2
+	RIGHT Direction = -2
 )
 
 const (
@@ -68,11 +67,6 @@ var r = rand.New(rand.NewSource(time.Now().Unix()))
 func NewGame(renderer *sdl.Renderer) *Game {
 	g := Game{}
 	g.dir = START_DIR
-	g.invDir = make(map[Direction]Direction)
-	g.invDir[UP] = DOWN
-	g.invDir[DOWN] = UP
-	g.invDir[LEFT] = RIGHT
-	g.invDir[RIGHT] = LEFT
 	g.running = true
 
 	// init the game map
@@ -86,7 +80,7 @@ func NewGame(renderer *sdl.Renderer) *Game {
 	pos.Y = START_Y
 	for i := 0; i < START_LENGTH; i++ {
 		g.Snake = append(g.Snake, SnakePart{Pos: Position{X: pos.X, Y: pos.Y}, nextDir: START_DIR})
-		movePos(g.invDir[START_DIR], &pos)
+		movePos(-START_DIR, &pos)
 	}
 	return &g
 }
@@ -137,7 +131,7 @@ func (g *Game) Tick() {
 		var pos Position
 		pos.X = queue.Pos.X
 		pos.Y = queue.Pos.Y
-		movePos(g.invDir[queue.nextDir], &pos)
+		movePos(-queue.nextDir, &pos)
 		// increase snake length
 		g.Snake = append(g.Snake, SnakePart{pos, queue.nextDir})
 	}

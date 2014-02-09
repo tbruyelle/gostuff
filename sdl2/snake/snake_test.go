@@ -49,7 +49,7 @@ func TestSnakeInit(t *testing.T) {
 
 	assertRunning(t, true)
 	assertHeadPosition(t, START_X, START_Y)
-	assertSnakeDirections(t, LEFT, LEFT, LEFT)
+	assertSnakeDirections(t, -START_DIR, -START_DIR, -START_DIR)
 	assertSize(t, START_LENGTH)
 }
 
@@ -58,7 +58,7 @@ func TestCommand(t *testing.T) {
 
 	game.Command(UP)
 
-	assertSnakeDirections(t, LEFT, LEFT, LEFT)
+	assertSnakeDirections(t, -START_DIR, -START_DIR, -START_DIR)
 	assertHeadPosition(t, START_X, START_Y)
 }
 
@@ -68,7 +68,7 @@ func TestMoveSnake(t *testing.T) {
 	game.Tick()
 
 	assertHeadPosition(t, START_X+1, START_Y)
-	assertSnakeDirections(t, LEFT, LEFT, LEFT)
+	assertSnakeDirections(t, -START_DIR, -START_DIR, -START_DIR)
 }
 
 func TestMoveSnake_afterCommand(t *testing.T) {
@@ -78,7 +78,7 @@ func TestMoveSnake_afterCommand(t *testing.T) {
 	game.Tick()
 
 	assertHeadPosition(t, START_X, START_Y-1)
-	assertSnakeDirections(t, DOWN, LEFT, LEFT)
+	assertSnakeDirections(t, DOWN, -START_DIR, -START_DIR)
 }
 
 func TestMoveSnake_2_afterCommand(t *testing.T) {
@@ -89,7 +89,7 @@ func TestMoveSnake_2_afterCommand(t *testing.T) {
 	game.Tick()
 
 	assertHeadPosition(t, START_X, START_Y-2)
-	assertSnakeDirections(t, DOWN, DOWN, LEFT)
+	assertSnakeDirections(t, DOWN, DOWN, -START_DIR)
 }
 
 func TestMoveSnake_off_x_limits_pops_next_side(t *testing.T) {
