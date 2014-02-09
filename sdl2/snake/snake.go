@@ -112,10 +112,6 @@ func (g *Game) Command(dir Direction) {
 	g.Snake[0].nextDir = dir
 }
 
-func beyondLimits(pos Position) bool {
-	return pos.X >= 0 && pos.X < NB_BLOCK_HEIGHT && pos.Y >= 0 && pos.Y < NB_BLOCK_WIDTH
-}
-
 func (g *Game) Tick() {
 	head := &g.Snake[0]
 	movePos(head.nextDir, &head.Pos)
@@ -125,7 +121,7 @@ func (g *Game) Tick() {
 		dir, g.Snake[i].nextDir = g.Snake[i].nextDir, dir
 	}
 	// eat apple ?
-	if beyondLimits(head.Pos) && g.Grid[head.Pos.X][head.Pos.Y] == APPLE {
+	if g.Grid[head.Pos.X][head.Pos.Y] == APPLE {
 		g.Grid[head.Pos.X][head.Pos.Y] = EMPTY
 		queue := g.Snake[len(g.Snake)-1]
 		var pos Position
