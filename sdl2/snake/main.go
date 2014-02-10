@@ -38,17 +38,15 @@ func main() {
 
 func loop(game *Game, renderer *sdl.Renderer) {
 	mainTicker := time.NewTicker(FRAME_RATE)
-	snakeTicker := time.NewTicker(game.snakeSpeed)
-	appleTicker := time.NewTicker(game.applePopSpeed)
 	for {
 		select {
 		case <-game.EndLoop:
 			fmt.Println("endloop")
 			return
-		case <-snakeTicker.C:
+		case <-game.SnakeTick():
 			fmt.Println("snake")
 			game.Tick()
-		case <-appleTicker.C:
+		case <-game.AppleTick():
 			fmt.Println("apple")
 			game.NewApple()
 		case <-mainTicker.C:

@@ -8,17 +8,17 @@ import (
 )
 
 const (
-	BLOCK_SIZE            = 12
-	NB_BLOCK_WIDTH        = 32
-	NB_BLOCK_HEIGHT       = 32
-	WINDOW_HEIGHT         = BLOCK_SIZE * NB_BLOCK_HEIGHT
-	WINDOW_WIDTH          = BLOCK_SIZE * NB_BLOCK_WIDTH
-	START_LENGTH          = 4
-	START_X               = NB_BLOCK_WIDTH / 2
-	START_Y               = NB_BLOCK_HEIGHT / 2
-	START_DIR             = RIGHT
-	START_APPLE_POP_SPEED = time.Second * 2
-	START_SPEED           = time.Second / 3
+	BLOCK_SIZE           = 12
+	NB_BLOCK_WIDTH       = 32
+	NB_BLOCK_HEIGHT      = 32
+	WINDOW_HEIGHT        = BLOCK_SIZE * NB_BLOCK_HEIGHT
+	WINDOW_WIDTH         = BLOCK_SIZE * NB_BLOCK_WIDTH
+	START_LENGTH         = 4
+	START_X              = NB_BLOCK_WIDTH / 2
+	START_Y              = NB_BLOCK_HEIGHT / 2
+	START_DIR            = RIGHT
+	START_APPLE_POP_RATE = 0.5
+	START_SNAKE_RATE     = 3
 )
 
 type Direction int
@@ -34,13 +34,15 @@ type Grid [NB_BLOCK_WIDTH][NB_BLOCK_HEIGHT]BlockType
 type Players [4]*sdl.Texture
 
 type Game struct {
-	Grid          Grid
-	Snake         Snake
-	currentDir           Direction
-	loose         bool
-	snakeSpeed    time.Duration
-	applePopSpeed time.Duration
-	EndLoop       chan bool
+	Grid         Grid
+	Snake        Snake
+	currentDir   Direction
+	loose        bool
+	snakeRate    float32
+	applePopRate float32
+	EndLoop      chan bool
+	snakeTicker  *time.Ticker
+	appleTicker  *time.Ticker
 }
 
 type Snake []SnakePart
@@ -77,21 +79,41 @@ func NewGame(renderer *sdl.Renderer) *Game {
 	})
 
 	// snake init
-	var pos Position
-	pos.X = START_X
-	pos.Y = START_Y
+	pos := Position{START_X, START_Y}
 	for i := 0; i < START_LENGTH; i++ {
 		g.Snake = append(g.Snake, SnakePart{Pos: Position{X: pos.X, Y: pos.Y}, nextDir: START_DIR})
 		movePos(-START_DIR, &pos)
 	}
-	g.snakeSpeed = START_SPEED
-	g.applePopSpeed = START_APPLE_POP_SPEED
+	g.snakeRate = START_SNAKE_RATE
+	g.applePopRate = START_APPLE_POP_RATE
+	g.generateSnakeTicker()
+	g.generateAppleTicker()
 	g.EndLoop = make(chan bool, 1)
 	return &g
 }
 
 func (g *Game) NewApple() {
 	g.newThing(APPLE)
+}
+
+func generateDuration(rate float32) time.Duration {
+	return time.Duration(float32(time.Second) / rate)
+}
+
+func (g *Game) generateAppleTicker() {
+	g.appleTicker = time.NewTicker(generateDuration(g.applePopRate))
+}
+
+func (g *Game) generateSnakeTicker() {
+	g.snakeTicker = time.NewTicker(generateDuration(g.snakeRate))
+}
+
+func (g *Game) AppleTick() <-chan time.Time {
+	return g.appleTicker.C
+}
+
+func (g *Game) SnakeTick() <-chan time.Time {
+	return g.snakeTicker.C
 }
 
 func (g *Game) newThing(thing BlockType) {
