@@ -38,9 +38,17 @@ func assertBlock(t *testing.T, x, y int, bt BlockType) {
 	}
 }
 
-func assertRunning(t *testing.T, running bool) {
-	if game.Loop() != running {
-		t.Errorf("Wrong loop status, expected %t but was %t", running, game.Loop())
+func assertRunning(t *testing.T, expected bool) {
+	var running bool
+	select {
+	case <-game.EndLoop:
+		running = false
+	default:
+		running = true
+		// OK
+	}
+	if expected != running {
+		t.Errorf("Wrong loop status, expected %t but was %t", expected, running)
 	}
 }
 
@@ -155,9 +163,10 @@ func TestSnakeCollision(t *testing.T) {
 func TestCommandBack_is_ignored(t *testing.T) {
 	setup()
 
+	game.Command(UP) // prevent a bug when nextDir is updated before the tick
 	game.Command(-START_DIR)
 	game.Tick()
 
 	assertRunning(t, true)
-	assertHeadPosition(t, START_X+1, START_Y)
+	assertHeadPosition(t, START_X, START_Y-1)
 }

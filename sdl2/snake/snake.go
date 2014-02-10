@@ -18,7 +18,7 @@ const (
 	START_Y               = NB_BLOCK_HEIGHT / 2
 	START_DIR             = RIGHT
 	START_APPLE_POP_SPEED = time.Second * 2
-	START_SPEED           = time.Second
+	START_SPEED           = time.Second / 3
 )
 
 type Direction int
@@ -86,7 +86,7 @@ func NewGame(renderer *sdl.Renderer) *Game {
 	}
 	g.snakeSpeed = START_SPEED
 	g.applePopSpeed = START_APPLE_POP_SPEED
-	g.EndLoop = make(chan bool)
+	g.EndLoop = make(chan bool, 1)
 	return &g
 }
 
@@ -105,7 +105,7 @@ func (g *Game) newThing(thing BlockType) {
 
 func (g *Game) Command(dir Direction) {
 	// ignore command if direction its the inverse of current direction
-	if dir != -g.Snake[0].nextDir {
+	if dir != -g.dir{
 		g.Snake[0].nextDir = dir
 	}
 }
