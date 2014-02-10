@@ -8,6 +8,12 @@ func setup() {
 	game = NewGame(nil)
 }
 
+func assertSnakeRate(t *testing.T, snakeRate float32) {
+	if game.snakeRate != snakeRate {
+		t.Errorf("Wrong snake rate, expected %f but was %f", snakeRate, game.snakeRate)
+	}
+}
+
 func assertHeadPosition(t *testing.T, x, y int) {
 	pos := &game.Snake[0].Pos
 	if pos.X != x || pos.Y != y {
@@ -169,4 +175,14 @@ func TestCommandBack_is_ignored(t *testing.T) {
 
 	assertRunning(t, true)
 	assertHeadPosition(t, START_X, START_Y-1)
+}
+
+func TestEatApple_increase_snake_rate(t *testing.T) {
+	setup()
+	game.Grid[START_X+1][START_Y] = APPLE
+
+	game.Tick()
+
+	assertRunning(t, true)
+	assertSnakeRate(t, START_SNAKE_RATE+1)
 }

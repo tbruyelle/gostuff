@@ -154,6 +154,8 @@ func (g *Game) Tick() {
 	if g.Grid[head.Pos.X][head.Pos.Y] == APPLE {
 		g.Grid[head.Pos.X][head.Pos.Y] = EMPTY
 		g.grow()
+		g.snakeRate++
+		g.generateSnakeTicker()
 	}
 }
 
