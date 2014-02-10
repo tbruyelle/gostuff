@@ -36,7 +36,7 @@ type Players [4]*sdl.Texture
 type Game struct {
 	Grid          Grid
 	Snake         Snake
-	dir           Direction
+	currentDir           Direction
 	loose         bool
 	snakeSpeed    time.Duration
 	applePopSpeed time.Duration
@@ -69,7 +69,7 @@ var r = rand.New(rand.NewSource(time.Now().Unix()))
 
 func NewGame(renderer *sdl.Renderer) *Game {
 	g := Game{}
-	g.dir = START_DIR
+	g.currentDir = START_DIR
 
 	// init the game map
 	loopGrid(func(i, j int) {
@@ -105,7 +105,7 @@ func (g *Game) newThing(thing BlockType) {
 
 func (g *Game) Command(dir Direction) {
 	// ignore command if direction its the inverse of current direction
-	if dir != -g.dir{
+	if dir != -g.currentDir {
 		g.Snake[0].nextDir = dir
 	}
 }
@@ -113,7 +113,8 @@ func (g *Game) Command(dir Direction) {
 func (g *Game) Tick() {
 	head := &g.Snake[0]
 	movePos(head.nextDir, &head.Pos)
-	dir := head.nextDir
+	g.currentDir = head.nextDir
+	dir := g.currentDir
 	for i := 1; i < len(g.Snake); i++ {
 		movePos(g.Snake[i].nextDir, &g.Snake[i].Pos)
 		dir, g.Snake[i].nextDir = g.Snake[i].nextDir, dir
