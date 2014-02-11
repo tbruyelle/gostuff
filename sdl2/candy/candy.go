@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -42,6 +41,7 @@ var NoMatch = Match{}
 
 func checkLine(line []CandyType) Match {
 	var start, length int
+	length = 1
 	for i := 1; i < len(line); i++ {
 		if line[start] == line[i] {
 			length++
@@ -49,11 +49,10 @@ func checkLine(line []CandyType) Match {
 			if length >= Match3 {
 				return Match{start: start, length: length}
 			}
-			length = 0
+			length = 1
 			start = i
 		}
 	}
-	fmt.Println("no match")
 	return NoMatch
 }
 
