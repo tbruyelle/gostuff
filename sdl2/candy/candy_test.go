@@ -27,7 +27,7 @@ func TestMove(t *testing.T) {
 
 	g.move()
 
-	assertY(t, g.columns[0].candys[0], 1)
+	assertY(t, g.columns[0].candys[0], Speed)
 }
 
 func TestGenerateCandy(t *testing.T) {

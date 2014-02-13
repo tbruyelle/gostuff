@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -15,6 +16,7 @@ const (
 	Match3         = 3
 	Match4         = 4
 	Match5         = 5
+	Speed          = 7
 )
 
 type State int
@@ -65,6 +67,8 @@ func NewGame() *Game {
 		g.columns[i].candys = make([]Candy, NbBlockHeight+1) // +1 for the dropzone
 	}
 	g.populateDropZone()
+	g.applyVectors()
+	g.state = Filling
 	return g
 }
 
@@ -73,22 +77,36 @@ func (g *Game) Tick() bool {
 	case Idle:
 		return true
 	case Crushing:
-	case Filling:
 		g.applyVectors()
-		g.move()
-
+	case Filling:
+		if !g.move() {
+			g.state = Idle
+		}
 	}
 	return false
 
 }
 
-func (g *Game) move() {
+func (g *Game) move() bool {
+	moving := false
+	for i := range g.columns {
+		for j := range g.columns[i].candys {
+			c := &g.columns[i].candys[j]
+			if c.v > 0 {
+				c.y += Speed
+				c.v -= Speed
+				moving = true
+			}
+		}
+	}
+	fmt.Println("moving", moving)
+	return moving
 }
 
 func (g *Game) populateDropZone() {
 	for i, col := range g.columns {
 		col.candys[0] = g.newCandy()
-		col.candys[0].x=DashboardWidth+BlockSize*i
+		col.candys[0].x = DashboardWidth + BlockSize*i
 	}
 }
 
@@ -97,7 +115,7 @@ func applyVector(col *Column) {
 		return
 	}
 	c := &col.candys[0]
-	for i := 1; i < len(col.candys); i++ {
+	for i := 1; i < len(col.candys)-1; i++ {
 		if col.candys[i]._type == EmptyCandy {
 			c.v += BlockSize
 		} else {
