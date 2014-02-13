@@ -11,6 +11,7 @@ import (
 const FRAME_RATE = time.Second / 50
 
 func main() {
+	_ = fmt.Sprint()
 	runtime.LockOSThread()
 
 	window := sdl.CreateWindow("Candy Crush Saga", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_SHOWN)
@@ -76,14 +77,15 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.Present()
 }
 
+var block = sdl.Rect{W: BlockSize-2, H: BlockSize-2}
+
 func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	if c._type == EmptyCandy {
 		return
 	}
-	fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
-	block := sdl.Rect{W: BlockSize, H: BlockSize}
-	block.X = int32(c.x)
-	block.Y = int32(c.y)
+	//fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
+	block.X = int32(c.x + 1)
+	block.Y = int32(c.y + 1)
 	switch c._type {
 	case BlueCandy:
 		renderer.SetDrawColor(0, 0, 255, 255)
