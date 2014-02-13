@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -99,7 +98,6 @@ func (g *Game) move() bool {
 			}
 		}
 	}
-	fmt.Println("moving", moving)
 	return moving
 }
 

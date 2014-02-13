@@ -25,9 +25,12 @@ func TestMove(t *testing.T) {
 	g.populateDropZone()
 	g.applyVectors()
 
-	g.move()
+	moving := g.move()
 
 	assertY(t, g.columns[0].candys[0], Speed)
+	if !moving {
+		t.Error("Wrong move state, should still moving")
+	}
 }
 
 func TestGenerateCandy(t *testing.T) {
