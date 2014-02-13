@@ -45,7 +45,7 @@ type Column struct {
 }
 
 type Game struct {
-	columns [NbBlockWidth]Column
+	columns []Column
 	random  *rand.Rand
 	state   State
 }
@@ -56,6 +56,35 @@ type Match struct {
 }
 
 var NoMatch = Match{}
+
+func NewGame() *Game {
+	g := &Game{}
+	g.random = rand.New(rand.NewSource(time.Now().Unix()))
+	g.columns = make([]Column, NbBlockWidth)
+	for _, col := range g.columns {
+		col.candys = make([]Candy, NbBlockHeight)
+	}
+	return g
+}
+
+func (g *Game) Tick() bool {
+	switch g.state {
+	case Idle:
+		return true
+	case Crushing:
+	case Filling:
+		g.applyVectors()
+
+	}
+	return false
+
+}
+
+func (g *Game) populateDropZone() {
+	for _, col := range g.columns {
+		col.candys[0] = g.newCandy()
+	}
+}
 
 func applyVector(col *Column) {
 	if len(col.candys) == 0 {
@@ -106,30 +135,12 @@ func checkGrid(candys [][]CandyType) []Match {
 	return matches
 }
 
-func NewGame() *Game {
-	g := &Game{}
-	g.random = rand.New(rand.NewSource(time.Now().Unix()))
-	return g
-}
-
-func (g *Game) Tick() bool {
-	switch g.state {
-	case Idle:
-		return true
-	case Crushing:
-	case Filling:
-
-	}
-	return false
-
-}
-
-func (g *Game) NewCandy() CandyType {
+func (g *Game) newCandy() Candy {
 	var c int
 	for c == 0 {
 		c = g.random.Intn(4)
 	}
-	return CandyType(c)
+	return Candy{_type: CandyType(c)}
 }
 
 func loopRowColumn(content func(i, j int)) {

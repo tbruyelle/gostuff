@@ -10,14 +10,22 @@ func setup() {
 	g = NewGame()
 }
 
+func TestPopulateDropZone(t *testing.T) {
+	setup()
+
+	g.populateDropZone()
+
+	for _, col := range g.columns {
+		assertNotEmpty(t, col.candys[0])
+	}
+}
+
 func TestGenerateCandy(t *testing.T) {
 	setup()
 
-	candy := g.NewCandy()
+	candy := g.newCandy()
 
-	if candy == EmptyCandy {
-		t.Errorf("Wrong candy, expected not empty but was empty")
-	}
+	assertNotEmpty(t, candy)
 }
 
 func TestCheckLineNoMatch(t *testing.T) {
@@ -89,5 +97,17 @@ func assertMatch(t *testing.T, match Match, start, length int) {
 func assertVector(t *testing.T, v, expected int) {
 	if v != expected {
 		t.Errorf("Wrong candy vector, expected %d but was %d", expected, v)
+	}
+}
+
+func assertCandy(t *testing.T, c Candy, expected CandyType) {
+	if c._type != expected {
+		t.Errorf("Wrong candy type, expected %d but was %d", expected, c._type)
+	}
+}
+
+func assertNotEmpty(t *testing.T, c Candy) {
+	if c._type == EmptyCandy {
+		t.Errorf("Wrong candy type, expected not empty")
 	}
 }
