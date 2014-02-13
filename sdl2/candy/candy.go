@@ -7,14 +7,22 @@ import (
 
 const (
 	BlockSize      = 32
-	NbBlockWidth   = 32
-	NbBlockHeight  = 32
-	DashboardWidth = 76
+	NbBlockWidth   = 16
+	NbBlockHeight  = 16
+	DashboardWidth = 128
 	WindowHeight   = BlockSize * NbBlockHeight
 	WindowWidth    = DashboardWidth + BlockSize*NbBlockWidth
 	Match3         = 3
 	Match4         = 4
 	Match5         = 5
+)
+
+type State int
+
+const (
+	Idle State = iota
+	Crushing
+	Filling
 )
 
 type CandyType int
@@ -27,9 +35,19 @@ const (
 	YellowCandy
 )
 
+type Candy struct {
+	_type   CandyType
+	x, y, v int
+}
+
+type Column struct {
+	candys []Candy
+}
+
 type Game struct {
-	Candys [NbBlockWidth][NbBlockHeight]CandyType
-	random *rand.Rand
+	columns [NbBlockWidth]Column
+	random  *rand.Rand
+	state   State
 }
 
 type Match struct {
@@ -38,6 +56,26 @@ type Match struct {
 }
 
 var NoMatch = Match{}
+
+func applyVector(col *Column) {
+	if len(col.candys) == 0 {
+		return
+	}
+	c := &col.candys[0]
+	for i := 1; i < len(col.candys); i++ {
+		if col.candys[i]._type == EmptyCandy {
+			c.v += BlockSize
+		} else {
+			c = &col.candys[i]
+		}
+	}
+}
+
+func (g *Game) applyVectors() {
+	for _, col := range g.columns {
+		applyVector(&col)
+	}
+}
 
 func checkLine(line []CandyType) Match {
 	var start, length int
@@ -56,10 +94,34 @@ func checkLine(line []CandyType) Match {
 	return NoMatch
 }
 
+func checkGrid(candys [][]CandyType) []Match {
+	matches := make([]Match, 0)
+	// check lines
+	for i := 0; i < len(candys); i++ {
+		m := checkLine(candys[i])
+		if m.length > 0 {
+			matches = append(matches, m)
+		}
+	}
+	return matches
+}
+
 func NewGame() *Game {
 	g := &Game{}
 	g.random = rand.New(rand.NewSource(time.Now().Unix()))
 	return g
+}
+
+func (g *Game) Tick() bool {
+	switch g.state {
+	case Idle:
+		return true
+	case Crushing:
+	case Filling:
+
+	}
+	return false
+
 }
 
 func (g *Game) NewCandy() CandyType {
@@ -76,4 +138,14 @@ func loopRowColumn(content func(i, j int)) {
 			content(i, j)
 		}
 	}
+}
+
+func (g *Game) Destroy() {
+
+}
+
+func (g *Game) Start() {
+}
+
+func (g *Game) Stop() {
 }

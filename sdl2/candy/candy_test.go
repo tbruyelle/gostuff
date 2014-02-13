@@ -56,8 +56,38 @@ func TestCheckLineMatch5(t *testing.T) {
 	assertMatch(t, match, 1, Match5)
 }
 
+func TestCheckGridNoMatch(t *testing.T) {
+	setup()
+	candys := make([][]CandyType, 4)
+	candys[0] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
+	candys[1] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
+	candys[2] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
+	candys[3] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
+
+	matches := checkGrid(candys)
+
+	for _, match := range matches {
+		assertMatch(t, match, 0, 0)
+	}
+
+}
+
+func TestApplyVector(t *testing.T) {
+	column := Column{candys: []Candy{Candy{_type: RedCandy}, Candy{}, Candy{}, Candy{_type: RedCandy}}}
+
+	applyVector(&column)
+
+	assertVector(t, column.candys[0].v, BlockSize*2)
+}
+
 func assertMatch(t *testing.T, match Match, start, length int) {
 	if match.start != start && match.length != length {
 		t.Errorf("Wrong match, expected start=%d, length=%d, but was (%d,%d)", start, length, match.start, match.length)
+	}
+}
+
+func assertVector(t *testing.T, v, expected int) {
+	if v != expected {
+		t.Errorf("Wrong candy vector, expected %d but was %d", expected, v)
 	}
 }
