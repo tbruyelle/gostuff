@@ -61,8 +61,8 @@ func NewGame() *Game {
 	g := &Game{}
 	g.random = rand.New(rand.NewSource(time.Now().Unix()))
 	g.columns = make([]Column, NbBlockWidth)
-	for _, col := range g.columns {
-		col.candys = make([]Candy, NbBlockHeight)
+	for i := range g.columns {
+		g.columns[i].candys = make([]Candy, NbBlockHeight+1) // +1 for the dropzone
 	}
 	return g
 }
