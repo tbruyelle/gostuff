@@ -41,20 +41,20 @@ func loop(game *Game, renderer *sdl.Renderer) {
 	for {
 		select {
 		case <-mainTicker.C:
-			wait:=game.Tick()
+			wait := game.Tick()
 			renderThings(renderer, game)
-			if wait{
-			event := sdl.WaitEvent()
-			switch t := event.(type) {
-			case *sdl.QuitEvent:
-				return
-			case *sdl.KeyDownEvent:
-				switch t.Keysym.Sym {
-				case sdl.K_ESCAPE:
+			if wait {
+				event := sdl.WaitEvent()
+				switch t := event.(type) {
+				case *sdl.QuitEvent:
 					return
+				case *sdl.KeyDownEvent:
+					switch t.Keysym.Sym {
+					case sdl.K_ESCAPE:
+						return
+					}
 				}
 			}
-		}
 		}
 	}
 }
@@ -67,19 +67,24 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.FillRect(&dashboard)
 
 	// show candys
-
+	for _, col := range game.columns {
+		for _, c := range col.candys {
+			showCandy(renderer, c, game)
+		}
+	}
 	renderer.SetDrawColor(255, 255, 255, 255)
 	renderer.Present()
 }
 
-func showCandy(renderer *sdl.Renderer, x, y int, candy CandyType, game *Game) {
-	if candy == EmptyCandy {
+func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
+	if c._type == EmptyCandy {
 		return
 	}
-	block := sdl.Rect{}
-	block.X = int32(x * BlockSize)
-	block.Y = int32(y * BlockSize)
-	switch candy {
+	fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
+	block := sdl.Rect{W: BlockSize, H: BlockSize}
+	block.X = int32(c.x)
+	block.Y = int32(c.y)
+	switch c._type {
 	case BlueCandy:
 		renderer.SetDrawColor(0, 0, 255, 255)
 	case YellowCandy:

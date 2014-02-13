@@ -64,6 +64,7 @@ func NewGame() *Game {
 	for i := range g.columns {
 		g.columns[i].candys = make([]Candy, NbBlockHeight+1) // +1 for the dropzone
 	}
+	g.populateDropZone()
 	return g
 }
 
@@ -74,15 +75,20 @@ func (g *Game) Tick() bool {
 	case Crushing:
 	case Filling:
 		g.applyVectors()
+		g.move()
 
 	}
 	return false
 
 }
 
+func (g *Game) move() {
+}
+
 func (g *Game) populateDropZone() {
-	for _, col := range g.columns {
+	for i, col := range g.columns {
 		col.candys[0] = g.newCandy()
+		col.candys[0].x=DashboardWidth+BlockSize*i
 	}
 }
 

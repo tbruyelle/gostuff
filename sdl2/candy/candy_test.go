@@ -20,6 +20,16 @@ func TestPopulateDropZone(t *testing.T) {
 	}
 }
 
+func TestMove(t *testing.T) {
+	setup()
+	g.populateDropZone()
+	g.applyVectors()
+
+	g.move()
+
+	assertY(t, g.columns[0].candys[0], 1)
+}
+
 func TestGenerateCandy(t *testing.T) {
 	setup()
 
@@ -109,5 +119,11 @@ func assertCandy(t *testing.T, c Candy, expected CandyType) {
 func assertNotEmpty(t *testing.T, c Candy) {
 	if c._type == EmptyCandy {
 		t.Errorf("Wrong candy type, expected not empty")
+	}
+}
+
+func assertY(t *testing.T, c Candy, y int) {
+	if c.y != y {
+		t.Errorf("Wrong y, expected %d but was %d", y, c.y)
 	}
 }
