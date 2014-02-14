@@ -10,6 +10,29 @@ func setup() {
 	g = NewGame()
 }
 
+func TestCollision(t *testing.T) {
+	c1 := Candy{x: 10, y: 20}
+	c2 := Candy{x: 5, y: 10}
+
+	collision := collide(c1, c2)
+
+	if !collision {
+		t.Errorf("(%d,%d) and (%d,%d) should collide", c1.x, c1.y, c2.x, c2.y)
+	}
+}
+
+func TestNoCollision(t *testing.T) {
+	c1 := Candy{x: 100, y: 20}
+	c2 := Candy{x: 5, y: 10}
+
+	collision := collide(c1, c2)
+
+	if collision {
+		t.Errorf("(%d,%d) and (%d,%d) should not collide", c1.x, c1.y, c2.x, c2.y)
+	}
+
+}
+
 func TestPopulateDropZone(t *testing.T) {
 	setup()
 
