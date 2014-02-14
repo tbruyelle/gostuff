@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	BlockSize      = 32
-	NbBlockWidth   = 16
-	NbBlockHeight  = 16
+	BlockSize      = 64
+	NbBlockWidth   = 8
+	NbBlockHeight  = 8
 	DashboardWidth = 128
 	WindowHeight   = BlockSize * NbBlockHeight
 	WindowWidth    = DashboardWidth + BlockSize*NbBlockWidth
@@ -18,6 +18,7 @@ const (
 	Match5         = 5
 	Speed          = 7
 	YMax           = WindowHeight - BlockSize
+	NbCandyType    = 5
 )
 
 type State int
@@ -36,6 +37,7 @@ const (
 	GreenCandy
 	BlueCandy
 	YellowCandy
+	PinkCandy
 )
 
 type Candy struct {
@@ -173,11 +175,8 @@ func checkGrid(candys [][]CandyType) []Match {
 }
 
 func (g *Game) newCandy() Candy {
-	var c int
-	for c == 0 {
-		c = g.random.Intn(4)
-	}
-	return Candy{_type: CandyType(c)}
+	ct := g.random.Intn(NbCandyType) + 1
+	return Candy{_type: CandyType(ct)}
 }
 
 func loopRowColumn(content func(i, j int)) {

@@ -77,7 +77,7 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.Present()
 }
 
-var block = sdl.Rect{W: BlockSize-2, H: BlockSize-2}
+var block = sdl.Rect{W: BlockSize - 2, H: BlockSize - 2}
 
 func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	if c._type == EmptyCandy {
@@ -88,13 +88,16 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	block.Y = int32(c.y + 1)
 	switch c._type {
 	case BlueCandy:
-		renderer.SetDrawColor(0, 0, 255, 255)
+		renderer.SetDrawColor(153, 50, 204, 255)
 	case YellowCandy:
-		renderer.SetDrawColor(0, 0, 0, 255)
+		renderer.SetDrawColor(255,215,0, 255)
 	case GreenCandy:
-		renderer.SetDrawColor(100, 0, 0, 255)
+		renderer.SetDrawColor(60, 179, 113, 255)
 	case RedCandy:
-		renderer.SetDrawColor(0, 255, 0, 255)
+		renderer.SetDrawColor(220, 20, 60, 255)
+	case PinkCandy:
+		renderer.SetDrawColor(255, 192, 203, 255)
+
 	}
 	renderer.FillRect(&block)
 	renderer.SetDrawColor(255, 255, 255, 255)
