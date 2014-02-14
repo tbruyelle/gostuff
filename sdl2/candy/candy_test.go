@@ -68,6 +68,35 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func TestMoves(t *testing.T) {
+	setup()
+	g.populateDropZone()
+	g.applyVectors()
+
+	for g.move() {
+	}
+
+	assertY(t, g.columns[0].candys[0], WindowHeight-BlockSize)
+}
+
+func TestMoveAll(t *testing.T) {
+	setup()
+	g.populateDropZone()
+	g.applyVectors()
+
+	for g.move() {
+		g.populateDropZone()
+		g.applyVectors()
+	}
+
+	for i := 0; i < NbBlockWidth; i++ {
+		assertNbCandy(t, g.columns[i], NbBlockHeight)
+		for j := 0; j < len(g.columns[i].candys); j++ {
+			assertY(t, g.columns[i].candys[j], BlockSize*j+1)
+		}
+	}
+}
+
 func TestGenerateCandy(t *testing.T) {
 	setup()
 

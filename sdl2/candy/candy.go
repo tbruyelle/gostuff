@@ -17,6 +17,7 @@ const (
 	Match4         = 4
 	Match5         = 5
 	Speed          = 7
+	YMax           = WindowHeight - BlockSize
 )
 
 type State int
@@ -95,7 +96,7 @@ func (g *Game) move() bool {
 			c := &g.columns[i].candys[j]
 			if c.v > 0 {
 				c.y += c.v
-				if c.y < WindowHeight && !collideColumnInd(j, g.columns[i]) {
+				if c.y <= YMax && !collideColumnInd(j, g.columns[i]) {
 					fmt.Printf("moving %d -> %d\n", j, c.v)
 					moving = true
 				} else {
