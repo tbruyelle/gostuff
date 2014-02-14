@@ -22,7 +22,7 @@ func TestCollision(t *testing.T) {
 }
 
 func TestCollisionColumn(t *testing.T) {
-	col := Column{candys: []Candy{Candy{x: 0, y: 0}, Candy{x: 0, y: BlockSize}}}
+	col := Column{candys: []Candy{Candy{x: 0, y: 0}, Candy{x: 0, y: BlockSize+1}}}
 
 	collision := collideColumnInd(0, col)
 
@@ -90,10 +90,10 @@ func TestMoveAll(t *testing.T) {
 	}
 
 	for i := 0; i < NbBlockWidth; i++ {
-		assertNbCandy(t, g.columns[i], NbBlockHeight)
 		for j := 0; j < len(g.columns[i].candys); j++ {
-			assertY(t, g.columns[i].candys[j], BlockSize*j+1)
+			assertY(t, g.columns[i].candys[j], WindowHeight-BlockSize*(j+1))
 		}
+		assertNbCandy(t, g.columns[i], NbBlockHeight)
 	}
 }
 

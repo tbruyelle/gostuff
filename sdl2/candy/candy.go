@@ -96,11 +96,19 @@ func (g *Game) move() bool {
 			c := &g.columns[i].candys[j]
 			if c.v > 0 {
 				c.y += c.v
-				if c.y <= YMax && !collideColumnInd(j, g.columns[i]) {
+				if c.y < YMax && !collideColumnInd(j, g.columns[i]) {
 					//fmt.Printf("moving %d -> %d\n", j, c.v)
 					moving = true
 				} else {
-					c.y -= c.v
+					// adjust y position according to the collision
+					if c.y >= YMax {
+						c.y = YMax
+					} else {
+							c.y--
+						for collideColumnInd(j, g.columns[i]) {
+							c.y--
+						}
+					}
 					c.v = 0
 				}
 
