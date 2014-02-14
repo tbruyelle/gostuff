@@ -21,6 +21,16 @@ func TestCollision(t *testing.T) {
 	}
 }
 
+func TestCollisionColumn(t *testing.T) {
+	col := Column{candys: []Candy{Candy{x: 0, y: 0}, Candy{x: 0, y: BlockSize}}}
+
+	collision := collideColumnInd(0, col)
+
+	if collision {
+		t.Errorf("(0,0) and (0,%d) should not collide", BlockSize)
+	}
+}
+
 func TestNoCollision(t *testing.T) {
 	c1 := Candy{x: 100, y: 20}
 	c2 := Candy{x: 5, y: 10}
@@ -39,6 +49,7 @@ func TestPopulateDropZone(t *testing.T) {
 	g.populateDropZone()
 
 	for _, col := range g.columns {
+		assertNbCandy(t, col, 1)
 		assertNotEmpty(t, col.candys[0])
 	}
 }
@@ -50,7 +61,8 @@ func TestMove(t *testing.T) {
 
 	moving := g.move()
 
-	assertY(t, g.columns[0].candys[0], Speed)
+	assertNbCandy(t, g.columns[0], 1)
+	assertY(t, g.columns[0].candys[0], 1)
 	if !moving {
 		t.Error("Wrong move state, should still moving")
 	}
@@ -117,11 +129,14 @@ func TestCheckGridNoMatch(t *testing.T) {
 }
 
 func TestApplyVector(t *testing.T) {
-	column := Column{candys: []Candy{Candy{_type: RedCandy}, Candy{}, Candy{}, Candy{_type: RedCandy}}}
+	setup()
+	g.populateDropZone()
 
-	applyVector(&column)
+	g.applyVectors()
 
-	assertVector(t, column.candys[0].v, BlockSize*2)
+	for _, col := range g.columns {
+		assertVector(t, col.candys[0].v, 1)
+	}
 }
 
 func assertMatch(t *testing.T, match Match, start, length int) {
@@ -151,5 +166,11 @@ func assertNotEmpty(t *testing.T, c Candy) {
 func assertY(t *testing.T, c Candy, y int) {
 	if c.y != y {
 		t.Errorf("Wrong y, expected %d but was %d", y, c.y)
+	}
+}
+
+func assertNbCandy(t *testing.T, col Column, nb int) {
+	if len(col.candys) != nb {
+		t.Fatalf("Wrong number of candy in column, expected %d but was %d", nb, len(col.candys))
 	}
 }
