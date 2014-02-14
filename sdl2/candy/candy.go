@@ -97,10 +97,9 @@ func (g *Game) move() bool {
 			if c.v > 0 {
 				c.y += c.v
 				if c.y <= YMax && !collideColumnInd(j, g.columns[i]) {
-					fmt.Printf("moving %d -> %d\n", j, c.v)
+					//fmt.Printf("moving %d -> %d\n", j, c.v)
 					moving = true
 				} else {
-					fmt.Printf("collide between %d (%d,%d) in column %d\n", j, c.x, c.y, i)
 					c.y -= c.v
 					c.v = 0
 				}
@@ -181,16 +180,16 @@ func loopRowColumn(content func(i, j int)) {
 }
 
 func collide(c1, c2 Candy) bool {
-	if c1.x+BlockSize <= c2.x {
+	if c1.x+BlockSize < c2.x {
 		return false
 	}
-	if c1.y+BlockSize <= c2.y {
+	if c1.y+BlockSize < c2.y {
 		return false
 	}
-	if c2.x+BlockSize <= c1.x {
+	if c2.x+BlockSize < c1.x {
 		return false
 	}
-	if c2.y+BlockSize <= c2.y {
+	if c2.y+BlockSize < c1.y {
 		return false
 	}
 	return true
@@ -199,6 +198,7 @@ func collide(c1, c2 Candy) bool {
 func collideColumnInd(i int, col Column) bool {
 	for j := 0; j < len(col.candys); j++ {
 		if i != j && collide(col.candys[i], col.candys[j]) {
+			//fmt.Printf("Collide between (%d,%d)/(%d,%d)\n", col.candys[i].x, col.candys[i].y, col.candys[j].x, col.candys[j].y)
 			return true
 		}
 	}
