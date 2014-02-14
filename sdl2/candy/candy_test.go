@@ -22,7 +22,7 @@ func TestCollision(t *testing.T) {
 }
 
 func TestCollisionColumn(t *testing.T) {
-	col := Column{candys: []Candy{Candy{x: 0, y: 0}, Candy{x: 0, y: BlockSize+1}}}
+	col := Column{candys: []Candy{Candy{x: 0, y: 0}, Candy{x: 0, y: BlockSize}}}
 
 	collision := collideColumnInd(0, col)
 
@@ -93,7 +93,8 @@ func TestMoveAll(t *testing.T) {
 		for j := 0; j < len(g.columns[i].candys); j++ {
 			assertY(t, g.columns[i].candys[j], WindowHeight-BlockSize*(j+1))
 		}
-		assertNbCandy(t, g.columns[i], NbBlockHeight)
+		// -1 because we dont call populateDropZone after move false
+		assertNbCandy(t, g.columns[i], NbBlockHeight-1)
 	}
 }
 

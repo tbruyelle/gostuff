@@ -81,6 +81,7 @@ func (g *Game) Tick() bool {
 		g.populateDropZone()
 		g.applyVectors()
 		if !g.move() {
+			g.populateDropZone()
 			fmt.Println("move->idle")
 			g.state = Idle
 		}
@@ -104,7 +105,7 @@ func (g *Game) move() bool {
 					if c.y >= YMax {
 						c.y = YMax
 					} else {
-							c.y--
+						c.y--
 						for collideColumnInd(j, g.columns[i]) {
 							c.y--
 						}
@@ -188,16 +189,16 @@ func loopRowColumn(content func(i, j int)) {
 }
 
 func collide(c1, c2 Candy) bool {
-	if c1.x+BlockSize < c2.x {
+	if c1.x+BlockSize <= c2.x {
 		return false
 	}
-	if c1.y+BlockSize < c2.y {
+	if c1.y+BlockSize <= c2.y {
 		return false
 	}
-	if c2.x+BlockSize < c1.x {
+	if c2.x+BlockSize <= c1.x {
 		return false
 	}
-	if c2.y+BlockSize < c1.y {
+	if c2.y+BlockSize <= c1.y {
 		return false
 	}
 	return true
