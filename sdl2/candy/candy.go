@@ -66,11 +66,15 @@ func NewGame() *Game {
 	g := &Game{}
 	g.random = rand.New(rand.NewSource(time.Now().Unix()))
 	g.columns = make([]Column, NbBlockWidth)
-	for i := range g.columns {
-		g.columns[i].candys = make([]Candy, 0)
-	}
 	g.state = Filling
 	return g
+}
+
+func (g *Game) Reset() {
+	for i:=0;i<len(g.columns);i++{
+	g.columns[i].candys=nil
+}
+g.state=Filling
 }
 
 func (g *Game) Tick() bool {

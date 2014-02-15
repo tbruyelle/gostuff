@@ -53,6 +53,8 @@ func loop(game *Game, renderer *sdl.Renderer) {
 					switch t.Keysym.Sym {
 					case sdl.K_ESCAPE:
 						return
+					case sdl.K_r:
+						game.Reset()
 					}
 				}
 			}
@@ -90,7 +92,7 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	case BlueCandy:
 		renderer.SetDrawColor(153, 50, 204, 255)
 	case YellowCandy:
-		renderer.SetDrawColor(255,215,0, 255)
+		renderer.SetDrawColor(255, 215, 0, 255)
 	case GreenCandy:
 		renderer.SetDrawColor(60, 179, 113, 255)
 	case RedCandy:
