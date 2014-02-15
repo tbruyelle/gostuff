@@ -88,6 +88,10 @@ func (g *Game) Click(x, y int32) {
 			g.selected = nil
 		} else {
 			// not selected
+			if g.selected != nil {
+				// remove previous selection
+				g.selected.selected = false
+			}
 			c.selected = true
 			g.selected = c
 		}

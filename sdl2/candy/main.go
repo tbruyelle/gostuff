@@ -98,7 +98,7 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	block.Y = int32(c.y + 1)
 	alpha := uint8(255)
 	if c.selected {
-		alpha = 100
+		alpha = 150
 	}
 	switch c._type {
 	case BlueCandy:
