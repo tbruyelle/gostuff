@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const FRAME_RATE = time.Second / 50
+const FRAME_RATE = time.Second / 40
 
 func main() {
 	_ = fmt.Sprint()
@@ -45,7 +45,7 @@ func loop(game *Game, renderer *sdl.Renderer) {
 		case <-mainTicker.C:
 			wait := game.Tick()
 			renderThings(renderer, game)
-			if wait {
+			for wait {
 				event := sdl.PollEvent()
 				switch t := event.(type) {
 				case *sdl.QuitEvent:
@@ -56,11 +56,13 @@ func loop(game *Game, renderer *sdl.Renderer) {
 						return
 					case sdl.K_r:
 						game.Reset()
+						wait = false
 					}
 				case *sdl.MouseButtonEvent:
 					if t.State != 0 {
 						fmt.Println("Click", t.X, t.Y)
 						game.Click(t.X, t.Y)
+						wait = false
 					}
 				}
 
