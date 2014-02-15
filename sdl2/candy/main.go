@@ -56,13 +56,20 @@ func loop(game *Game, renderer *sdl.Renderer) {
 					case sdl.K_r:
 						game.Reset()
 					}
+				case *sdl.MouseButtonEvent:
+					if t.State != 0 {
+						fmt.Println("Click", t.X, t.Y)
+						game.Click(t.X, t.Y)
+					}
 				}
+
 			}
 		}
 	}
 }
 
 func renderThings(renderer *sdl.Renderer, game *Game) {
+	//fmt.Println("rendering")
 	renderer.Clear()
 	// show dashboard
 	renderer.SetDrawColor(50, 50, 50, 200)
@@ -88,17 +95,21 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	//fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
 	block.X = int32(c.x + 1)
 	block.Y = int32(c.y + 1)
+	alpha := uint8(255)
+	if c.selected {
+		alpha = 100
+	}
 	switch c._type {
 	case BlueCandy:
-		renderer.SetDrawColor(153, 50, 204, 255)
+		renderer.SetDrawColor(153, 50, 204, alpha)
 	case YellowCandy:
-		renderer.SetDrawColor(255, 215, 0, 255)
+		renderer.SetDrawColor(255, 215, 0, alpha)
 	case GreenCandy:
-		renderer.SetDrawColor(60, 179, 113, 255)
+		renderer.SetDrawColor(60, 179, 113, alpha)
 	case RedCandy:
-		renderer.SetDrawColor(220, 20, 60, 255)
+		renderer.SetDrawColor(220, 20, 60, alpha)
 	case PinkCandy:
-		renderer.SetDrawColor(255, 192, 203, 255)
+		renderer.SetDrawColor(255, 192, 203, alpha)
 
 	}
 	renderer.FillRect(&block)

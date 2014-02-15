@@ -10,6 +10,24 @@ func setup() {
 	g = NewGame()
 }
 
+func TestClickTopLeft(t *testing.T) {
+	setup()
+	g.populateDropZone()
+	g.applyVectors()
+	for g.move() {
+		g.populateDropZone()
+		g.applyVectors()
+	}
+	g.populateDropZone()
+
+	g.Click(DashboardWidth+5, 5)
+
+	if g.selected == nil {
+		t.Fatal("No candy selected")
+	}
+	assertXY(t, *g.selected, DashboardWidth, 0)
+}
+
 func TestCollision(t *testing.T) {
 	c1 := Candy{x: 10, y: 20}
 	c2 := Candy{x: 5, y: 10}
@@ -190,6 +208,12 @@ func assertCandy(t *testing.T, c Candy, expected CandyType) {
 func assertNotEmpty(t *testing.T, c Candy) {
 	if c._type == EmptyCandy {
 		t.Errorf("Wrong candy type, expected not empty")
+	}
+}
+
+func assertXY(t *testing.T, c Candy, x, y int) {
+	if c.y != y || c.x != x {
+		t.Errorf("Wrong x,y, expected %d,%d but was %d,%d", x, y, c.x, c.y)
 	}
 }
 

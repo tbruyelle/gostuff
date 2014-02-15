@@ -41,8 +41,9 @@ const (
 )
 
 type Candy struct {
-	_type   CandyType
-	x, y, v int
+	_type    CandyType
+	x, y, v  int
+	selected bool
 }
 
 type Column struct {
@@ -50,9 +51,10 @@ type Column struct {
 }
 
 type Game struct {
-	columns []Column
-	random  *rand.Rand
-	state   State
+	columns  []Column
+	random   *rand.Rand
+	state    State
+	selected *Candy
 }
 
 type Match struct {
@@ -70,11 +72,51 @@ func NewGame() *Game {
 	return g
 }
 
-func (g *Game) Reset() {
-	for i:=0;i<len(g.columns);i++{
-	g.columns[i].candys=nil
+func (g *Game) Click(x, y int32) {
+	// determine column
+	col := &g.columns[determineColumn(int(x))]
+	cy := determineYCandy(int(y))
+	if c, found := findCandy(*col, cy); found {
+		fmt.Printf("Found candy %d,%d",c.x,c.y)
+		if c.selected {
+			// already selected unselect
+			c.selected = false
+			g.selected = nil
+		} else {
+			// not selected
+			c.selected = true
+			g.selected = c
+		}
+	}
 }
-g.state=Filling
+
+func findCandy(col Column, y int) (*Candy, bool) {
+	for i := 0; i < len(col.candys); i++ {
+		//fmt.Printf("%d finding candy %d current %d\n", i, col.candys[i].y, y)
+		if col.candys[i].y == y {
+			return &col.candys[i], true
+		}
+	}
+	return nil, false
+}
+
+func determineColumn(x int) int {
+	return determineYCandy(x - DashboardWidth)
+}
+
+func determineYCandy(y int) int {
+	if y > BlockSize {
+		d := y / BlockSize
+		return d - d%(BlockSize*d)
+	}
+	return 0
+}
+
+func (g *Game) Reset() {
+	for i := 0; i < len(g.columns); i++ {
+		g.columns[i].candys = nil
+	}
+	g.state = Filling
 }
 
 func (g *Game) Tick() bool {
