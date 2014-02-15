@@ -83,7 +83,7 @@ func (g *Game) Click(x, y int32) {
 	col := &g.columns[determineColumn(int(x))]
 	cy := determineYCandy(int(y))
 	if c, found := findCandy(*col, cy); found {
-		fmt.Printf("Found candy %d,%d\n", c.x, c.y)
+		//fmt.Printf("Found candy %d,%d\n", c.x, c.y)
 		if c.selected {
 			// already selected unselect
 			c.selected = false
