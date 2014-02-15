@@ -80,10 +80,8 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.FillRect(&dashboard)
 
 	// show candys
-	for _, col := range game.columns {
-		for _, c := range col.candys {
-			showCandy(renderer, c, game)
-		}
+	for _, c := range game.candys {
+		showCandy(renderer, *c, game)
 	}
 	renderer.SetDrawColor(255, 255, 255, 255)
 	renderer.Present()

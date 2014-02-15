@@ -48,12 +48,8 @@ type Candy struct {
 	selected        bool
 }
 
-type Column struct {
-	candys []Candy
-}
-
 type Game struct {
-	columns  []Column
+	candys   []*Candy
 	random   *rand.Rand
 	state    State
 	selected *Candy
@@ -69,7 +65,6 @@ var NoMatch = Match{}
 func NewGame() *Game {
 	g := &Game{}
 	g.random = rand.New(rand.NewSource(time.Now().Unix()))
-	g.columns = make([]Column, NbBlockWidth)
 	g.state = Falling
 	return g
 }
@@ -79,10 +74,9 @@ func (g *Game) Click(x, y int32) {
 		// ignore click on dashboard for now
 		return
 	}
-	// determine column
-	col := &g.columns[determineColumn(int(x))]
+	cx := determineXCandy(int(x))
 	cy := determineYCandy(int(y))
-	if c, found := findCandy(*col, cy); found {
+	if c, found := g.findCandy(cx, cy); found {
 		//fmt.Printf("Found candy %d,%d\n", c.x, c.y)
 		if c.selected {
 			// already selected unselect
@@ -138,18 +132,18 @@ func near(c1, c2 *Candy) bool {
 	return false
 }
 
-func findCandy(col Column, y int) (*Candy, bool) {
-	for i := 0; i < len(col.candys); i++ {
+func (g *Game) findCandy(x, y int) (*Candy, bool) {
+	for _, c := range g.candys {
 		//fmt.Printf("%d finding candy %d current %d\n", i, col.candys[i].y, y)
-		if col.candys[i].y == y {
-			return &col.candys[i], true
+		if c.y == y && c.x == x {
+			return c, true
 		}
 	}
 	return nil, false
 }
 
-func determineColumn(x int) int {
-	return (x - DashboardWidth) / BlockSize
+func determineXCandy(x int) int {
+	return determineYCandy(x-DashboardWidth) + DashboardWidth
 }
 
 func determineYCandy(y int) int {
@@ -160,9 +154,7 @@ func determineYCandy(y int) int {
 }
 
 func (g *Game) Reset() {
-	for i := 0; i < len(g.columns); i++ {
-		g.columns[i].candys = nil
-	}
+	g.candys = nil
 	g.state = Falling
 }
 
@@ -192,10 +184,8 @@ func (g *Game) Tick() bool {
 }
 
 func (g *Game) unselectAll() {
-	for i := 0; i < len(g.columns); i++ {
-		for j := 0; j < len(g.columns[i].candys); j++ {
-			g.columns[i].candys[j].selected = false
-		}
+	for _, c := range g.candys {
+		c.selected = false
 	}
 	g.selected = nil
 }
@@ -204,27 +194,24 @@ var tSpeed = 4
 
 func (g *Game) translate() bool {
 	moving := false
-	for i := range g.columns {
-		for j := range g.columns[i].candys {
-			c := &g.columns[i].candys[j]
-			if c.vx > 0 {
-				c.x += tSpeed
-				c.vx -= tSpeed
-				moving = true
-			} else if c.vx < 0 {
-				c.x -= tSpeed
-				c.vx += tSpeed
-				moving = true
-			}
-			if c.vy > 0 {
-				c.y += tSpeed
-				c.vy -= tSpeed
-				moving = true
-			} else if c.vy < 0 {
-				c.y -= tSpeed
-				c.vy += tSpeed
-				moving = true
-			}
+	for _, c := range g.candys {
+		if c.vx > 0 {
+			c.x += tSpeed
+			c.vx -= tSpeed
+			moving = true
+		} else if c.vx < 0 {
+			c.x -= tSpeed
+			c.vx += tSpeed
+			moving = true
+		}
+		if c.vy > 0 {
+			c.y += tSpeed
+			c.vy -= tSpeed
+			moving = true
+		} else if c.vy < 0 {
+			c.y -= tSpeed
+			c.vy += tSpeed
+			moving = true
 		}
 	}
 	return moving
@@ -233,54 +220,49 @@ func (g *Game) translate() bool {
 
 func (g *Game) fall() bool {
 	falling := false
-	for i := range g.columns {
-		for j := range g.columns[i].candys {
-			c := &g.columns[i].candys[j]
-			if c.g > 0 {
-				c.y += c.g
-				if c.y < YMax && !collideColumnInd(j, g.columns[i]) {
-					//fmt.Printf("moving %d -> %d\n", j, c.g)
-					falling = true
+	for i, c := range g.candys {
+		if c.g > 0 {
+			c.y += c.g
+			if c.y < YMax && !g.collideColumn(c, i) {
+				//fmt.Printf("moving %d -> %d\n", j, c.g)
+				falling = true
+			} else {
+				// adjust y position according to the collision
+				if c.y >= YMax {
+					c.y = YMax
 				} else {
-					// adjust y position according to the collision
-					if c.y >= YMax {
-						c.y = YMax
-					} else {
+					c.y--
+					for g.collideColumn(c, i) {
 						c.y--
-						for collideColumnInd(j, g.columns[i]) {
-							c.y--
-						}
 					}
-					c.g = 0
 				}
-
+				c.g = 0
 			}
+
 		}
 	}
 	return falling
 }
 
 func (g *Game) populateDropZone() {
-	for i := range g.columns {
+	for i := 0; i < NbBlockWidth; i++ {
 		newc := g.newCandy()
 		newc.x = DashboardWidth + BlockSize*i
 		newc.y = 0
-		col := &g.columns[i]
-		if !collideColumn(newc, *col) {
-			col.candys = append(col.candys, newc)
+		if !g.collideColumn(newc, -1) {
+			g.candys = append(g.candys, newc)
 		}
 	}
 }
 
 func (g *Game) applyGravity() {
-	for i := 0; i < len(g.columns); i++ {
-		col := &g.columns[i]
-		for j := 0; j < len(col.candys); j++ {
-			if col.candys[j].g == 0 {
-				col.candys[j].g = i%2 + 1
-			} else {
-				col.candys[j].g++
-			}
+	for _, c := range g.candys {
+		if c.g == 0 {
+			// init gravity
+			c.g = 1 + (c.x / BlockSize % 2)
+		} else {
+			// increase gravity
+			c.g++
 		}
 	}
 }
@@ -314,20 +296,12 @@ func checkGrid(candys [][]CandyType) []Match {
 	return matches
 }
 
-func (g *Game) newCandy() Candy {
+func (g *Game) newCandy() *Candy {
 	ct := g.random.Intn(NbCandyType) + 1
-	return Candy{_type: CandyType(ct)}
+	return &Candy{_type: CandyType(ct)}
 }
 
-func loopRowColumn(content func(i, j int)) {
-	for i := 0; i < NbBlockWidth; i++ {
-		for j := 0; j < NbBlockHeight; j++ {
-			content(i, j)
-		}
-	}
-}
-
-func collide(c1, c2 Candy) bool {
+func collide(c1, c2 *Candy) bool {
 	if c1.x+BlockSize <= c2.x {
 		return false
 	}
@@ -343,19 +317,9 @@ func collide(c1, c2 Candy) bool {
 	return true
 }
 
-func collideColumnInd(i int, col Column) bool {
-	for j := 0; j < len(col.candys); j++ {
-		if i != j && collide(col.candys[i], col.candys[j]) {
-			//fmt.Printf("Collide between (%d,%d)/(%d,%d)\n", col.candys[i].x, col.candys[i].y, col.candys[j].x, col.candys[j].y)
-			return true
-		}
-	}
-	return false
-}
-
-func collideColumn(newc Candy, col Column) bool {
-	for _, c := range col.candys {
-		if collide(newc, c) {
+func (g *Game) collideColumn(newc *Candy, ind int) bool {
+	for i, c := range g.candys {
+		if i != ind && c.x == newc.x && collide(newc, c) {
 			return true
 		}
 	}
