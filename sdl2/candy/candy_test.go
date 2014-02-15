@@ -10,8 +10,7 @@ func setup() {
 	g = NewGame()
 }
 
-func TestClickTopLeft(t *testing.T) {
-	setup()
+func fillGame() {
 	g.populateDropZone()
 	g.applyVectors()
 	for g.move() {
@@ -19,6 +18,11 @@ func TestClickTopLeft(t *testing.T) {
 		g.applyVectors()
 	}
 	g.populateDropZone()
+}
+
+func TestClickTopLeft(t *testing.T) {
+	setup()
+	fillGame()
 
 	g.Click(DashboardWidth+5, 5)
 
@@ -26,6 +30,29 @@ func TestClickTopLeft(t *testing.T) {
 		t.Fatal("No candy selected")
 	}
 	assertXY(t, *g.selected, DashboardWidth, 0)
+}
+
+func TestClickMiddle(t *testing.T) {
+	setup()
+	fillGame()
+
+	g.Click(DashboardWidth+3*BlockSize+5, BlockSize*4+5)
+
+	if g.selected == nil {
+		t.Fatal("No candy selected")
+	}
+	assertXY(t, *g.selected, DashboardWidth+3*BlockSize, BlockSize*4)
+}
+
+func TestClickOutside(t *testing.T) {
+	setup()
+	fillGame()
+
+	g.Click(5, 5)
+
+	if g.selected != nil {
+		t.Fatal("Click outside shouldn't select a candy")
+	}
 }
 
 func TestCollision(t *testing.T) {
@@ -99,13 +126,8 @@ func TestMoves(t *testing.T) {
 
 func TestMoveAll(t *testing.T) {
 	setup()
-	g.populateDropZone()
-	g.applyVectors()
 
-	for g.move() {
-		g.populateDropZone()
-		g.applyVectors()
-	}
+	fillGame()
 
 	for i := 0; i < NbBlockWidth; i++ {
 		for j := 0; j < len(g.columns[i].candys); j++ {
@@ -182,8 +204,8 @@ func TestApplyVector(t *testing.T) {
 
 	g.applyVectors()
 
-	for _, col := range g.columns {
-		assertVector(t, col.candys[0].v, 1)
+	for i, col := range g.columns {
+		assertVector(t, col.candys[0].v, i%2+1)
 	}
 }
 

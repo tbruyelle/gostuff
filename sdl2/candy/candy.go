@@ -77,7 +77,7 @@ func (g *Game) Click(x, y int32) {
 	col := &g.columns[determineColumn(int(x))]
 	cy := determineYCandy(int(y))
 	if c, found := findCandy(*col, cy); found {
-		fmt.Printf("Found candy %d,%d",c.x,c.y)
+		fmt.Printf("Found candy %d,%d\n", c.x, c.y)
 		if c.selected {
 			// already selected unselect
 			c.selected = false
@@ -179,15 +179,16 @@ func (g *Game) populateDropZone() {
 	}
 }
 
-func applyVector(col *Column) {
-	for i := 0; i < len(col.candys); i++ {
-		col.candys[i].v++
-	}
-}
-
 func (g *Game) applyVectors() {
-	for _, col := range g.columns {
-		applyVector(&col)
+	for i := 0; i < len(g.columns); i++ {
+		col := &g.columns[i]
+		for j := 0; j < len(col.candys); j++ {
+			if col.candys[j].v == 0 {
+				col.candys[j].v = i%2 + 1
+			} else {
+				col.candys[j].v++
+			}
+		}
 	}
 }
 

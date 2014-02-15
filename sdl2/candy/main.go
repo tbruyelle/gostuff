@@ -28,6 +28,7 @@ func main() {
 	}
 	defer renderer.Destroy()
 	renderer.SetDrawColor(255, 255, 255, 255)
+	renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
 
 	game := NewGame()
 	defer game.Destroy()
@@ -45,7 +46,7 @@ func loop(game *Game, renderer *sdl.Renderer) {
 			wait := game.Tick()
 			renderThings(renderer, game)
 			if wait {
-				event := sdl.WaitEvent()
+				event := sdl.PollEvent()
 				switch t := event.(type) {
 				case *sdl.QuitEvent:
 					return
