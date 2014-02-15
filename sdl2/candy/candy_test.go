@@ -20,6 +20,24 @@ func fillGame() {
 	g.populateDropZone()
 }
 
+func TestMovePermute(t *testing.T) {
+	setup()
+	fillGame()
+	c1 := &g.columns[0].candys[1]
+	c1.v = 1
+	ox1 := c1.x
+	oy1 := c1.y
+	c2 := &g.columns[1].candys[1]
+	c2.v = 1
+	ox2 := c2.x
+	oy2 := c2.y
+
+	g.movePermute()
+
+	assertXY(t, *c1, ox1+1, oy1)
+	assertXY(t, *c2, ox2-1, oy2)
+}
+
 func TestClickTopLeft(t *testing.T) {
 	setup()
 	fillGame()
@@ -53,6 +71,19 @@ func TestClickOutside(t *testing.T) {
 	if g.selected != nil {
 		t.Fatal("Click outside shouldn't select a candy")
 	}
+}
+
+func TestClickNear(t *testing.T) {
+	c := Candy{x: DashboardWidth + 3*BlockSize, y: 3 * BlockSize}
+	near1 := Candy{x: DashboardWidth + 4*BlockSize, y: 3 * BlockSize}
+	near2 := Candy{x: DashboardWidth + 3*BlockSize, y: 2 * BlockSize}
+	notNear1 := Candy{x: DashboardWidth + 3*BlockSize, y: 3 * BlockSize}
+	notNear2 := Candy{x: DashboardWidth + 2*BlockSize, y: 2 * BlockSize}
+
+	assertNear(t, near(&c, &near1), true, c, near1)
+	assertNear(t, near(&c, &near1), true, c, near2)
+	assertNear(t, near(&c, &notNear1), false, c, notNear1)
+	assertNear(t, near(&c, &notNear2), false, c, notNear2)
 }
 
 func TestCollision(t *testing.T) {
@@ -247,5 +278,11 @@ func assertY(t *testing.T, c Candy, y int) {
 func assertNbCandy(t *testing.T, col Column, nb int) {
 	if len(col.candys) != nb {
 		t.Fatalf("Wrong number of candy in column, expected %d but was %d", nb, len(col.candys))
+	}
+}
+
+func assertNear(t *testing.T, near, expected bool, c1, c2 Candy) {
+	if near != expected {
+		t.Errorf("Wrong near, expected %t but was %t for candys (%d,%d) and (%d,%d)", near, expected, c1.x, c1.y, c2.x, c2.y)
 	}
 }

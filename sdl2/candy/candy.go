@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -27,6 +28,7 @@ const (
 	Idle State = iota
 	Crushing
 	Filling
+	Permute
 )
 
 type CandyType int
@@ -89,13 +91,35 @@ func (g *Game) Click(x, y int32) {
 		} else {
 			// not selected
 			if g.selected != nil {
-				// remove previous selection
-				g.selected.selected = false
+				// check if previous selection is near the new one
+				if near(c, g.selected) {
+					// init permutation
+					g.permute(c, g.selected)
+				} else {
+					// remove previous selection
+					g.selected.selected = false
+				}
 			}
 			c.selected = true
 			g.selected = c
 		}
 	}
+}
+
+func (g *Game) permute(c1, c2 *Candy) {
+	g.state = Permute
+	c1.v = 1
+	c2.v = 1
+}
+
+func near(c1, c2 *Candy) bool {
+	if c1.x == c2.x && math.Abs(float64(c1.y-c2.y)) == BlockSize {
+		return true
+	}
+	if c1.y == c2.y && math.Abs(float64(c1.x-c2.x)) == BlockSize {
+		return true
+	}
+	return false
 }
 
 func findCandy(col Column, y int) (*Candy, bool) {
@@ -140,8 +164,26 @@ func (g *Game) Tick() bool {
 			fmt.Println("move->idle")
 			g.state = Idle
 		}
+	case Permute:
+		if !g.movePermute() {
+			g.state = Idle
+		}
 	}
+
 	return false
+
+}
+
+func (g *Game) movePermute() bool {
+	moving := false
+	for i:=range g.columns {
+		for j:=range g.columns[i].candys {
+			c:=&g.columns[i].candys[j]
+			if c.v>0 {
+			
+			}
+		}}
+	return moving
 
 }
 
