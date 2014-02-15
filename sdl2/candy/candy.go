@@ -27,8 +27,8 @@ type State int
 const (
 	Idle State = iota
 	Crushing
-	Filling
-	Permute
+	Falling
+	Translate
 )
 
 type CandyType int
@@ -43,9 +43,9 @@ const (
 )
 
 type Candy struct {
-	_type    CandyType
-	x, y, v  int
-	selected bool
+	_type           CandyType
+	x, y, vx, vy, g int
+	selected        bool
 }
 
 type Column struct {
@@ -70,7 +70,7 @@ func NewGame() *Game {
 	g := &Game{}
 	g.random = rand.New(rand.NewSource(time.Now().Unix()))
 	g.columns = make([]Column, NbBlockWidth)
-	g.state = Filling
+	g.state = Falling
 	return g
 }
 
@@ -107,9 +107,25 @@ func (g *Game) Click(x, y int32) {
 }
 
 func (g *Game) permute(c1, c2 *Candy) {
-	g.state = Permute
-	c1.v = 1
-	c2.v = 1
+	g.state = Translate
+	if c1.x > c2.x {
+		c1.vx = -BlockSize
+		c2.vx = BlockSize
+		return
+	}
+	if c1.x < c2.x {
+		c1.vx = BlockSize
+		c2.vx = -BlockSize
+		return
+	}
+	if c1.y > c2.y {
+		c1.vy = -BlockSize
+		c2.vy = BlockSize
+		return
+	}
+	// c1.y<c2.y
+	c1.vy = BlockSize
+	c2.vy = -BlockSize
 }
 
 func near(c1, c2 *Candy) bool {
@@ -147,7 +163,7 @@ func (g *Game) Reset() {
 	for i := 0; i < len(g.columns); i++ {
 		g.columns[i].candys = nil
 	}
-	g.state = Filling
+	g.state = Falling
 }
 
 func (g *Game) Tick() bool {
@@ -155,17 +171,18 @@ func (g *Game) Tick() bool {
 	case Idle:
 		return true
 	case Crushing:
-		g.applyVectors()
-	case Filling:
+		g.applyGravity()
+	case Falling:
 		g.populateDropZone()
-		g.applyVectors()
-		if !g.move() {
+		g.applyGravity()
+		if !g.fall() {
 			g.populateDropZone()
 			fmt.Println("move->idle")
 			g.state = Idle
 		}
-	case Permute:
-		if !g.movePermute() {
+	case Translate:
+		if !g.translate() {
+			g.unselectAll()
 			g.state = Idle
 		}
 	}
@@ -174,29 +191,56 @@ func (g *Game) Tick() bool {
 
 }
 
-func (g *Game) movePermute() bool {
-	moving := false
-	for i:=range g.columns {
-		for j:=range g.columns[i].candys {
-			c:=&g.columns[i].candys[j]
-			if c.v>0 {
-			
-			}
-		}}
-	return moving
-
+func (g *Game) unselectAll() {
+	for i := 0; i < len(g.columns); i++ {
+		for j := 0; j < len(g.columns[i].candys); j++ {
+			g.columns[i].candys[j].selected = false
+		}
+	}
+	g.selected = nil
 }
 
-func (g *Game) move() bool {
+var tSpeed = 4
+
+func (g *Game) translate() bool {
 	moving := false
 	for i := range g.columns {
 		for j := range g.columns[i].candys {
 			c := &g.columns[i].candys[j]
-			if c.v > 0 {
-				c.y += c.v
+			if c.vx > 0 {
+				c.x += tSpeed
+				c.vx -= tSpeed
+				moving = true
+			} else if c.vx < 0 {
+				c.x -= tSpeed
+				c.vx += tSpeed
+				moving = true
+			}
+			if c.vy > 0 {
+				c.y += tSpeed
+				c.vy -= tSpeed
+				moving = true
+			} else if c.vy < 0 {
+				c.y -= tSpeed
+				c.vy += tSpeed
+				moving = true
+			}
+		}
+	}
+	return moving
+
+}
+
+func (g *Game) fall() bool {
+	falling := false
+	for i := range g.columns {
+		for j := range g.columns[i].candys {
+			c := &g.columns[i].candys[j]
+			if c.g > 0 {
+				c.y += c.g
 				if c.y < YMax && !collideColumnInd(j, g.columns[i]) {
-					//fmt.Printf("moving %d -> %d\n", j, c.v)
-					moving = true
+					//fmt.Printf("moving %d -> %d\n", j, c.g)
+					falling = true
 				} else {
 					// adjust y position according to the collision
 					if c.y >= YMax {
@@ -207,13 +251,13 @@ func (g *Game) move() bool {
 							c.y--
 						}
 					}
-					c.v = 0
+					c.g = 0
 				}
 
 			}
 		}
 	}
-	return moving
+	return falling
 }
 
 func (g *Game) populateDropZone() {
@@ -228,14 +272,14 @@ func (g *Game) populateDropZone() {
 	}
 }
 
-func (g *Game) applyVectors() {
+func (g *Game) applyGravity() {
 	for i := 0; i < len(g.columns); i++ {
 		col := &g.columns[i]
 		for j := 0; j < len(col.candys); j++ {
-			if col.candys[j].v == 0 {
-				col.candys[j].v = i%2 + 1
+			if col.candys[j].g == 0 {
+				col.candys[j].g = i%2 + 1
 			} else {
-				col.candys[j].v++
+				col.candys[j].g++
 			}
 		}
 	}

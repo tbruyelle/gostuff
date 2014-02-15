@@ -12,30 +12,41 @@ func setup() {
 
 func fillGame() {
 	g.populateDropZone()
-	g.applyVectors()
-	for g.move() {
+	g.applyGravity()
+	for g.fall() {
 		g.populateDropZone()
-		g.applyVectors()
+		g.applyGravity()
 	}
 	g.populateDropZone()
 }
 
-func TestMovePermute(t *testing.T) {
+func TestTranslateLeftRight(t *testing.T) {
 	setup()
 	fillGame()
 	c1 := &g.columns[0].candys[1]
-	c1.v = 1
+	c2 := &g.columns[1].candys[1]
+
+	g.permute(c1, c2)
+
+	assertVx(t, *c1, BlockSize)
+	assertVx(t, *c2, -BlockSize)
+}
+
+func TestMoveTranslateLeftRight(t *testing.T) {
+	setup()
+	fillGame()
+	c1 := &g.columns[0].candys[1]
 	ox1 := c1.x
 	oy1 := c1.y
 	c2 := &g.columns[1].candys[1]
-	c2.v = 1
 	ox2 := c2.x
 	oy2 := c2.y
+	g.permute(c1, c2)
 
-	g.movePermute()
+	g.translate()
 
-	assertXY(t, *c1, ox1+1, oy1)
-	assertXY(t, *c2, ox2-1, oy2)
+	assertXY(t, *c1, ox1+tSpeed, oy1)
+	assertXY(t, *c2, ox2-tSpeed, oy2)
 }
 
 func TestClickTopLeft(t *testing.T) {
@@ -130,12 +141,12 @@ func TestPopulateDropZone(t *testing.T) {
 	}
 }
 
-func TestMove(t *testing.T) {
+func TestFall(t *testing.T) {
 	setup()
 	g.populateDropZone()
-	g.applyVectors()
+	g.applyGravity()
 
-	moving := g.move()
+	moving := g.fall()
 
 	assertNbCandy(t, g.columns[0], 1)
 	assertY(t, g.columns[0].candys[0], 1)
@@ -144,18 +155,18 @@ func TestMove(t *testing.T) {
 	}
 }
 
-func TestMoves(t *testing.T) {
+func TestFalls(t *testing.T) {
 	setup()
 	g.populateDropZone()
-	g.applyVectors()
+	g.applyGravity()
 
-	for g.move() {
+	for g.fall() {
 	}
 
 	assertY(t, g.columns[0].candys[0], WindowHeight-BlockSize)
 }
 
-func TestMoveAll(t *testing.T) {
+func TestFallAll(t *testing.T) {
 	setup()
 
 	fillGame()
@@ -228,14 +239,14 @@ func TestCheckGridNoMatch(t *testing.T) {
 
 }
 
-func TestApplyVector(t *testing.T) {
+func TestApplyGravity(t *testing.T) {
 	setup()
 	g.populateDropZone()
 
-	g.applyVectors()
+	g.applyGravity()
 
 	for i, col := range g.columns {
-		assertVector(t, col.candys[0].v, i%2+1)
+		assertVector(t, col.candys[0].g, i%2+1)
 	}
 }
 
@@ -284,5 +295,11 @@ func assertNbCandy(t *testing.T, col Column, nb int) {
 func assertNear(t *testing.T, near, expected bool, c1, c2 Candy) {
 	if near != expected {
 		t.Errorf("Wrong near, expected %t but was %t for candys (%d,%d) and (%d,%d)", near, expected, c1.x, c1.y, c2.x, c2.y)
+	}
+}
+
+func assertVx(t *testing.T, c Candy, vx int) {
+	if c.vx != vx {
+		t.Errorf("Wrong vx, expected %d but was %d", vx, c.vx)
 	}
 }
