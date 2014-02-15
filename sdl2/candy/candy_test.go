@@ -133,8 +133,7 @@ func TestMoveAll(t *testing.T) {
 		for j := 0; j < len(g.columns[i].candys); j++ {
 			assertY(t, g.columns[i].candys[j], WindowHeight-BlockSize*(j+1))
 		}
-		// -1 because we dont call populateDropZone after move false
-		assertNbCandy(t, g.columns[i], NbBlockHeight-1)
+		assertNbCandy(t, g.columns[i], NbBlockHeight)
 	}
 }
 

@@ -73,6 +73,10 @@ func NewGame() *Game {
 }
 
 func (g *Game) Click(x, y int32) {
+	if x <= DashboardWidth {
+		// ignore click on dashboard for now
+		return
+	}
 	// determine column
 	col := &g.columns[determineColumn(int(x))]
 	cy := determineYCandy(int(y))
@@ -101,13 +105,12 @@ func findCandy(col Column, y int) (*Candy, bool) {
 }
 
 func determineColumn(x int) int {
-	return determineYCandy(x - DashboardWidth)
+	return (x - DashboardWidth) / BlockSize
 }
 
 func determineYCandy(y int) int {
 	if y > BlockSize {
-		d := y / BlockSize
-		return d - d%(BlockSize*d)
+		return y - y%BlockSize
 	}
 	return 0
 }
