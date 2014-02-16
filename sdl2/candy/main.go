@@ -10,11 +10,16 @@ import (
 
 const FRAME_RATE = time.Second / 40
 
+var (
+	window  *sdl.Window
+	tileset *sdl.Texture
+)
+
 func main() {
 	_ = fmt.Sprint()
 	runtime.LockOSThread()
 
-	window := sdl.CreateWindow("Candy Crush Saga", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_SHOWN)
+	window = sdl.CreateWindow("Candy Crush Saga", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_SHOWN)
 	if window == nil {
 		fmt.Fprintf(os.Stderr, "failed to create window %s\n", sdl.GetError())
 		os.Exit(1)
@@ -29,6 +34,14 @@ func main() {
 	defer renderer.Destroy()
 	renderer.SetDrawColor(255, 255, 255, 255)
 	renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+
+	tilesetFile := os.Getenv("GOPATH") + "/src/github.com/tbruyelle/gostuff/sdl2/candy/assets/tileset.bmp"
+	tilesetSurface := sdl.LoadBMP(tilesetFile)
+	if tilesetSurface == nil {
+		fmt.Fprintf(os.Stderr, "Failed to load bitmap %s", tilesetFile)
+		os.Exit(1)
+	}
+	tileset = renderer.CreateTextureFromSurface(tilesetSurface)
 
 	game := NewGame()
 	defer game.Destroy()
@@ -87,9 +100,38 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 	renderer.Present()
 }
 
-var block = sdl.Rect{W: BlockSize - 2, H: BlockSize - 2}
+var block = sdl.Rect{W: BlockSize, H: BlockSize}
+var source = sdl.Rect{W: BlockSize, H: BlockSize}
 
 func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
+	if c._type == EmptyCandy {
+		return
+	}
+	//fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
+	block.X = int32(c.x)
+	block.Y = int32(c.y)
+	//alpha := uint8(255)
+	//if c.selected {
+	//	alpha = 150
+	//}
+	switch c._type {
+	case BlueCandy:
+		source.X = BlockSize
+	case YellowCandy:
+		source.X = BlockSize * 4
+	case GreenCandy:
+		source.X = BlockSize * 3
+	case RedCandy:
+		source.X = BlockSize * 5
+	case PinkCandy:
+		source.X = BlockSize * 2
+	case OrangeCandy:
+		source.X = 0
+	}
+	renderer.Copy(tileset, &source, &block)
+}
+
+func showCandySquare(renderer *sdl.Renderer, c Candy, game *Game) {
 	if c._type == EmptyCandy {
 		return
 	}

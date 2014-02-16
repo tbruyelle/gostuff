@@ -37,7 +37,21 @@ func TestFindPaths(t *testing.T) {
 	assertPath(t, paths, candys[3], candys[4])
 }
 
-func  TestWeightPaths(t *testing.T) {
+func TestWeightPaths(t *testing.T) {
+	candys := []*Candy{
+		&Candy{_type: RedCandy, x: XMin, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize*2, y: YMin}, // line 1
+		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize},   // line 2
+		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize*2}, // line3
+	}
+	paths := findPaths(candys)
+
+	weighPaths(paths)
+
+	assertWeight(t, candys[1], 1)
+	assertWeight(t, candys[2], 1)
+	assertWeight(t, candys[0], 2)
+	assertWeight(t, candys[3], 2)
+	assertWeight(t, candys[4], 2)
 }
 
 func TestPermuteLeftRight(t *testing.T) {
@@ -336,4 +350,10 @@ func assertPath(t *testing.T, paths []Path, c1, c2 *Candy) {
 		}
 	}
 	t.Errorf("Wrong paths, expected (%d,%d)->(%d,%d) but not found", c1.x, c1.y, c2.x, c2.y)
+}
+
+func assertWeight(t *testing.T, c *Candy, weight int) {
+	if c.weight != weight {
+		t.Errorf("Wrong weight for candy %d,%d, expected %d but was %d", c.x, c.y, weight, c.weight)
+	}
 }

@@ -23,7 +23,7 @@ const (
 	XMin           = DashboardWidth
 	XMax           = WindowWidth - BlockSize
 
-	NbCandyType = 5
+	NbCandyType = 6
 )
 
 type State int
@@ -44,12 +44,14 @@ const (
 	BlueCandy
 	YellowCandy
 	PinkCandy
+	OrangeCandy
 )
 
 type Candy struct {
 	_type             CandyType
 	x, y, vx, vy, g   int
 	selected, visited bool
+	weight            int
 }
 
 type Path struct {
@@ -322,6 +324,13 @@ func sameType(c1, c2 *Candy) bool {
 func addPath(paths *[]Path, c1, c2 *Candy) {
 	fmt.Println("add path", c1, c2)
 	*paths = append(*paths, Path{c1, c2})
+}
+
+func weighPaths(paths []Path) {
+	for i := 0; i < len(paths); i++ {
+
+	}
+
 }
 
 func checkLine(line []CandyType) Match {
