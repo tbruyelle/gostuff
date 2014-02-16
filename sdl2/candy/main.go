@@ -61,7 +61,7 @@ func loop(game *Game, renderer *sdl.Renderer) {
 				case *sdl.MouseButtonEvent:
 					if t.State != 0 {
 						//fmt.Println("Click", t.X, t.Y)
-						game.Click(t.X, t.Y)
+						game.Click(int(t.X), int(t.Y))
 						wait = false
 					}
 				}

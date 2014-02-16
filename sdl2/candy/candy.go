@@ -18,8 +18,12 @@ const (
 	Match4         = 4
 	Match5         = 5
 	Speed          = 7
+	YMin           = 0
 	YMax           = WindowHeight - BlockSize
-	NbCandyType    = 5
+	XMin           = DashboardWidth
+	XMax           = WindowWidth - BlockSize
+
+	NbCandyType = 5
 )
 
 type State int
@@ -73,9 +77,12 @@ func NewGame() *Game {
 	return g
 }
 
-func (g *Game) Click(x, y int32) {
-	if x <= DashboardWidth {
-		// ignore click on dashboard for now
+func withinLimits(x, y int) bool {
+	return !(x < XMin || x > XMax || y < YMin || y > YMax)
+}
+
+func (g *Game) Click(x, y int) {
+	if !withinLimits(x, y) {
 		return
 	}
 	cx := determineXCandy(int(x))
@@ -137,7 +144,7 @@ func near(c1, c2 *Candy) bool {
 }
 
 func findCandy(candys []*Candy, x, y int) (*Candy, bool) {
-	if x < DashboardWidth || x > WindowWidth || y < 0 || y > WindowHeight {
+	if !withinLimits(x, y) {
 		return nil, false
 	}
 	for _, c := range candys {
@@ -150,12 +157,16 @@ func findCandy(candys []*Candy, x, y int) (*Candy, bool) {
 }
 
 func determineXCandy(x int) int {
-	return determineYCandy(x-DashboardWidth) + DashboardWidth
+	return determineYCandy(x-XMin) + XMin
 }
 
 func determineYCandy(y int) int {
-	if y > BlockSize {
-		return y - y%BlockSize
+	return determineCoord(y-YMin) + YMin
+}
+
+func determineCoord(c int) int {
+	if c > BlockSize {
+		return c - c%BlockSize
 	}
 	return 0
 }
@@ -254,7 +265,7 @@ func (g *Game) fall() bool {
 func (g *Game) populateDropZone() {
 	for i := 0; i < NbBlockWidth; i++ {
 		newc := g.newCandy()
-		newc.x = DashboardWidth + BlockSize*i
+		newc.x = XMin + BlockSize*i
 		newc.y = 0
 		if !g.collideColumn(newc, -1) {
 			g.candys = append(g.candys, newc)

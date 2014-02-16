@@ -21,7 +21,7 @@ func fillGame() {
 }
 
 func TestFindPaths(t *testing.T) {
-	candys := []*Candy{&Candy{_type: RedCandy, x: DashboardWidth, y: 0}, &Candy{_type: GreenCandy, x: DashboardWidth + BlockSize, y: 0}, &Candy{_type: GreenCandy, x: DashboardWidth + BlockSize*2, y: 0}}
+	candys := []*Candy{&Candy{_type: RedCandy, x: XMin, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize*2, y: YMin}}
 
 	paths := findPaths(candys)
 
@@ -64,24 +64,24 @@ func TestClickTopLeft(t *testing.T) {
 	setup()
 	fillGame()
 
-	g.Click(DashboardWidth+5, 5)
+	g.Click(XMin+5, 5)
 
 	if g.selected == nil {
 		t.Fatal("No candy selected")
 	}
-	assertXY(t, g.selected, DashboardWidth, 0)
+	assertXY(t, g.selected, XMin, YMin)
 }
 
 func TestClickMiddle(t *testing.T) {
 	setup()
 	fillGame()
 
-	g.Click(DashboardWidth+3*BlockSize+5, BlockSize*4+5)
+	g.Click(XMin+3*BlockSize+5, BlockSize*4+5)
 
 	if g.selected == nil {
 		t.Fatal("No candy selected")
 	}
-	assertXY(t, g.selected, DashboardWidth+3*BlockSize, BlockSize*4)
+	assertXY(t, g.selected, XMin+3*BlockSize, BlockSize*4)
 }
 
 func TestClickOutside(t *testing.T) {
@@ -96,11 +96,11 @@ func TestClickOutside(t *testing.T) {
 }
 
 func TestClickNear(t *testing.T) {
-	c := &Candy{x: DashboardWidth + 3*BlockSize, y: 3 * BlockSize}
-	near1 := &Candy{x: DashboardWidth + 4*BlockSize, y: 3 * BlockSize}
-	near2 := &Candy{x: DashboardWidth + 3*BlockSize, y: 2 * BlockSize}
-	notNear1 := &Candy{x: DashboardWidth + 3*BlockSize, y: 3 * BlockSize}
-	notNear2 := &Candy{x: DashboardWidth + 2*BlockSize, y: 2 * BlockSize}
+	c := &Candy{x: XMin + 3*BlockSize, y: 3 * BlockSize}
+	near1 := &Candy{x: XMin + 4*BlockSize, y: 3 * BlockSize}
+	near2 := &Candy{x: XMin + 3*BlockSize, y: 2 * BlockSize}
+	notNear1 := &Candy{x: XMin + 3*BlockSize, y: 3 * BlockSize}
+	notNear2 := &Candy{x: XMin + 2*BlockSize, y: 2 * BlockSize}
 
 	assertNear(t, near(c, near1), true, c, near1)
 	assertNear(t, near(c, near1), true, c, near2)
@@ -184,7 +184,7 @@ func TestFallAll(t *testing.T) {
 	// disable because the order is not respected because the gravity speed
 	// is different threw columns
 	//for i, c := range g.candys {
-	//	x := DashboardWidth + BlockSize*(i%NbBlockWidth)
+	//	x := XMin + BlockSize*(i%NbBlockWidth)
 	//	fmt.Println(i, i%NbBlockWidth, x)
 	//	y := WindowHeight - BlockSize*(1+(i/NbBlockHeight))
 	//	assertXY(t, c, x, y)
@@ -322,8 +322,9 @@ func assertPath(t *testing.T, paths []Path, c1, c2 *Candy) {
 		if p.c1 == c1 && p.c2 == c2 {
 			return
 		}
-		if p.c1==c2&&p.c2==c1 {
-		return}
+		if p.c1 == c2 && p.c2 == c1 {
+			return
+		}
 	}
 	t.Errorf("Wrong paths, expected (%d,%d)->(%d,%d) but not found", c1.x, c1.y, c2.x, c2.y)
 }
