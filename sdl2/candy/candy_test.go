@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -19,6 +18,17 @@ func fillGame() {
 		g.applyGravity()
 	}
 	g.populateDropZone()
+}
+
+func TestFindPaths(t *testing.T) {
+	candys := []*Candy{&Candy{_type: RedCandy, x: DashboardWidth, y: 0}, &Candy{_type: GreenCandy, x: DashboardWidth + BlockSize, y: 0}, &Candy{_type: GreenCandy, x: DashboardWidth + BlockSize*2, y: 0}}
+
+	paths := findPaths(candys)
+
+	if len(paths) != 1 {
+		t.Fatalf("Wrong number of paths, expected 1 but was %d", len(paths))
+	}
+	assertPath(t, paths, candys[1], candys[2])
 }
 
 func TestPermuteLeftRight(t *testing.T) {
@@ -171,8 +181,8 @@ func TestFallAll(t *testing.T) {
 
 	fillGame()
 
-		// disable because the order is not respected because the gravity speed
-		// is different threw columns
+	// disable because the order is not respected because the gravity speed
+	// is different threw columns
 	//for i, c := range g.candys {
 	//	x := DashboardWidth + BlockSize*(i%NbBlockWidth)
 	//	fmt.Println(i, i%NbBlockWidth, x)
@@ -279,7 +289,6 @@ func assertNotEmpty(t *testing.T, c *Candy) {
 
 func assertXY(t *testing.T, c *Candy, x, y int) {
 	if c.y != y || c.x != x {
-		fmt.Printf("Wrong x,y, expected %d,%d but was %d,%d\n", x, y, c.x, c.y)
 		t.Errorf("Wrong x,y, expected %d,%d but was %d,%d", x, y, c.x, c.y)
 	}
 }
@@ -306,4 +315,15 @@ func assertVx(t *testing.T, c *Candy, vx int) {
 	if c.vx != vx {
 		t.Errorf("Wrong vx, expected %d but was %d", vx, c.vx)
 	}
+}
+
+func assertPath(t *testing.T, paths []Path, c1, c2 *Candy) {
+	for _, p := range paths {
+		if p.c1 == c1 && p.c2 == c2 {
+			return
+		}
+		if p.c1==c2&&p.c2==c1 {
+		return}
+	}
+	t.Errorf("Wrong paths, expected (%d,%d)->(%d,%d) but not found", c1.x, c1.y, c2.x, c2.y)
 }

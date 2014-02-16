@@ -43,9 +43,13 @@ const (
 )
 
 type Candy struct {
-	_type           CandyType
-	x, y, vx, vy, g int
-	selected        bool
+	_type             CandyType
+	x, y, vx, vy, g   int
+	selected, visited bool
+}
+
+type Path struct {
+	c1, c2 *Candy
 }
 
 type Game struct {
@@ -76,7 +80,7 @@ func (g *Game) Click(x, y int32) {
 	}
 	cx := determineXCandy(int(x))
 	cy := determineYCandy(int(y))
-	if c, found := g.findCandy(cx, cy); found {
+	if c, found := findCandy(g.candys, cx, cy); found {
 		//fmt.Printf("Found candy %d,%d\n", c.x, c.y)
 		if c.selected {
 			// already selected unselect
@@ -132,8 +136,11 @@ func near(c1, c2 *Candy) bool {
 	return false
 }
 
-func (g *Game) findCandy(x, y int) (*Candy, bool) {
-	for _, c := range g.candys {
+func findCandy(candys []*Candy, x, y int) (*Candy, bool) {
+	if x < DashboardWidth || x > WindowWidth || y < 0 || y > WindowHeight {
+		return nil, false
+	}
+	for _, c := range candys {
 		//fmt.Printf("%d finding candy %d current %d\n", i, col.candys[i].y, y)
 		if c.y == y && c.x == x {
 			return c, true
@@ -265,6 +272,45 @@ func (g *Game) applyGravity() {
 			c.g++
 		}
 	}
+}
+
+func findPaths(candys []*Candy) []Path {
+	var paths []Path
+	for _, c := range candys {
+		if c.visited {
+			return paths
+		}
+
+		c.visited = true
+		if top, found := findCandy(candys, c.x, c.y-BlockSize); found {
+			checkPath(&paths, top, c)
+		}
+		if left, found := findCandy(candys, c.x-BlockSize, c.y); found {
+			checkPath(&paths, left, c)
+		}
+		if right, found := findCandy(candys, c.x+BlockSize, c.y); found {
+			checkPath(&paths, right, c)
+		}
+		if bottom, found := findCandy(candys, c.x, c.y+BlockSize); found {
+			checkPath(&paths, bottom, c)
+		}
+	}
+	return paths
+}
+
+func checkPath(paths *[]Path, near, current *Candy) {
+	if !near.visited && sameType(near, current) {
+		addPath(paths, near, current)
+	}
+}
+
+func sameType(c1, c2 *Candy) bool {
+	return c1._type == c2._type
+}
+
+func addPath(paths *[]Path, c1, c2 *Candy) {
+	fmt.Println("add path", c1, c2)
+	*paths = append(*paths, Path{c1, c2})
 }
 
 func checkLine(line []CandyType) Match {
