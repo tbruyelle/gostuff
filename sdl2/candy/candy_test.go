@@ -23,8 +23,8 @@ func fillGame() {
 func TestFindPaths(t *testing.T) {
 	candys := []*Candy{
 		&Candy{_type: RedCandy, x: XMin, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize*2, y: YMin}, // line 1
-		&Candy{_type:RedCandy,x:XMin,y:YMin+BlockSize}, // line 2
-		&Candy{_type:RedCandy,x:XMin,y:YMin+BlockSize*2}, // line3
+		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize},   // line 2
+		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize*2}, // line3
 	}
 
 	paths := findPaths(candys)
@@ -35,6 +35,9 @@ func TestFindPaths(t *testing.T) {
 	assertPath(t, paths, candys[1], candys[2])
 	assertPath(t, paths, candys[0], candys[3])
 	assertPath(t, paths, candys[3], candys[4])
+}
+
+func  TestWeightPaths(t *testing.T) {
 }
 
 func TestPermuteLeftRight(t *testing.T) {
