@@ -20,38 +20,36 @@ func fillGame() {
 	g.populateDropZone()
 }
 
-func TestFindPaths(t *testing.T) {
-	candys := []*Candy{
-		&Candy{_type: RedCandy, x: XMin, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize*2, y: YMin}, // line 1
-		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize},   // line 2
-		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize*2}, // line3
-	}
+func TestAlligned(t *testing.T) {
+	candysXAlligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: 0, y: BlockSize}, &Candy{x: 0, y: BlockSize * 2}}
+	candysYAlligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: 0}}
+	candysNotAlligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: BlockSize}}
 
-	paths := findPaths(candys)
-
-	if len(paths) != 3 {
-		t.Fatalf("Wrong number of paths, expected 3 but was %d", len(paths))
+	if !alligned(candysXAlligned) {
+		t.Errorf("Should be X alligned %+v", candysXAlligned)
 	}
-	assertPath(t, paths, candys[1], candys[2])
-	assertPath(t, paths, candys[0], candys[3])
-	assertPath(t, paths, candys[3], candys[4])
+	if !alligned(candysYAlligned) {
+		t.Errorf("Should be Y alligned %+v", candysYAlligned)
+	}
+	if alligned(candysNotAlligned) {
+		t.Errorf("Should not be alligned %v", candysNotAlligned)
+	}
 }
 
-func TestWeightPaths(t *testing.T) {
-	candys := []*Candy{
-		&Candy{_type: RedCandy, x: XMin, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize, y: YMin}, &Candy{_type: GreenCandy, x: XMin + BlockSize*2, y: YMin}, // line 1
-		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize},   // line 2
-		&Candy{_type: RedCandy, x: XMin, y: YMin + BlockSize*2}, // line3
+func TestCrushable(t *testing.T) {
+	notEnough := []*Candy{&Candy{}, &Candy{}}
+	ThreeNotAligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: 0}, &Candy{x: 0, y: BlockSize}}
+	ThreeOK := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: 0}, &Candy{x: BlockSize * 2, y: 0}}
+
+	if crushable(notEnough) {
+		t.Errorf("less than 3 candys should not be crushable")
 	}
-	paths := findPaths(candys)
-
-	weighPaths(paths)
-
-	assertWeight(t, candys[1], 1)
-	assertWeight(t, candys[2], 1)
-	assertWeight(t, candys[0], 2)
-	assertWeight(t, candys[3], 2)
-	assertWeight(t, candys[4], 2)
+	if crushable(ThreeNotAligned) {
+		t.Errorf("3 not aligned should not be aligned")
+	}
+	if !crushable(ThreeOK) {
+		t.Errorf("3 aligned should be crushables")
+	}
 }
 
 func TestPermuteLeftRight(t *testing.T) {
@@ -350,10 +348,4 @@ func assertPath(t *testing.T, paths []Path, c1, c2 *Candy) {
 		}
 	}
 	t.Errorf("Wrong paths, expected (%d,%d)->(%d,%d) but not found", c1.x, c1.y, c2.x, c2.y)
-}
-
-func assertWeight(t *testing.T, c *Candy, weight int) {
-	if c.weight != weight {
-		t.Errorf("Wrong weight for candy %d,%d, expected %d but was %d", c.x, c.y, weight, c.weight)
-	}
 }
