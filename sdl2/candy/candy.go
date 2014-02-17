@@ -125,7 +125,7 @@ func (g *Game) Tick() bool {
 }
 
 func withinLimits(x, y int) bool {
-	return !(x < XMin || x > XMax || y < YMin || y > YMax)
+	return !(x < XMin || x > XMax+BlockSize || y < YMin || y > YMax+BlockSize)
 }
 
 func (g *Game) matching() bool {
@@ -193,6 +193,7 @@ func alligned(candys []*Candy) bool {
 
 func (g *Game) Click(x, y int) {
 	if !withinLimits(x, y) {
+		fmt.Printf("Out of limits %d,%d\n", x, y)
 		return
 	}
 	cx := determineXCandy(int(x))
