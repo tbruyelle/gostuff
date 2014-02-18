@@ -11,8 +11,9 @@ import (
 const FRAME_RATE = time.Second / 40
 
 var (
-	window  *sdl.Window
-	tileset *sdl.Texture
+	window          *sdl.Window
+	tileset         *sdl.Texture
+	tilesetSelected *sdl.Texture
 )
 
 func main() {
@@ -42,6 +43,8 @@ func main() {
 		os.Exit(1)
 	}
 	tileset = renderer.CreateTextureFromSurface(tilesetSurface)
+	tilesetSurface.SetAlphaMod(190)
+	tilesetSelected = renderer.CreateTextureFromSurface(tilesetSurface)
 
 	game := NewGame()
 	defer game.Destroy()
@@ -128,7 +131,11 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	case OrangeCandy:
 		source.X = 0
 	}
-	renderer.Copy(tileset, &source, &block)
+	if c.selected {
+		renderer.Copy(tilesetSelected, &source, &block)
+	} else {
+		renderer.Copy(tileset, &source, &block)
+	}
 }
 
 func showCandySquare(renderer *sdl.Renderer, c Candy, game *Game) {
