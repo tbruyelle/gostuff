@@ -102,7 +102,7 @@ func (g *Game) Tick() bool {
 				cds = append(cds, c)
 			}
 		}
-		fmt.Printf("Crushing %d candys", len(g.candys)-len(cds))
+		fmt.Printf("Crushing %d candys\n", len(g.candys)-len(cds))
 		g.candys = cds
 		// trigger the fall of new candys
 		g.state = Falling
@@ -142,7 +142,7 @@ func (g *Game) matching() bool {
 			for _, c := range region {
 				c.crushme = true
 			}
-			fmt.Printf("crush %d candys", len(region))
+			fmt.Printf("crush %d candys\n", len(region))
 		}
 	}
 	return math
