@@ -49,16 +49,11 @@ const (
 )
 
 type Candy struct {
-	_type             CandyType
-	x, y, vx, vy, g   int
-	selected, visited bool
-	crushme           bool
-}
-
-type Region []*Candy
-
-type Path struct {
-	c1, c2 *Candy
+	_type                      CandyType
+	x, y, vx, vy, g            int
+	selected                   bool
+	visitedLine, visitedColumn bool
+	crushme                    int
 }
 
 type Game struct {
@@ -98,7 +93,7 @@ func (g *Game) Tick() bool {
 		// remove crushed candys
 		var cds []*Candy
 		for _, c := range g.candys {
-			if !c.crushme {
+			if c.crushme == 0 {
 				cds = append(cds, c)
 			}
 		}
@@ -117,7 +112,7 @@ func (g *Game) Tick() bool {
 	case Translating:
 		if !g.translate() {
 			g.unselectAll()
-			g.state = Crushing
+			g.state = Matching
 		}
 	}
 
@@ -129,47 +124,38 @@ func withinLimits(x, y int) bool {
 }
 
 func (g *Game) matching() bool {
+	match := false
 	// remove selection
 	for _, c := range g.candys {
-		c.visited = false
+		c.visitedColumn = false
+		c.visitedLine = false
 	}
-	math := false
+	fmt.Println("check lines")
 	for _, c := range g.candys {
-		var region Region
-		region = g.findRegion(region, c, c._type)
-		if crushable(region) {
-			math = true
-			for _, c := range region {
-				c.crushme = true
-			}
-			fmt.Printf("crush %d candys\n", len(region))
+		lines := g.findInLine(c, c._type)
+		match = checkRegion(lines)||match
+	}
+	fmt.Println("check columns")
+	for _, c := range g.candys {
+		columns := g.findInColumn(c, c._type)
+		if len(columns) > 1 {
+			fmt.Printf("match coliu %v\n", columns)
 		}
+		match = checkRegion(columns)||match
 	}
-	return math
+	return match
 }
 
-func (g *Game) findRegion(region Region, c *Candy, t CandyType) Region {
-	if c == nil || c.visited || c._type != t {
-		return region
+func checkRegion(region Region) bool {
+	nbMatch := len(region) - 2
+	if nbMatch > 0 {
+		fmt.Printf("match region %v\n", region)
+		for _, c := range region {
+			c.crushme += nbMatch
+		}
+		return true
 	}
-	c.visited = true
-	region = append(region, c)
-	region = g.findRegion(region, g.topCandy(c), t)
-	region = g.findRegion(region, g.bottomCandy(c), t)
-	region = g.findRegion(region, g.leftCandy(c), t)
-	region = g.findRegion(region, g.rightCandy(c), t)
-	return region
-}
-
-func crushable(region Region) bool {
-	nb := len(region)
-	if nb < 3 {
-		return false
-	}
-	if nb == 3 && !alligned(region) {
-		return false
-	}
-	return true
+	return false
 }
 
 func alligned(candys []*Candy) bool {
@@ -193,13 +179,13 @@ func alligned(candys []*Candy) bool {
 
 func (g *Game) Click(x, y int) {
 	if !withinLimits(x, y) {
-		fmt.Printf("Out of limits %d,%d\n", x, y)
+		//fmt.Printf("Out of limits %d,%d\n", x, y)
 		return
 	}
 	cx := determineXCandy(int(x))
 	cy := determineYCandy(int(y))
 	if c, found := findCandy(g.candys, cx, cy); found {
-		fmt.Printf("Found candy %d,%d, selected=%t\n", c.x, c.y, c.selected)
+		//fmt.Printf("Found candy %d,%d, selected=%t\n", c.x, c.y, c.selected)
 		if c.selected {
 			// already selected unselect
 			c.selected = false
@@ -259,7 +245,6 @@ func findCandy(candys []*Candy, x, y int) (*Candy, bool) {
 		return nil, false
 	}
 	for _, c := range candys {
-		//fmt.Printf("%d finding candy %d current %d\n", i, col.candys[i].y, y)
 		if c.y == y && c.x == x {
 			return c, true
 		}
@@ -267,23 +252,23 @@ func findCandy(candys []*Candy, x, y int) (*Candy, bool) {
 	return nil, false
 }
 
-func (g *Game) topCandy(c *Candy) *Candy {
-	found, _ := findCandy(g.candys, c.x, c.y-BlockSize)
+func topCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x, c.y-BlockSize)
 	return found
 }
 
-func (g *Game) bottomCandy(c *Candy) *Candy {
-	found, _ := findCandy(g.candys, c.x, c.y+BlockSize)
+func bottomCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x, c.y+BlockSize)
 	return found
 }
 
-func (g *Game) leftCandy(c *Candy) *Candy {
-	found, _ := findCandy(g.candys, c.x-BlockSize, c.y)
+func leftCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x-BlockSize, c.y)
 	return found
 }
 
-func (g *Game) rightCandy(c *Candy) *Candy {
-	found, _ := findCandy(g.candys, c.x+BlockSize, c.y)
+func rightCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x+BlockSize, c.y)
 	return found
 }
 
@@ -393,17 +378,6 @@ func (g *Game) applyGravity() {
 
 func matchType(t1, t2 CandyType) bool {
 	return t1 == t2
-}
-
-func addPath(paths *[]Path, c1, c2 *Candy) {
-	*paths = append(*paths, Path{c1, c2})
-}
-
-func weighPaths(paths []Path) {
-	for i := 0; i < len(paths); i++ {
-
-	}
-
 }
 
 func checkLine(line []CandyType) Match {

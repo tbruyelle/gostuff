@@ -337,15 +337,3 @@ func assertVx(t *testing.T, c *Candy, vx int) {
 		t.Errorf("Wrong vx, expected %d but was %d", vx, c.vx)
 	}
 }
-
-func assertPath(t *testing.T, paths []Path, c1, c2 *Candy) {
-	for _, p := range paths {
-		if p.c1 == c1 && p.c2 == c2 {
-			return
-		}
-		if p.c1 == c2 && p.c2 == c1 {
-			return
-		}
-	}
-	t.Errorf("Wrong paths, expected (%d,%d)->(%d,%d) but not found", c1.x, c1.y, c2.x, c2.y)
-}
