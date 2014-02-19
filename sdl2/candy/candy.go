@@ -46,6 +46,19 @@ const (
 	YellowCandy
 	PinkCandy
 	OrangeCandy
+	RedStripesCandy
+	GreenStripesCandy
+	BlueStripesCandy
+	YellowStripesCandy
+	PinkStripesCandy
+	OrangeStripesCandy
+	RedPackedCandy
+	GreenPackedCandy
+	BluePackedCandy
+	YellowPackedCandy
+	PinkPackedCandy
+	OrangePackedCandy
+	BombCandy
 )
 
 type Candy struct {
@@ -83,6 +96,7 @@ func (g *Game) Tick() bool {
 		fmt.Println("Idle")
 		return true
 	case Matching:
+		fmt.Println("Matching")
 		if g.matching() {
 			g.state = Crushing
 		} else {
@@ -90,19 +104,46 @@ func (g *Game) Tick() bool {
 		}
 
 	case Crushing:
+		fmt.Println("Crushing")
 		// remove crushed candys
 		var cds []*Candy
 		for _, c := range g.candys {
-			if c.crushme == 0 {
+			fmt.Printf("crushCandy %d t=%d\n", c.crushme, c._type)
+			switch c.crushme {
+			case 0:
+				cds = append(cds, c)
+			case 1:
+				// nothing just dispear
+
+			case 2:
+				// emballes
+				if c._type <= NbCandyType {
+					c._type = c._type + NbCandyType*2
+				}
+				c.crushme = 0
+				cds = append(cds, c)
+			case 3:
+				// rayures
+				if c._type <= NbCandyType {
+					c._type = c._type + NbCandyType
+				}
+				c.crushme = 0
+				cds = append(cds, c)
+			default:
+				// bombe
+				c._type = BombCandy
+				c.crushme = 0
 				cds = append(cds, c)
 			}
 		}
 		fmt.Printf("Crushing %d candys\n", len(g.candys)-len(cds))
 		g.candys = cds
+		fmt.Printf("NOW %d candys\n", len(g.candys))
 		// trigger the fall of new candys
 		g.state = Falling
 
 	case Falling:
+		fmt.Println("Falling")
 		g.populateDropZone()
 		g.applyGravity()
 		if !g.fall() {
@@ -110,6 +151,7 @@ func (g *Game) Tick() bool {
 			g.state = Matching
 		}
 	case Translating:
+		fmt.Println("Translating")
 		if !g.translate() {
 			g.unselectAll()
 			g.state = Matching
@@ -130,18 +172,15 @@ func (g *Game) matching() bool {
 		c.visitedColumn = false
 		c.visitedLine = false
 	}
-	fmt.Println("check lines")
+	//fmt.Println("check lines")
 	for _, c := range g.candys {
 		lines := g.findInLine(c, c._type)
-		match = checkRegion(lines)||match
+		match = checkRegion(lines) || match
 	}
-	fmt.Println("check columns")
+	//fmt.Println("check columns")
 	for _, c := range g.candys {
 		columns := g.findInColumn(c, c._type)
-		if len(columns) > 1 {
-			fmt.Printf("match coliu %v\n", columns)
-		}
-		match = checkRegion(columns)||match
+		match = checkRegion(columns) || match
 	}
 	return match
 }
@@ -149,9 +188,14 @@ func (g *Game) matching() bool {
 func checkRegion(region Region) bool {
 	nbMatch := len(region) - 2
 	if nbMatch > 0 {
-		fmt.Printf("match region %v\n", region)
+		//fmt.Printf("match region %v\n", region)
 		for _, c := range region {
-			c.crushme += nbMatch
+			c.crushme++
+		}
+		// only one special candy here
+		if nbMatch > 1 {
+			region[0].crushme = 3
+
 		}
 		return true
 	}

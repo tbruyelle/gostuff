@@ -120,16 +120,61 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 	switch c._type {
 	case BlueCandy:
 		source.X = BlockSize
+		source.Y = 0
 	case YellowCandy:
 		source.X = BlockSize * 4
+		source.Y = 0
 	case GreenCandy:
 		source.X = BlockSize * 3
+		source.Y = 0
 	case RedCandy:
 		source.X = BlockSize * 5
+		source.Y = 0
 	case PinkCandy:
 		source.X = BlockSize * 2
+		source.Y = 0
 	case OrangeCandy:
 		source.X = 0
+		source.Y = 0
+	case BlueStripesCandy:
+		source.X = BlockSize
+		source.Y = BlockSize
+	case YellowStripesCandy:
+		source.X = BlockSize * 4
+		source.Y = BlockSize
+	case GreenStripesCandy:
+		source.X = BlockSize * 3
+		source.Y = BlockSize
+	case RedStripesCandy:
+		source.X = BlockSize * 5
+		source.Y = BlockSize
+	case PinkStripesCandy:
+		source.X = BlockSize * 2
+		source.Y = BlockSize
+	case OrangeStripesCandy:
+		source.X = 0
+		source.Y = BlockSize * 2
+	case BluePackedCandy:
+		source.X = BlockSize
+		source.Y = BlockSize * 3
+	case YellowPackedCandy:
+		source.X = BlockSize * 4
+		source.Y = BlockSize * 3
+	case GreenPackedCandy:
+		source.X = BlockSize * 3
+		source.Y = BlockSize * 3
+	case RedPackedCandy:
+		source.X = BlockSize * 5
+		source.Y = BlockSize * 3
+	case PinkPackedCandy:
+		source.X = BlockSize * 2
+		source.Y = BlockSize * 3
+	case OrangePackedCandy:
+		source.X = 0
+		source.Y = BlockSize * 3
+	case BombCandy:
+		source.X = 0
+		source.Y = BlockSize * 4
 	}
 	if c.selected {
 		renderer.Copy(tilesetSelected, &source, &block)
