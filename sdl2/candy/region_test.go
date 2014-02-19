@@ -17,22 +17,6 @@ func TestFindRegion(t *testing.T) {
 	//	}
 }
 
-//func TestRegionSignatureMatch3X(t *testing.T) {
-//	match3X := generateRegion(Bottom, Bottom)
-//
-//	signature := regionSignature(match3X)
-//
-//	assertSignature(t, signature, Bottom+Bottom)
-//}
-//
-//func TestRegionSignatureMatch3Y(t *testing.T) {
-//	match3Y := generateRegion(Right, Right)
-//
-//	signature := regionSignature(match3Y)
-//
-//	assertSignature(t, signature, Right+Right)
-//}
-
 type C struct {
 	dir string
 	t   CandyType
@@ -55,10 +39,4 @@ func generateRegion(cs ...C) Region {
 		region = append(region, &Candy{x: curx, y: cury, _type: c.t})
 	}
 	return region
-}
-
-func assertSignature(t *testing.T, signature, expected string) {
-	if signature != expected {
-		t.Errorf("Wrong signature, expected %s but was %s", expected, signature)
-	}
 }

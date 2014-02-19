@@ -22,8 +22,7 @@ const (
 	YMax           = WindowHeight - BlockSize
 	XMin           = DashboardWidth
 	XMax           = WindowWidth - BlockSize
-
-	NbCandyType = 6
+	NbCandyType    = 6
 )
 
 type State int
@@ -61,12 +60,23 @@ const (
 	BombCandy
 )
 
+// Represents the kind of candy match
+type MatchType int
+
+const (
+	NoMatch     MatchType = iota
+	ThreeInLine           // just disapear
+	Crossed               // -> packed candy
+	FourInLine            // -> striped candy
+	FiveInLine            // -> bomb
+)
+
 type Candy struct {
 	_type                      CandyType
 	x, y, vx, vy, g            int
 	selected                   bool
 	visitedLine, visitedColumn bool
-	crushme                    int
+	matching                   MatchType
 }
 
 type Game struct {
@@ -75,13 +85,6 @@ type Game struct {
 	state    State
 	selected *Candy
 }
-
-type Match struct {
-	start  int
-	length int
-}
-
-var NoMatch = Match{}
 
 func NewGame() *Game {
 	g := &Game{}
@@ -108,31 +111,31 @@ func (g *Game) Tick() bool {
 		// remove crushed candys
 		var cds []*Candy
 		for _, c := range g.candys {
-			fmt.Printf("crushCandy %d t=%d\n", c.crushme, c._type)
-			switch c.crushme {
-			case 0:
+			fmt.Printf("crushCandy %d t=%d\n", c.matching, c._type)
+			switch c.matching {
+			case NoMatch:
 				cds = append(cds, c)
-			case 1:
+			case ThreeInLine:
 				// nothing just dispear
 
-			case 2:
+			case Crossed:
 				// emballes
 				if c._type <= NbCandyType {
 					c._type = c._type + NbCandyType*2
 				}
-				c.crushme = 0
+				c.matching = 0
 				cds = append(cds, c)
-			case 3:
+			case FourInLine:
 				// rayures
 				if c._type <= NbCandyType {
 					c._type = c._type + NbCandyType
 				}
-				c.crushme = 0
+				c.matching = 0
 				cds = append(cds, c)
 			default:
 				// bombe
 				c._type = BombCandy
-				c.crushme = 0
+				c.matching = 0
 				cds = append(cds, c)
 			}
 		}
@@ -185,22 +188,6 @@ func (g *Game) matching() bool {
 	return match
 }
 
-func checkRegion(region Region) bool {
-	nbMatch := len(region) - 2
-	if nbMatch > 0 {
-		//fmt.Printf("match region %v\n", region)
-		for _, c := range region {
-			c.crushme++
-		}
-		// only one special candy here
-		if nbMatch > 1 {
-			region[0].crushme = 3
-
-		}
-		return true
-	}
-	return false
-}
 
 func alligned(candys []*Candy) bool {
 	xaligned := false
@@ -418,39 +405,6 @@ func (g *Game) applyGravity() {
 			c.g++
 		}
 	}
-}
-
-func matchType(t1, t2 CandyType) bool {
-	return t1 == t2
-}
-
-func checkLine(line []CandyType) Match {
-	var start, length int
-	length = 1
-	for i := 1; i < len(line); i++ {
-		if line[start] == line[i] {
-			length++
-		} else {
-			if length >= Match3 {
-				return Match{start: start, length: length}
-			}
-			length = 1
-			start = i
-		}
-	}
-	return NoMatch
-}
-
-func checkGrid(candys [][]CandyType) []Match {
-	matches := make([]Match, 0)
-	// check lines
-	for i := 0; i < len(candys); i++ {
-		m := checkLine(candys[i])
-		if m.length > 0 {
-			matches = append(matches, m)
-		}
-	}
-	return matches
 }
 
 func (g *Game) newCandy() *Candy {

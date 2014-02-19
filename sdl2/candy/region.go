@@ -14,40 +14,6 @@ func (r Region) String() string {
 	return s
 }
 
-const (
-	Left, Top, Right, Bottom string = "0", "1", "2", "3"
-)
-
-//func regionSignature(region Region) string {
-//	for _, c := range region {
-//		c.visited = false
-//	}
-//	return candySignature(region, region[0])
-//}
-//
-//func candySignature(region Region, c *Candy) string {
-//	c.visited = true
-//	var signature string
-//	// left, top, right, bottom
-//	tl := leftCandy(region, c)
-//	if tl != nil && !tl.visited {
-//		signature += Left + candySignature(region, tl)
-//	}
-//	tc := topCandy(region, c)
-//	if tc != nil && !tc.visited {
-//		signature += Top + candySignature(region, tc)
-//	}
-//	tr := rightCandy(region, c)
-//	if tr != nil && !tr.visited {
-//		signature += Right + candySignature(region, tr)
-//	}
-//	tb := bottomCandy(region, c)
-//	if tb != nil && !tb.visited {
-//		signature += Bottom + candySignature(region, tb)
-//	}
-//	return signature
-//}
-//
 func (g *Game) findInColumn(c *Candy, t CandyType) Region {
 	return findInColumn(g.candys, nil, c, t)
 }
@@ -78,13 +44,21 @@ func findInLine(all, region Region, c *Candy, t CandyType) Region {
 	return region
 }
 
-func crushable(region Region) bool {
-	nb := len(region)
-	if nb < 3 {
-		return false
+func checkRegion(region Region) bool {
+	nbMatch := len(region)
+	if nbMatch > 2 {
+		//fmt.Printf("match region %v\n", region)
+		for _, c := range region {
+			c.matching++
+		}
+		// only special candy here
+		if nbMatch == 4 {
+			region[0].matching = FourInLine
+		}
+		if nbMatch > 4 {
+			region[0].matching = FiveInLine
+		}
+		return true
 	}
-	if nb == 3 && !alligned(region) {
-		return false
-	}
-	return true
+	return false
 }

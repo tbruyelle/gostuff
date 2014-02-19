@@ -221,58 +221,6 @@ func TestGenerateCandy(t *testing.T) {
 	assertNotEmpty(t, candy)
 }
 
-func TestCheckLineNoMatch(t *testing.T) {
-	setup()
-	line := []CandyType{RedCandy, RedCandy, YellowCandy, YellowCandy, BlueCandy, BlueCandy}
-
-	match := checkLine(line)
-
-	assertMatch(t, match, 0, 0)
-}
-
-func TestCheckLineMatch3(t *testing.T) {
-	setup()
-	line := []CandyType{RedCandy, BlueCandy, BlueCandy, BlueCandy, YellowCandy, GreenCandy, GreenCandy}
-
-	match := checkLine(line)
-
-	assertMatch(t, match, 1, Match3)
-}
-
-func TestCheckLineMatch4(t *testing.T) {
-	setup()
-	line := []CandyType{RedCandy, GreenCandy, BlueCandy, BlueCandy, BlueCandy, BlueCandy, GreenCandy, GreenCandy}
-
-	match := checkLine(line)
-
-	assertMatch(t, match, 2, Match4)
-}
-
-func TestCheckLineMatch5(t *testing.T) {
-	setup()
-	line := []CandyType{RedCandy, BlueCandy, BlueCandy, BlueCandy, BlueCandy, BlueCandy, GreenCandy}
-
-	match := checkLine(line)
-
-	assertMatch(t, match, 1, Match5)
-}
-
-func TestCheckGridNoMatch(t *testing.T) {
-	setup()
-	candys := make([][]CandyType, 4)
-	candys[0] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
-	candys[1] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
-	candys[2] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
-	candys[3] = []CandyType{RedCandy, GreenCandy, YellowCandy, BlueCandy}
-
-	matches := checkGrid(candys)
-
-	for _, match := range matches {
-		assertMatch(t, match, 0, 0)
-	}
-
-}
-
 func TestApplyGravity(t *testing.T) {
 	setup()
 	g.populateDropZone()
@@ -281,12 +229,6 @@ func TestApplyGravity(t *testing.T) {
 
 	for i, c := range g.candys {
 		assertGravity(t, c, i%2+1)
-	}
-}
-
-func assertMatch(t *testing.T, match Match, start, length int) {
-	if match.start != start && match.length != length {
-		t.Errorf("Wrong match, expected start=%d, length=%d, but was (%d,%d)", start, length, match.start, match.length)
 	}
 }
 
