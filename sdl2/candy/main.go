@@ -73,6 +73,8 @@ func loop(game *Game, renderer *sdl.Renderer) {
 					case sdl.K_r:
 						game.Reset()
 						wait = false
+					case sdl.K_k:
+						game.ToggleKeepUnmatchingTranslation()
 					}
 				case *sdl.MouseButtonEvent:
 					if t.State != 0 {

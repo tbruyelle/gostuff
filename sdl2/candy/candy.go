@@ -83,10 +83,16 @@ type Translation struct {
 }
 
 type Game struct {
-	candys   []*Candy
-	random   *rand.Rand
-	state    State
-	selected *Candy
+	candys      []*Candy
+	random      *rand.Rand
+	state       State
+	selected    *Candy
+	translation *Translation
+	flags       Flags
+}
+
+type Flags struct {
+	keepUnmatchingTranslation bool
 }
 
 func NewGame() *Game {
@@ -94,6 +100,10 @@ func NewGame() *Game {
 	g.random = rand.New(rand.NewSource(time.Now().Unix()))
 	g.state = Falling
 	return g
+}
+
+func (g *Game) ToggleKeepUnmatchingTranslation() {
+	g.flags.keepUnmatchingTranslation = !g.flags.keepUnmatchingTranslation
 }
 
 func (g *Game) Tick() bool {
@@ -105,8 +115,16 @@ func (g *Game) Tick() bool {
 		fmt.Println("Matching")
 		if g.matching() {
 			g.state = Crushing
+			g.translation = nil
 		} else {
-			g.state = Idle
+			// no match
+			if !g.flags.keepUnmatchingTranslation && g.translation != nil {
+				// cancel previous translation
+				g.permute(g.translation.c2, g.translation.c1)
+			} else {
+				g.state = Idle
+			}
+			g.translation = nil
 		}
 
 	case Crushing:
@@ -228,6 +246,7 @@ func (g *Game) Click(x, y int) {
 				// check if previous selection is near the new one
 				if near(c, g.selected) {
 					// init permutation
+					g.translation = &Translation{c, g.selected}
 					g.permute(c, g.selected)
 				} else {
 					// remove previous selection
