@@ -97,7 +97,7 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 
 	// show candys
 	for _, c := range game.candys {
-		showCandy(renderer, *c, game)
+		showCandy(renderer, c, game)
 	}
 	renderer.SetDrawColor(255, 255, 255, 255)
 	renderer.Present()
@@ -106,17 +106,13 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 var block = sdl.Rect{W: BlockSize, H: BlockSize}
 var source = sdl.Rect{W: BlockSize, H: BlockSize}
 
-func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
+func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	if c._type == EmptyCandy {
 		return
 	}
 	//fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
 	block.X = int32(c.x)
 	block.Y = int32(c.y)
-	//alpha := uint8(255)
-	//if c.selected {
-	//	alpha = 150
-	//}
 	switch c._type {
 	case BlueCandy:
 		source.X = BlockSize
@@ -176,14 +172,14 @@ func showCandy(renderer *sdl.Renderer, c Candy, game *Game) {
 		source.X = 0
 		source.Y = BlockSize * 4
 	}
-	if c.selected {
+	if c == game.selected {
 		renderer.Copy(tilesetSelected, &source, &block)
 	} else {
 		renderer.Copy(tileset, &source, &block)
 	}
 }
 
-func showCandySquare(renderer *sdl.Renderer, c Candy, game *Game) {
+func showCandySquare(renderer *sdl.Renderer, c *Candy, game *Game) {
 	if c._type == EmptyCandy {
 		return
 	}
@@ -191,7 +187,7 @@ func showCandySquare(renderer *sdl.Renderer, c Candy, game *Game) {
 	block.X = int32(c.x + 1)
 	block.Y = int32(c.y + 1)
 	alpha := uint8(255)
-	if c.selected {
+	if c == game.selected {
 		alpha = 150
 	}
 	switch c._type {

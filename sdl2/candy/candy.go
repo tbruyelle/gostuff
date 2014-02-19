@@ -74,9 +74,12 @@ const (
 type Candy struct {
 	_type                      CandyType
 	x, y, vx, vy, g            int
-	selected                   bool
 	visitedLine, visitedColumn bool
 	matching                   MatchType
+}
+
+type Translation struct {
+	c1, c2 *Candy
 }
 
 type Game struct {
@@ -188,7 +191,6 @@ func (g *Game) matching() bool {
 	return match
 }
 
-
 func alligned(candys []*Candy) bool {
 	xaligned := false
 	for i := 1; i < len(candys); i++ {
@@ -217,9 +219,8 @@ func (g *Game) Click(x, y int) {
 	cy := determineYCandy(int(y))
 	if c, found := findCandy(g.candys, cx, cy); found {
 		//fmt.Printf("Found candy %d,%d, selected=%t\n", c.x, c.y, c.selected)
-		if c.selected {
+		if c == g.selected {
 			// already selected unselect
-			c.selected = false
 			g.selected = nil
 		} else {
 			// not selected
@@ -230,10 +231,9 @@ func (g *Game) Click(x, y int) {
 					g.permute(c, g.selected)
 				} else {
 					// remove previous selection
-					g.selected.selected = false
+					g.selected = nil
 				}
 			}
-			c.selected = true
 			g.selected = c
 		}
 	}
@@ -324,9 +324,6 @@ func (g *Game) Reset() {
 }
 
 func (g *Game) unselectAll() {
-	for _, c := range g.candys {
-		c.selected = false
-	}
 	g.selected = nil
 }
 

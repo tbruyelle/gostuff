@@ -36,22 +36,6 @@ func TestAlligned(t *testing.T) {
 	}
 }
 
-func TestCrushable(t *testing.T) {
-	notEnough := []*Candy{&Candy{}, &Candy{}}
-	ThreeNotAligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: 0}, &Candy{x: 0, y: BlockSize}}
-	ThreeOK := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: 0}, &Candy{x: BlockSize * 2, y: 0}}
-
-	if crushable(notEnough) {
-		t.Errorf("less than 3 candys should not be crushable")
-	}
-	if crushable(ThreeNotAligned) {
-		t.Errorf("3 not aligned should not be aligned")
-	}
-	if !crushable(ThreeOK) {
-		t.Errorf("3 aligned should be crushables")
-	}
-}
-
 func TestPermuteLeftRight(t *testing.T) {
 	setup()
 	fillGame()
