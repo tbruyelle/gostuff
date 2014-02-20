@@ -134,22 +134,40 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	case OrangeCandy:
 		source.X = 0
 		source.Y = 0
-	case BlueStripesCandy:
+	case BlueHStripesCandy:
 		source.X = BlockSize
 		source.Y = BlockSize
-	case YellowStripesCandy:
+	case YellowHStripesCandy:
 		source.X = BlockSize * 4
 		source.Y = BlockSize
-	case GreenStripesCandy:
+	case GreenHStripesCandy:
 		source.X = BlockSize * 3
 		source.Y = BlockSize
-	case RedStripesCandy:
+	case RedHStripesCandy:
 		source.X = BlockSize * 5
 		source.Y = BlockSize
-	case PinkStripesCandy:
+	case PinkHStripesCandy:
 		source.X = BlockSize * 2
 		source.Y = BlockSize
-	case OrangeStripesCandy:
+	case OrangeHStripesCandy:
+		source.X = 0
+		source.Y = BlockSize 
+	case BlueVStripesCandy:
+		source.X = BlockSize
+		source.Y = BlockSize*2
+	case YellowVStripesCandy:
+		source.X = BlockSize * 4
+		source.Y = BlockSize*2
+	case GreenVStripesCandy:
+		source.X = BlockSize * 3
+		source.Y = BlockSize*2
+	case RedVStripesCandy:
+		source.X = BlockSize * 5
+		source.Y = BlockSize*2
+	case PinkVStripesCandy:
+		source.X = BlockSize * 2
+		source.Y = BlockSize*2
+	case OrangeVStripesCandy:
 		source.X = 0
 		source.Y = BlockSize * 2
 	case BluePackedCandy:

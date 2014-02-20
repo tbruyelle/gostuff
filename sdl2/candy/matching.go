@@ -24,12 +24,12 @@ func (g *Game) matching() bool {
 	//fmt.Println("check lines")
 	for _, c := range g.candys {
 		lines := g.findInLine(c, c._type)
-		match = checkRegion(lines) || match
+		match = checkRegion(lines, false) || match
 	}
 	//fmt.Println("check columns")
 	for _, c := range g.candys {
 		columns := g.findInColumn(c, c._type)
-		match = checkRegion(columns) || match
+		match = checkRegion(columns, true) || match
 	}
 	return match
 }
@@ -54,7 +54,7 @@ func (g *Game) findInLine(c *Candy, t CandyType) Region {
 }
 
 func findInLine(all, region Region, c *Candy, t CandyType) Region {
-	if c == nil || c.visitedLine || !matchType(c._type, t){
+	if c == nil || c.visitedLine || !matchType(c._type, t) {
 		return region
 	}
 	c.visitedLine = true
@@ -64,7 +64,7 @@ func findInLine(all, region Region, c *Candy, t CandyType) Region {
 	return region
 }
 
-func checkRegion(region Region) bool {
+func checkRegion(region Region, vertical bool) bool {
 	nbMatch := len(region)
 	if nbMatch > 2 {
 		//fmt.Printf("match region %v\n", region)
@@ -80,7 +80,7 @@ func checkRegion(region Region) bool {
 		}
 		// only special candy here
 		if nbMatch == 4 {
-			region[0].crush = stripesCandy(region[0]._type)
+			region[0].crush = stripesCandy(region[0]._type, vertical)
 		}
 		if nbMatch > 4 {
 			region[0].crush = BombCandy
@@ -90,12 +90,15 @@ func checkRegion(region Region) bool {
 	return false
 }
 
-func stripesCandy(t CandyType) CandyType {
-	return t + NbCandyType
+func stripesCandy(t CandyType, vertical bool) CandyType {
+	if vertical {
+		return t + NbCandyType
+	}
+	return t + NbCandyType*2
 }
 
 func packedCandy(t CandyType) CandyType {
-	return t + NbCandyType*2
+	return t + NbCandyType*3
 }
 
 func matchType(t1, t2 CandyType) bool {

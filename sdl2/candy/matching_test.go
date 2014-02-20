@@ -47,7 +47,7 @@ func TestMatchingFourInLine(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrush(t, g.candys[0], RedStripesCandy)
+	assertCrush(t, g.candys[0], RedHStripesCandy)
 	assertCrushes(t, g.candys[1:], CrushCandy)
 }
 
@@ -78,14 +78,22 @@ func TestMatchingBomb(t *testing.T) {
 	assertCrushes(t, g.candys[1:], CrushCandy)
 }
 
+func TestVStripesCandy(t *testing.T) {
+	assertCandyType(t, stripesCandy(RedCandy, false), RedVStripesCandy)
+	assertCandyType(t, stripesCandy(BlueCandy, false), BlueVStripesCandy)
+	assertCandyType(t, stripesCandy(GreenCandy, false), GreenVStripesCandy)
+	assertCandyType(t, stripesCandy(YellowCandy, false), YellowVStripesCandy)
+	assertCandyType(t, stripesCandy(OrangeCandy, false), OrangeVStripesCandy)
+	assertCandyType(t, stripesCandy(PinkCandy, false), PinkVStripesCandy)
+}
 
-func TestStripesCandy(t *testing.T) {
-	assertCandyType(t, stripesCandy(RedCandy), RedStripesCandy)
-	assertCandyType(t, stripesCandy(BlueCandy), BlueStripesCandy)
-	assertCandyType(t, stripesCandy(GreenCandy), GreenStripesCandy)
-	assertCandyType(t, stripesCandy(YellowCandy), YellowStripesCandy)
-	assertCandyType(t, stripesCandy(OrangeCandy), OrangeStripesCandy)
-	assertCandyType(t, stripesCandy(PinkCandy), PinkStripesCandy)
+func TestHStripesCandy(t *testing.T) {
+	assertCandyType(t, stripesCandy(RedCandy, true), RedHStripesCandy)
+	assertCandyType(t, stripesCandy(BlueCandy, true), BlueHStripesCandy)
+	assertCandyType(t, stripesCandy(GreenCandy, true), GreenHStripesCandy)
+	assertCandyType(t, stripesCandy(YellowCandy, true), YellowHStripesCandy)
+	assertCandyType(t, stripesCandy(OrangeCandy, true), OrangeHStripesCandy)
+	assertCandyType(t, stripesCandy(PinkCandy, true), PinkHStripesCandy)
 }
 
 func TestPackedCandy(t *testing.T) {
@@ -111,4 +119,3 @@ func TestMatchType(t *testing.T) {
 	assertMatch(t, matchType(RedCandy, YellowCandy), false)
 	assertMatch(t, matchType(RedCandy, BlueCandy), false)
 }
-

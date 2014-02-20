@@ -14,10 +14,6 @@ const (
 	DashboardWidth = 128
 	WindowHeight   = BlockSize * NbBlockHeight
 	WindowWidth    = DashboardWidth + BlockSize*NbBlockWidth
-	Match3         = 3
-	Match4         = 4
-	Match5         = 5
-	Speed          = 7
 	YMin           = 0
 	YMax           = WindowHeight - BlockSize
 	XMin           = DashboardWidth
@@ -45,12 +41,18 @@ const (
 	YellowCandy
 	PinkCandy
 	OrangeCandy
-	RedStripesCandy
-	GreenStripesCandy
-	BlueStripesCandy
-	YellowStripesCandy
-	PinkStripesCandy
-	OrangeStripesCandy
+	RedHStripesCandy
+	GreenHStripesCandy
+	BlueHStripesCandy
+	YellowHStripesCandy
+	PinkHStripesCandy
+	OrangeHStripesCandy
+	RedVStripesCandy
+	GreenVStripesCandy
+	BlueVStripesCandy
+	YellowVStripesCandy
+	PinkVStripesCandy
+	OrangeVStripesCandy
 	RedPackedCandy
 	GreenPackedCandy
 	BluePackedCandy
