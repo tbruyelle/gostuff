@@ -15,6 +15,9 @@ func (r Region) String() string {
 }
 
 func (g *Game) matching() bool {
+	if g.translateBomb() {
+		return true
+	}
 	match := false
 	// remove selection
 	for _, c := range g.candys {
@@ -34,12 +37,36 @@ func (g *Game) matching() bool {
 	return match
 }
 
+func (g *Game) translateBomb() bool {
+	if g.translation != nil {
+		if g.translation.c1._type == BombCandy {
+			g.crushBomb(g.translation.c1, g.translation.c2)
+			return true
+		}
+		if g.translation.c2._type == BombCandy {
+			g.crushBomb(g.translation.c2, g.translation.c1)
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Game) crushBomb(bomb *Candy, other *Candy) {
+	bomb.crush = CrushCandy
+	// remove all candys with same type
+	for _, c := range g.candys {
+		if c._type == other._type {
+			c.crush = CrushCandy
+		}
+	}
+}
+
 func (g *Game) findInColumn(c *Candy, t CandyType) Region {
 	return findInColumn(g.candys, nil, c, t)
 }
 
 func findInColumn(all, region Region, c *Candy, t CandyType) Region {
-	if c == nil || c.visitedColumn || c._type != t {
+	if c == nil || c.visitedColumn || !matchType(c._type, t) {
 		return region
 	}
 	c.visitedColumn = true
