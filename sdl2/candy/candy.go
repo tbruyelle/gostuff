@@ -171,25 +171,6 @@ func withinLimits(x, y int) bool {
 	return !(x < XMin || x > XMax+BlockSize || y < YMin || y > YMax+BlockSize)
 }
 
-func (g *Game) matching() bool {
-	match := false
-	// remove selection
-	for _, c := range g.candys {
-		c.visitedColumn = false
-		c.visitedLine = false
-	}
-	//fmt.Println("check lines")
-	for _, c := range g.candys {
-		lines := g.findInLine(c, c._type)
-		match = checkRegion(lines) || match
-	}
-	//fmt.Println("check columns")
-	for _, c := range g.candys {
-		columns := g.findInColumn(c, c._type)
-		match = checkRegion(columns) || match
-	}
-	return match
-}
 
 func alligned(candys []*Candy) bool {
 	xaligned := false

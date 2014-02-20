@@ -4,102 +4,10 @@ import (
 	"testing"
 )
 
-var g *Game
-
-func setup() {
-	g = NewGame()
-}
-
-func fillGame() {
-	g.populateDropZone()
-	g.applyGravity()
-	for g.fall() {
-		g.populateDropZone()
-		g.applyGravity()
-	}
-	g.populateDropZone()
-}
-
-func TestMatchingNothing(t *testing.T) {
-	setup()
-	g.candys = generateCandys(C{Right, RedCandy}, C{Right, BlueCandy}, C{Right, RedCandy})
-
-	match := g.matching()
-
-	if match {
-		t.Fatalf("Should not find a match")
-	}
-	assertCrushes(t, g.candys, EmptyCandy)
-}
-
-func TestMatchingThreeInLine(t *testing.T) {
-	setup()
-	g.candys = generateCandys(C{Right, RedCandy}, C{Right, RedCandy}, C{Right, RedCandy})
-
-	match := g.matching()
-
-	if !match {
-		t.Fatalf("Should find a match")
-	}
-	assertCrushes(t, g.candys, CrushCandy)
-}
-
-func TestMatchingThreeInLineColumn(t *testing.T) {
-	setup()
-	g.candys = generateCandys(C{Bottom, RedCandy}, C{Bottom, RedCandy}, C{Bottom, RedCandy})
-
-	match := g.matching()
-
-	if !match {
-		t.Fatalf("Should find a match")
-	}
-	assertCrushes(t, g.candys, CrushCandy)
-}
-
-func TestMatchingFourInLine(t *testing.T) {
-	setup()
-	g.candys = generateCandys(C{Bottom, RedCandy}, C{Bottom, RedCandy}, C{Bottom, RedCandy}, C{Bottom, RedCandy})
-
-	match := g.matching()
-
-	if !match {
-		t.Fatalf("Should find a match")
-	}
-	assertCrush(t, g.candys[0], RedStripesCandy)
-	assertCrushes(t, g.candys[1:], CrushCandy)
-}
-
-func TestMatchingPacked(t *testing.T) {
-	setup()
-	g.candys = generateCandys(C{Right, RedCandy}, C{Right, RedCandy}, C{Right, RedCandy}, C{Bottom, RedCandy}, C{Bottom, RedCandy})
-
-	match := g.matching()
-
-	if !match {
-		t.Fatalf("Should find a match")
-	}
-	assertCrushes(t, g.candys[:1], CrushCandy)
-	assertCrush(t, g.candys[2], RedPackedCandy)
-	assertCrushes(t, g.candys[3:], CrushCandy)
-}
-
-func TestMatchingBomb(t *testing.T) {
-	setup()
-	g.candys = generateCandys(C{Right, RedCandy}, C{Right, RedCandy}, C{Right, RedCandy}, C{Right, RedCandy}, C{Right, RedCandy})
-
-	match := g.matching()
-
-	if !match {
-		t.Fatalf("Should find a match")
-	}
-	assertCrush(t, g.candys[0], BombCandy)
-	assertCrushes(t, g.candys[1:], CrushCandy)
-}
-
 func TestAlligned(t *testing.T) {
-	candysXAlligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: 0, y: BlockSize}, &Candy{x: 0, y: BlockSize * 2}}
-	candysYAlligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: 0}}
-	candysNotAlligned := []*Candy{&Candy{x: 0, y: 0}, &Candy{x: BlockSize, y: BlockSize}}
+	candysXAlligned := generateCandys(C{d: Right}, C{d: Right}, C{d: Right})
+	candysYAlligned := generateCandys(C{d: Bottom}, C{d: Bottom}, C{d: Bottom})
+	candysNotAlligned := generateCandys(C{d: Bottom}, C{d: Left}, C{d: Bottom})
 
 	if !alligned(candysXAlligned) {
 		t.Errorf("Should be X alligned %+v", candysXAlligned)
@@ -202,7 +110,7 @@ func TestCollision(t *testing.T) {
 
 func TestCollisionColumn(t *testing.T) {
 	setup()
-	g.candys = []*Candy{&Candy{x: 0, y: 0}, &Candy{x: 0, y: BlockSize}}
+	g.candys = generateCandys(C{}, C{})
 
 	collision := g.collideColumn(g.candys[0], 0)
 
@@ -290,92 +198,4 @@ func TestApplyGravity(t *testing.T) {
 	for i, c := range g.candys {
 		assertGravity(t, c, i%2+1)
 	}
-}
-
-func assertGravity(t *testing.T, c *Candy, expected int) {
-	if c.g != expected {
-		t.Errorf("Wrong candy vector, expected %d but was %d", expected, c.g)
-	}
-}
-
-
-func assertNotEmpty(t *testing.T, c *Candy) {
-	if c._type == EmptyCandy {
-		t.Errorf("Wrong candy type, expected not empty")
-	}
-}
-
-func assertXY(t *testing.T, c *Candy, x, y int) {
-	if c.y != y || c.x != x {
-		t.Errorf("Wrong x,y, expected %d,%d but was %d,%d", x, y, c.x, c.y)
-	}
-}
-
-func assertY(t *testing.T, c *Candy, y int) {
-	if c.y != y {
-		t.Errorf("Wrong y, expected %d but was %d", y, c.y)
-	}
-}
-
-func assertNbCandy(t *testing.T, nb int) {
-	if len(g.candys) != nb {
-		t.Fatalf("Wrong number of candys, expected %d but was %d", nb, len(g.candys))
-	}
-}
-
-func assertNear(t *testing.T, near, expected bool, c1, c2 *Candy) {
-	if near != expected {
-		t.Errorf("Wrong near, expected %t but was %t for candys (%d,%d) and (%d,%d)", near, expected, c1.x, c1.y, c2.x, c2.y)
-	}
-}
-
-func assertVx(t *testing.T, c *Candy, vx int) {
-	if c.vx != vx {
-		t.Errorf("Wrong vx, expected %d but was %d", vx, c.vx)
-	}
-}
-
-func assertCrushes(t *testing.T, cs []*Candy, ct CandyType) {
-	for _, c := range cs {
-		assertCrush(t, c, ct)
-	}
-}
-
-func assertCrush(t *testing.T, c *Candy, ct CandyType) {
-	if c.crush != ct {
-		t.Fatalf("Wrong matching for %v, expected %d but was %d", c, ct, c.crush)
-	}
-}
-
-type Direction int
-
-const (
-	Left Direction = iota
-	Top
-	Right
-	Bottom
-)
-
-type C struct {
-	dir Direction
-	t   CandyType
-}
-
-func generateCandys(cs ...C) []*Candy {
-	region := []*Candy{}
-	curx, cury := XMin, YMin
-	for _, c := range cs {
-		switch c.dir {
-		case Left:
-			curx -= BlockSize
-		case Right:
-			curx += BlockSize
-		case Top:
-			cury -= BlockSize
-		case Bottom:
-			cury += BlockSize
-		}
-		region = append(region, &Candy{x: curx, y: cury, _type: c.t})
-	}
-	return region
 }
