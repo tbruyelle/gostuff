@@ -58,24 +58,21 @@ const (
 	PinkPackedCandy
 	OrangePackedCandy
 	BombCandy
-)
-
-// Represents the kind of candy match
-type MatchType int
-
-const (
-	NoMatch     MatchType = iota
-	ThreeInLine           // just disapear
-	Crossed               // -> packed candy
-	FourInLine            // -> striped candy
-	FiveInLine            // -> bomb
+	// CrushCandy is used to declare a candy crushable on next Crushing state
+	CrushCandy
 )
 
 type Candy struct {
 	_type                      CandyType
 	x, y, vx, vy, g            int
 	visitedLine, visitedColumn bool
-	matching                   MatchType
+	// crush indicates how the candy will be the next time
+	// the application reaches the Crushing state.
+	crush CandyType
+}
+
+func (c *Candy) String() string {
+	return fmt.Sprintf("(%d,%d)t%dc%d", c.x, c.y, c._type, c.crush)
 }
 
 type Translation struct {
@@ -129,40 +126,7 @@ func (g *Game) Tick() bool {
 
 	case Crushing:
 		fmt.Println("Crushing")
-		// remove crushed candys
-		var cds []*Candy
-		for _, c := range g.candys {
-			fmt.Printf("crushCandy %d t=%d\n", c.matching, c._type)
-			switch c.matching {
-			case NoMatch:
-				cds = append(cds, c)
-			case ThreeInLine:
-				// nothing just dispear
-
-			case Crossed:
-				// emballes
-				if c._type <= NbCandyType {
-					c._type = c._type + NbCandyType*2
-				}
-				c.matching = 0
-				cds = append(cds, c)
-			case FourInLine:
-				// rayures
-				if c._type <= NbCandyType {
-					c._type = c._type + NbCandyType
-				}
-				c.matching = 0
-				cds = append(cds, c)
-			default:
-				// bombe
-				c._type = BombCandy
-				c.matching = 0
-				cds = append(cds, c)
-			}
-		}
-		fmt.Printf("Crushing %d candys\n", len(g.candys)-len(cds))
-		g.candys = cds
-		fmt.Printf("NOW %d candys\n", len(g.candys))
+		g.crushing()
 		// trigger the fall of new candys
 		g.state = Falling
 
@@ -183,6 +147,24 @@ func (g *Game) Tick() bool {
 	}
 
 	return false
+}
+
+// remove crushed candys
+func (g *Game) crushing() {
+	var cds []*Candy
+	for _, c := range g.candys {
+		fmt.Printf("crushCandy %d t=%d\n", c.crush, c._type)
+		if c.crush != CrushCandy {
+			if c.crush != EmptyCandy {
+				c._type = c.crush
+				c.crush = EmptyCandy
+			}
+			cds = append(cds, c)
+		}
+	}
+	fmt.Printf("Crushing %d candys\n", len(g.candys)-len(cds))
+	g.candys = cds
+	fmt.Printf("NOW %d candys\n", len(g.candys))
 }
 
 func withinLimits(x, y int) bool {
