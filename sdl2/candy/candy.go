@@ -60,26 +60,50 @@ const (
 	PinkPackedCandy
 	OrangePackedCandy
 	BombCandy
-	// CrushCandy is used to declare a candy crushable on next Crushing state
-	CrushCandy
+	// UnmutableCandy tells a candy cannot be muted to anything else
+	// its a transition state for futur crushed candys
+	UnmutableCandy
 )
 
 type Candy struct {
 	_type                      CandyType
 	x, y, vx, vy, g            int
 	visitedLine, visitedColumn bool
-	// crush indicates how the candy will be the next time
+	// crush tells if the candy will be deleted on next Crush state
+	crush bool
+	// mutation indicates how the candy will be the next time
 	// the application reaches the Crushing state.
-	crush CandyType
+	mutation CandyType
 }
 
 func (c *Candy) String() string {
-	return fmt.Sprintf("(%d,%d)t%dc%d", c.x, c.y, c._type, c.crush)
+	return fmt.Sprintf("(%d,%d)t%dm%d,%t", c.x, c.y, c._type, c.mutation, c.crush)
+}
+
+func (c *Candy) isStriped() bool {
+	return c._type > NbCandyType && c._type <= NbCandyType*3
+}
+
+func (c *Candy) isStripedH() bool {
+	return c._type > NbCandyType && c._type <= NbCandyType*2
+}
+
+func (c *Candy) isStripedV() bool {
+	return c._type > NbCandyType*2 && c._type <= NbCandyType*3
 }
 
 type Translation struct {
 	c1, c2 *Candy
 }
+
+type Direction int
+
+const (
+	Left Direction = iota
+	Top
+	Right
+	Bottom
+)
 
 type Game struct {
 	candys      []*Candy
@@ -155,12 +179,15 @@ func (g *Game) Tick() bool {
 func (g *Game) crushing() {
 	var cds []*Candy
 	for _, c := range g.candys {
-		fmt.Printf("crushCandy %d t=%d\n", c.crush, c._type)
-		if c.crush != CrushCandy {
-			if c.crush != EmptyCandy {
-				c._type = c.crush
-				c.crush = EmptyCandy
-			}
+		fmt.Printf("crushCandy %v", c)
+		if !c.crush {
+			// that candy wont be crushed
+			cds = append(cds, c)
+		} else if c.mutation != EmptyCandy && c.mutation != UnmutableCandy {
+			// candy needs to be muted to a special candy
+			c._type = c.mutation
+			c.crush = false
+			c.mutation = EmptyCandy
 			cds = append(cds, c)
 		}
 	}
@@ -172,7 +199,6 @@ func (g *Game) crushing() {
 func withinLimits(x, y int) bool {
 	return !(x < XMin || x > XMax+BlockSize || y < YMin || y > YMax+BlockSize)
 }
-
 
 func alligned(candys []*Candy) bool {
 	xaligned := false
@@ -265,6 +291,23 @@ func findCandy(candys []*Candy, x, y int) (*Candy, bool) {
 		}
 	}
 	return nil, false
+}
+
+func findCandyInDir(cs []*Candy, c *Candy, dir Direction) *Candy {
+	switch dir {
+	case Left:
+		return leftCandy(cs, c)
+
+	case Right:
+		return rightCandy(cs, c)
+
+	case Top:
+		return topCandy(cs, c)
+
+	case Bottom:
+		return bottomCandy(cs, c)
+	}
+	return nil
 }
 
 func topCandy(candys []*Candy, c *Candy) *Candy {

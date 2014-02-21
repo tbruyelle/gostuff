@@ -60,30 +60,24 @@ func assertVx(t *testing.T, c *Candy, vx int) {
 	}
 }
 
-func assertCrushes(t *testing.T, cs []*Candy, ct CandyType) {
+func assertCrushes(t *testing.T, cs []*Candy, crush bool, mutation CandyType) {
 	for _, c := range cs {
-		assertCrush(t, c, ct)
+		assertCrush(t, c, crush, mutation)
 	}
 }
 
-func assertCrush(t *testing.T, c *Candy, ct CandyType) {
-	if c.crush != ct {
-		t.Fatalf("Wrong matching for %v, expected %d but was %d", c, ct, c.crush)
+func assertCrush(t *testing.T, c *Candy, crush bool, mutation CandyType) {
+	if c.crush != crush {
+		t.Fatalf("Wrong matching for %v, expected %t but was %t", c, crush, c.crush)
+	}
+	if c.mutation != mutation {
+		t.Fatalf("Wrong mutation for %v, expected %d but was %d", c, mutation, c.mutation)
 	}
 }
-
-type Direction int
-
-const (
-	Left Direction = iota
-	Top
-	Right
-	Bottom
-)
 
 type C struct {
 	d Direction
-	t   CandyType
+	t CandyType
 }
 
 func generateCandys(cs ...C) []*Candy {
@@ -114,5 +108,21 @@ func assertCandyType(t *testing.T, ct CandyType, expected CandyType) {
 func assertMatch(t *testing.T, match, expected bool) {
 	if match != expected {
 		t.Errorf("Wrong match, expected %t but was %t", expected, match)
+	}
+}
+
+func assertStriped(t *testing.T, c *Candy, expected bool) {
+	if c.isStriped() != expected {
+		t.Errorf("Wrong type %v, expected striped=%t but was %t", c, expected, c.isStriped())
+	}
+}
+func assertStripedH(t *testing.T, c *Candy, expected bool) {
+	if c.isStripedH() != expected {
+		t.Errorf("Wrong type %v, expected striped h=%t but was %t", c, expected, c.isStripedH())
+	}
+}
+func assertStripedV(t *testing.T, c *Candy, expected bool) {
+	if c.isStripedV() != expected {
+		t.Errorf("Wrong type %v, expected striped v=%t but was %t", c, expected, c.isStripedV())
 	}
 }

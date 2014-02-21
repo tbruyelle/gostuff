@@ -11,7 +11,7 @@ func TestMatchingNothing(t *testing.T) {
 	if match {
 		t.Fatalf("Should not find a match")
 	}
-	assertCrushes(t, g.candys, EmptyCandy)
+	assertCrushes(t, g.candys, false, EmptyCandy)
 }
 
 func TestMatchingThreeInLine(t *testing.T) {
@@ -23,7 +23,7 @@ func TestMatchingThreeInLine(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrushes(t, g.candys, CrushCandy)
+	assertCrushes(t, g.candys, true, EmptyCandy)
 }
 
 func TestMatchingThreeInLineColumn(t *testing.T) {
@@ -35,7 +35,7 @@ func TestMatchingThreeInLineColumn(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrushes(t, g.candys, CrushCandy)
+	assertCrushes(t, g.candys, true, EmptyCandy)
 }
 
 func TestMatchingFourInLine(t *testing.T) {
@@ -47,8 +47,8 @@ func TestMatchingFourInLine(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrush(t, g.candys[0], RedHStripesCandy)
-	assertCrushes(t, g.candys[1:], CrushCandy)
+	assertCrush(t, g.candys[0], true, RedHStripesCandy)
+	assertCrushes(t, g.candys[1:], true, EmptyCandy)
 }
 
 func TestMatchingPacked(t *testing.T) {
@@ -60,9 +60,9 @@ func TestMatchingPacked(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrushes(t, g.candys[:1], CrushCandy)
-	assertCrush(t, g.candys[2], RedPackedCandy)
-	assertCrushes(t, g.candys[3:], CrushCandy)
+	assertCrushes(t, g.candys[:1], true, EmptyCandy)
+	assertCrush(t, g.candys[2], true, RedPackedCandy)
+	assertCrushes(t, g.candys[3:], true, EmptyCandy)
 }
 
 func TestMatchingBomb(t *testing.T) {
@@ -74,8 +74,65 @@ func TestMatchingBomb(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrush(t, g.candys[0], BombCandy)
-	assertCrushes(t, g.candys[1:], CrushCandy)
+	assertCrush(t, g.candys[0], true, BombCandy)
+	assertCrushes(t, g.candys[1:], true, EmptyCandy)
+}
+
+func TestMatchWithStripesH(t *testing.T) {
+	setup()
+	g.candys = generateCandys(
+		C{Right, BlueCandy}, C{Right, PinkCandy}, C{Right, OrangeCandy},
+		C{Bottom, RedCandy}, C{Left, PinkHStripesCandy}, C{Left, RedCandy},
+		C{Bottom, RedCandy}, C{Right, PinkCandy}, C{Right, RedCandy},
+	)
+
+	match := g.matching()
+	if !match {
+		t.Fatalf("Should find a match")
+	}
+	assertCrush(t, g.candys[0], false, EmptyCandy)
+	assertCrush(t, g.candys[1], true, EmptyCandy)
+	assertCrush(t, g.candys[2], false, EmptyCandy)
+	assertCrushes(t, g.candys[3:5], true, UnmutableCandy)
+	assertCrush(t, g.candys[6], false, EmptyCandy)
+	assertCrush(t, g.candys[7], true, EmptyCandy)
+	assertCrush(t, g.candys[8], false, EmptyCandy)
+}
+
+func TestMatchWithStripesV(t *testing.T) {
+	setup()
+	g.candys = generateCandys(
+		C{Right, BlueCandy}, C{Right, PinkCandy}, C{Right, OrangeCandy},
+		C{Bottom, RedCandy}, C{Left, RedVStripesCandy}, C{Left, RedCandy},
+		C{Bottom, RedCandy}, C{Right, PinkCandy}, C{Right, RedCandy},
+	)
+
+	match := g.matching()
+	if !match {
+		t.Fatalf("Should find a match")
+	}
+	assertCrush(t, g.candys[0], false, EmptyCandy)
+	assertCrush(t, g.candys[1], true, UnmutableCandy)
+	assertCrush(t, g.candys[2], false, EmptyCandy)
+	assertCrush(t, g.candys[3], true, EmptyCandy)
+	assertCrush(t, g.candys[4], true, UnmutableCandy)
+	assertCrush(t, g.candys[5], true, EmptyCandy)
+	assertCrush(t, g.candys[6], false, EmptyCandy)
+	assertCrush(t, g.candys[7], true, UnmutableCandy)
+	assertCrush(t, g.candys[8], false, EmptyCandy)
+}
+
+func TestMatchWithStripesH2(t *testing.T) {
+	setup()
+	g.candys = generateCandys(
+		C{Right, PinkCandy}, C{Right, PinkHStripesCandy}, C{Right, PinkCandy},
+	)
+
+	match := g.matching()
+	if !match {
+		t.Fatalf("Should find a match")
+	}
+	assertCrushes(t, g.candys, true, UnmutableCandy)
 }
 
 func TestMatchingWithBomb(t *testing.T) {
@@ -88,9 +145,10 @@ func TestMatchingWithBomb(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrushes(t, g.candys[:1], CrushCandy)
-	assertCrushes(t, g.candys[3:], CrushCandy)
-	assertCrush(t, g.candys[2], EmptyCandy)
+	assertCrush(t, g.candys[0], true, UnmutableCandy)
+	assertCrush(t, g.candys[1], true, EmptyCandy)
+	assertCrushes(t, g.candys[3:], true, UnmutableCandy)
+	assertCrush(t, g.candys[2], false, EmptyCandy)
 }
 
 func TestMatchingWithBomb_otherSide(t *testing.T) {
@@ -103,9 +161,10 @@ func TestMatchingWithBomb_otherSide(t *testing.T) {
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrushes(t, g.candys[:1], CrushCandy)
-	assertCrushes(t, g.candys[3:], CrushCandy)
-	assertCrush(t, g.candys[2], EmptyCandy)
+	assertCrush(t, g.candys[0], true, UnmutableCandy)
+	assertCrush(t, g.candys[1], true, EmptyCandy)
+	assertCrush(t, g.candys[2], false, EmptyCandy)
+	assertCrushes(t, g.candys[3:], true, UnmutableCandy)
 }
 
 func TestVStripesCandy(t *testing.T) {
@@ -148,4 +207,25 @@ func TestMatchType(t *testing.T) {
 	assertMatch(t, matchType(RedCandy, OrangeCandy), false)
 	assertMatch(t, matchType(RedCandy, YellowCandy), false)
 	assertMatch(t, matchType(RedCandy, BlueCandy), false)
+
+	assertMatch(t, matchType(RedCandy, RedVStripesCandy), true)
+	assertMatch(t, matchType(GreenCandy, GreenVStripesCandy), true)
+	assertMatch(t, matchType(BlueCandy, BlueVStripesCandy), true)
+	assertMatch(t, matchType(OrangeCandy, OrangeVStripesCandy), true)
+	assertMatch(t, matchType(YellowCandy, YellowVStripesCandy), true)
+	assertMatch(t, matchType(PinkCandy, PinkVStripesCandy), true)
+
+	assertMatch(t, matchType(RedCandy, RedHStripesCandy), true)
+	assertMatch(t, matchType(GreenCandy, GreenHStripesCandy), true)
+	assertMatch(t, matchType(BlueCandy, BlueHStripesCandy), true)
+	assertMatch(t, matchType(OrangeCandy, OrangeHStripesCandy), true)
+	assertMatch(t, matchType(YellowCandy, YellowHStripesCandy), true)
+	assertMatch(t, matchType(PinkCandy, PinkHStripesCandy), true)
+
+	assertMatch(t, matchType(RedCandy, RedPackedCandy), true)
+	assertMatch(t, matchType(GreenCandy, GreenPackedCandy), true)
+	assertMatch(t, matchType(BlueCandy, BluePackedCandy), true)
+	assertMatch(t, matchType(OrangeCandy, OrangePackedCandy), true)
+	assertMatch(t, matchType(YellowCandy, YellowPackedCandy), true)
+	assertMatch(t, matchType(PinkCandy, PinkPackedCandy), true)
 }

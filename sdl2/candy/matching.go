@@ -27,13 +27,14 @@ func (g *Game) matching() bool {
 	//fmt.Println("check lines")
 	for _, c := range g.candys {
 		lines := g.findInLine(c, c._type)
-		match = checkRegion(lines, false) || match
+		match = g.checkRegion(lines, false) || match
 	}
 	//fmt.Println("check columns")
 	for _, c := range g.candys {
 		columns := g.findInColumn(c, c._type)
-		match = checkRegion(columns, true) || match
+		match = g.checkRegion(columns, true) || match
 	}
+
 	return match
 }
 
@@ -52,12 +53,38 @@ func (g *Game) translateBomb() bool {
 }
 
 func (g *Game) crushBomb(bomb *Candy, other *Candy) {
-	bomb.crush = CrushCandy
+	bomb.crush = true
 	// remove all candys with same type
 	for _, c := range g.candys {
 		if c._type == other._type {
-			c.crush = CrushCandy
+			c.crush = true
+			c.mutation = UnmutableCandy
 		}
+	}
+}
+
+func (g *Game) crushStripes(c *Candy) {
+	c.crush=true
+	c.mutation=UnmutableCandy
+	if c.isStripedH() {
+		crushDir(g.candys, c, Left)
+		crushDir(g.candys, c, Right)
+	}
+	if c.isStripedV() {
+		crushDir(g.candys, c, Top)
+		crushDir(g.candys, c, Bottom)
+	}
+}
+
+func crushDir(cs []*Candy, c *Candy, dir Direction) {
+	cc := c
+	for {
+		cc = findCandyInDir(cs, cc, dir)
+		if cc == nil {
+			break
+		}
+		cc.crush = true
+		cc.mutation = UnmutableCandy
 	}
 }
 
@@ -91,26 +118,29 @@ func findInLine(all, region Region, c *Candy, t CandyType) Region {
 	return region
 }
 
-func checkRegion(region Region, vertical bool) bool {
+func (g *Game) checkRegion(region Region, vertical bool) bool {
 	nbMatch := len(region)
 	if nbMatch > 2 {
 		//fmt.Printf("match region %v\n", region)
 		for _, c := range region {
-			if c.crush == EmptyCandy {
+			if c.isStriped() {
+				g.crushStripes(c)
+			}
+			if !c.crush {
 				// first time the candy receives crush vote
-				c.crush = CrushCandy
-			} else {
+				c.crush = true
+			} else if c.mutation == EmptyCandy {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
-				c.crush = packedCandy(c._type)
+				c.mutation = packedCandy(c._type)
 			}
 		}
 		// only special candy here
 		if nbMatch == 4 {
-			region[0].crush = stripesCandy(region[0]._type, vertical)
+			region[0].mutation = stripesCandy(region[0]._type, vertical)
 		}
 		if nbMatch > 4 {
-			region[0].crush = BombCandy
+			region[0].mutation = BombCandy
 		}
 		return true
 	}
@@ -129,5 +159,6 @@ func packedCandy(t CandyType) CandyType {
 }
 
 func matchType(t1, t2 CandyType) bool {
-	return t1 == t2
+	// compare type % nbCandyType to match stripes and packed candys
+	return t1%NbCandyType == t2%NbCandyType
 }

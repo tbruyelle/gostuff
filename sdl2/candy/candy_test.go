@@ -199,3 +199,23 @@ func TestApplyGravity(t *testing.T) {
 		assertGravity(t, c, i%2+1)
 	}
 }
+
+func TestIsStriped(t *testing.T) {
+	assertStriped(t, &Candy{_type: RedHStripesCandy}, true)
+	assertStriped(t, &Candy{_type: RedVStripesCandy}, true)
+	assertStriped(t, &Candy{_type: RedCandy}, false)
+	assertStriped(t, &Candy{_type: RedPackedCandy}, false)
+	assertStriped(t, &Candy{_type: BombCandy}, false)
+
+	assertStripedH(t, &Candy{_type: RedHStripesCandy}, true)
+	assertStripedH(t, &Candy{_type: RedVStripesCandy}, false)
+	assertStripedH(t, &Candy{_type: RedCandy}, false)
+	assertStripedH(t, &Candy{_type: RedPackedCandy}, false)
+	assertStripedH(t, &Candy{_type: BombCandy}, false)
+
+	assertStripedV(t, &Candy{_type: RedHStripesCandy}, false)
+	assertStripedV(t, &Candy{_type: RedVStripesCandy}, true)
+	assertStripedV(t, &Candy{_type: RedCandy}, false)
+	assertStripedV(t, &Candy{_type: RedPackedCandy}, false)
+	assertStripedV(t, &Candy{_type: BombCandy}, false)
+}
