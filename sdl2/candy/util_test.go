@@ -1,5 +1,6 @@
 package main
 
+import "runtime/debug"
 import "testing"
 
 var g *Game
@@ -68,9 +69,11 @@ func assertCrushes(t *testing.T, cs []*Candy, crush bool, mutation CandyType) {
 
 func assertCrush(t *testing.T, c *Candy, crush bool, mutation CandyType) {
 	if c.crush != crush {
+		debug.PrintStack()
 		t.Fatalf("Wrong matching for %v, expected %t but was %t", c, crush, c.crush)
 	}
 	if c.mutation != mutation {
+		debug.PrintStack()
 		t.Fatalf("Wrong mutation for %v, expected %d but was %d", c, mutation, c.mutation)
 	}
 }

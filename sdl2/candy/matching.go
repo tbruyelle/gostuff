@@ -56,7 +56,7 @@ func (g *Game) crushBomb(bomb *Candy, other *Candy) {
 	bomb.crush = true
 	// remove all candys with same type
 	for _, c := range g.candys {
-		if c._type == other._type {
+		if matchType(c._type, other._type) {
 			c.crush = true
 			c.mutation = UnmutableCandy
 		}
@@ -64,8 +64,8 @@ func (g *Game) crushBomb(bomb *Candy, other *Candy) {
 }
 
 func (g *Game) crushStripes(c *Candy) {
-	c.crush=true
-	c.mutation=UnmutableCandy
+	c.crush = true
+	c.mutation = UnmutableCandy
 	if c.isStripedH() {
 		crushDir(g.candys, c, Left)
 		crushDir(g.candys, c, Right)
@@ -159,6 +159,9 @@ func packedCandy(t CandyType) CandyType {
 }
 
 func matchType(t1, t2 CandyType) bool {
+	if t1 > NbCandyType*4 || t2 > NbCandyType*4 {
+		return false
+	}
 	// compare type % nbCandyType to match stripes and packed candys
 	return t1%NbCandyType == t2%NbCandyType
 }
