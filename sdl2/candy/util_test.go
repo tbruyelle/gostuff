@@ -83,6 +83,20 @@ type C struct {
 	t CandyType
 }
 
+func popCandys(tss [][]CandyType) []*Candy {
+	var candys []*Candy
+	curx, cury := XMin, YMin
+	for _, ts := range tss {
+		for _, t := range ts {
+			candys = append(candys, &Candy{_type: t, x: curx, y: cury})
+			curx += BlockSize
+		}
+		cury += BlockSize
+		curx = XMin
+	}
+	return candys
+}
+
 func generateCandys(cs ...C) []*Candy {
 	region := []*Candy{}
 	curx, cury := XMin, YMin

@@ -57,6 +57,9 @@ func (g *Game) crushBomb(bomb *Candy, other *Candy) {
 	// remove all candys with same type
 	for _, c := range g.candys {
 		if matchType(c._type, other._type) {
+			if c.isStriped() {
+				g.crushStripes(c)
+			}
 			c.crush = true
 			c.mutation = UnmutableCandy
 		}

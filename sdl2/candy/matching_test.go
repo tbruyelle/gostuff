@@ -169,18 +169,26 @@ func TestMatchingWithBomb_permuteOtherSide(t *testing.T) {
 
 func TestMatchingWithBombOnStripes(t *testing.T) {
 	setup()
-	g.candys = generateCandys(C{Bottom, RedCandy}, C{Bottom, BombCandy}, C{Bottom, BlueCandy}, C{Bottom, RedCandy}, C{Bottom, RedHStripesCandy})
-	g.translation = &Translation{g.candys[1], g.candys[0]}
+	g.candys = popCandys([][]CandyType{
+		{BlueCandy, RedCandy, BlueCandy},
+		{YellowCandy, BombCandy, YellowCandy},
+		{GreenCandy, BlueCandy, GreenCandy},
+		{PinkCandy, RedCandy, RedCandy},
+		{PinkCandy, RedHStripesCandy, OrangeCandy},
+	})
+	g.translation = &Translation{g.candys[1], g.candys[4]}
 
 	match := g.matching()
 
 	if !match {
 		t.Fatalf("Should find a match")
 	}
-	assertCrush(t, g.candys[0], true, UnmutableCandy)
-	assertCrush(t, g.candys[1], true, EmptyCandy)
-	assertCrushes(t, g.candys[3:], true, UnmutableCandy)
-	assertCrush(t, g.candys[2], false, EmptyCandy)
+	assertCrush(t, g.candys[0], false, EmptyCandy)
+	assertCrush(t, g.candys[1], true, UnmutableCandy)
+	assertCrushes(t, g.candys[2:3], false, EmptyCandy)
+	assertCrush(t, g.candys[4], true, EmptyCandy)
+	assertCrushes(t, g.candys[5:9], false, EmptyCandy)
+	assertCrushes(t, g.candys[10:14], true, UnmutableCandy)
 }
 
 func TestVStripesCandy(t *testing.T) {
