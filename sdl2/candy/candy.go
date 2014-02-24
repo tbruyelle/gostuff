@@ -105,20 +105,22 @@ type Game struct {
 	selected        *Candy
 	translation     *Translation
 	flags           Flags
-	randomCandyType RandomCandyType
+	candyTypeGen CandyTypeGenerator
 }
 
 type Flags struct {
 	keepUnmatchingTranslation bool
 }
 
-type RandomCandyType func() CandyType
+type CandyTypeGenerator interface {
+	NewCandyType() CandyType
+}
 
 type CandyTypeRandomizer struct {
 	random *rand.Rand
 }
 
-func (c CandyTypeRandomizer) RandomCandyType() CandyType {
+func (c CandyTypeRandomizer) NewCandyType() CandyType {
 	return CandyType(c.random.Intn(NbCandyType) + 1)
 }
 
