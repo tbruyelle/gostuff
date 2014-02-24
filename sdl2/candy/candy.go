@@ -100,21 +100,31 @@ const (
 )
 
 type Game struct {
-	candys      []*Candy
-	random      *rand.Rand
-	state       State
-	selected    *Candy
-	translation *Translation
-	flags       Flags
+	candys          []*Candy
+	state           State
+	selected        *Candy
+	translation     *Translation
+	flags           Flags
+	randomCandyType RandomCandyType
 }
 
 type Flags struct {
 	keepUnmatchingTranslation bool
 }
 
+type RandomCandyType func() CandyType
+
+type CandyTypeRandomizer struct {
+	random *rand.Rand
+}
+
+func (c CandyTypeRandomizer) RandomCandyType() CandyType {
+	return CandyType(c.random.Intn(NbCandyType) + 1)
+}
+
 func NewGame() *Game {
 	g := &Game{}
-	g.random = rand.New(rand.NewSource(time.Now().Unix()))
+	g.randomCandyType = CandyTypeRandomizer{rand.New(rand.NewSource(time.Now().Unix()))}
 	g.state = Falling
 	return g
 }
@@ -146,7 +156,7 @@ func (g *Game) Tick() bool {
 	case Crushing:
 		fmt.Println("Crushing")
 		g.crushing()
-			g.translation = nil
+		g.translation = nil
 		// trigger the fall of new candys
 		g.state = Falling
 
@@ -168,7 +178,6 @@ func (g *Game) Tick() bool {
 
 	return false
 }
-
 
 func withinLimits(x, y int) bool {
 	return !(x < XMin || x > XMax+BlockSize || y < YMin || y > YMax+BlockSize)
@@ -387,7 +396,7 @@ func (g *Game) applyGravity() {
 }
 
 func (g *Game) newCandy() *Candy {
-	ct := g.random.Intn(NbCandyType) + 1
+	ct := g.randomCandyType()
 	return &Candy{_type: CandyType(ct)}
 }
 

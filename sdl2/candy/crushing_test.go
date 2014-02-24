@@ -107,3 +107,28 @@ func TestCrushingBombOnStripes(t *testing.T) {
 		{EmptyCandy, EmptyCandy, EmptyCandy},
 	})
 }
+
+func TestCrushingStripesOnBomb(t *testing.T) {
+	setup()
+	g.candys = popCandys([][]CandyType{
+		{BlueCandy, RedCandy, BlueCandy},
+		{YellowCandy, BombCandy, YellowCandy},
+		{GreenCandy, BlueCandy, GreenCandy},
+		{PinkCandy, RedCandy, RedCandy},
+		{PinkCandy, PinkVStripesCandy, PinkCandy},
+	})
+	crushThem(12, 13, 14)
+	// redefine the newCandy func so we can define
+	// the candy type chosen by the bomb match
+
+	g.crushing()
+
+	assertNbCandy(t, 6)
+	assertCandyTypes(t, [][]CandyType{
+		{EmptyCandy, EmptyCandy, EmptyCandy},
+		{YellowCandy, EmptyCandy, YellowCandy},
+		{GreenCandy, EmptyCandy, GreenCandy},
+		{PinkCandy, EmptyCandy, RedCandy},
+		{EmptyCandy, EmptyCandy, EmptyCandy},
+	})
+}
