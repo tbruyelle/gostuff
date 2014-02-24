@@ -38,59 +38,6 @@ func (g *Game) matching() bool {
 	return match
 }
 
-func (g *Game) translateBomb() bool {
-	if g.translation != nil {
-		if g.translation.c1._type == BombCandy {
-			g.crushBomb(g.translation.c1, g.translation.c2)
-			return true
-		}
-		if g.translation.c2._type == BombCandy {
-			g.crushBomb(g.translation.c2, g.translation.c1)
-			return true
-		}
-	}
-	return false
-}
-
-func (g *Game) crushBomb(bomb *Candy, other *Candy) {
-	bomb.crush = true
-	// remove all candys with same type
-	for _, c := range g.candys {
-		if matchType(c._type, other._type) {
-			if c.isStriped() {
-				g.crushStripes(c)
-			}
-			c.crush = true
-			c.mutation = UnmutableCandy
-		}
-	}
-}
-
-func (g *Game) crushStripes(c *Candy) {
-	c.crush = true
-	c.mutation = UnmutableCandy
-	if c.isStripedH() {
-		crushDir(g.candys, c, Left)
-		crushDir(g.candys, c, Right)
-	}
-	if c.isStripedV() {
-		crushDir(g.candys, c, Top)
-		crushDir(g.candys, c, Bottom)
-	}
-}
-
-func crushDir(cs []*Candy, c *Candy, dir Direction) {
-	cc := c
-	for {
-		cc = findCandyInDir(cs, cc, dir)
-		if cc == nil {
-			break
-		}
-		cc.crush = true
-		cc.mutation = UnmutableCandy
-	}
-}
-
 func (g *Game) findInColumn(c *Candy, t CandyType) Region {
 	return findInColumn(g.candys, nil, c, t)
 }
@@ -126,24 +73,24 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 	if nbMatch > 2 {
 		//fmt.Printf("match region %v\n", region)
 		for _, c := range region {
-			if c.isStriped() {
-				g.crushStripes(c)
-			}
 			if !c.crush {
 				// first time the candy receives crush vote
 				c.crush = true
-			} else if c.mutation == EmptyCandy {
+			} else {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
-				c.mutation = packedCandy(c._type)
+				c._type = packedCandy(c._type)
+				c.crush = false
 			}
 		}
 		// only special candy here
 		if nbMatch == 4 {
-			region[0].mutation = stripesCandy(region[0]._type, vertical)
+			region[0]._type = stripesCandy(region[0]._type, vertical)
+			region[0].crush = false
 		}
 		if nbMatch > 4 {
-			region[0].mutation = BombCandy
+			region[0]._type = BombCandy
+			region[0].crush = false
 		}
 		return true
 	}
@@ -152,9 +99,9 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 
 func stripesCandy(t CandyType, vertical bool) CandyType {
 	if vertical {
-		return t + NbCandyType
+		return t + NbCandyType*2
 	}
-	return t + NbCandyType*2
+	return t + NbCandyType
 }
 
 func packedCandy(t CandyType) CandyType {
@@ -167,4 +114,15 @@ func matchType(t1, t2 CandyType) bool {
 	}
 	// compare type % nbCandyType to match stripes and packed candys
 	return t1%NbCandyType == t2%NbCandyType
+}
+
+func (g *Game) translateBomb() bool {
+	if g.translation != nil {
+		if g.translation.c1._type == BombCandy || g.translation.c2._type == BombCandy {
+			g.translation.c1.crush = true
+			g.translation.c2.crush = true
+			return true
+		}
+	}
+	return false
 }

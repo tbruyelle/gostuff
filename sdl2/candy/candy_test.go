@@ -4,22 +4,6 @@ import (
 	"testing"
 )
 
-func TestAlligned(t *testing.T) {
-	candysXAlligned := generateCandys(C{d: Right}, C{d: Right}, C{d: Right})
-	candysYAlligned := generateCandys(C{d: Bottom}, C{d: Bottom}, C{d: Bottom})
-	candysNotAlligned := generateCandys(C{d: Bottom}, C{d: Left}, C{d: Bottom})
-
-	if !alligned(candysXAlligned) {
-		t.Errorf("Should be X alligned %+v", candysXAlligned)
-	}
-	if !alligned(candysYAlligned) {
-		t.Errorf("Should be Y alligned %+v", candysYAlligned)
-	}
-	if alligned(candysNotAlligned) {
-		t.Errorf("Should not be alligned %v", candysNotAlligned)
-	}
-}
-
 func TestPermuteLeftRight(t *testing.T) {
 	setup()
 	fillGame()
@@ -110,7 +94,7 @@ func TestCollision(t *testing.T) {
 
 func TestCollisionColumn(t *testing.T) {
 	setup()
-	g.candys = generateCandys(C{}, C{})
+	g.candys = popCandys([][]CandyType{{RedPackedCandy, RedPackedCandy}})
 
 	collision := g.collideColumn(g.candys[0], 0)
 

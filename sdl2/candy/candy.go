@@ -60,9 +60,6 @@ const (
 	PinkPackedCandy
 	OrangePackedCandy
 	BombCandy
-	// UnmutableCandy tells a candy cannot be muted to anything else
-	// its a transition state for futur crushed candys
-	UnmutableCandy
 )
 
 type Candy struct {
@@ -71,13 +68,10 @@ type Candy struct {
 	visitedLine, visitedColumn bool
 	// crush tells if the candy will be deleted on next Crush state
 	crush bool
-	// mutation indicates how the candy will be the next time
-	// the application reaches the Crushing state.
-	mutation CandyType
 }
 
 func (c *Candy) String() string {
-	return fmt.Sprintf("(%d,%d)t%dm%d,%t", c.x, c.y, c._type, c.mutation, c.crush)
+	return fmt.Sprintf("(%d,%d)t%d,%t", c.x, c.y, c._type, c.crush)
 }
 
 func (c *Candy) isStriped() bool {
@@ -138,7 +132,6 @@ func (g *Game) Tick() bool {
 		fmt.Println("Matching")
 		if g.matching() {
 			g.state = Crushing
-			g.translation = nil
 		} else {
 			// no match
 			if !g.flags.keepUnmatchingTranslation && g.translation != nil {
@@ -153,6 +146,7 @@ func (g *Game) Tick() bool {
 	case Crushing:
 		fmt.Println("Crushing")
 		g.crushing()
+			g.translation = nil
 		// trigger the fall of new candys
 		g.state = Falling
 
@@ -175,48 +169,9 @@ func (g *Game) Tick() bool {
 	return false
 }
 
-// remove crushed candys
-func (g *Game) crushing() {
-	var cds []*Candy
-	for _, c := range g.candys {
-		fmt.Printf("crushCandy %v", c)
-		if !c.crush {
-			// that candy wont be crushed
-			cds = append(cds, c)
-		} else if c.mutation != EmptyCandy && c.mutation != UnmutableCandy {
-			// candy needs to be muted to a special candy
-			c._type = c.mutation
-			c.crush = false
-			c.mutation = EmptyCandy
-			cds = append(cds, c)
-		}
-	}
-	fmt.Printf("Crushing %d candys\n", len(g.candys)-len(cds))
-	g.candys = cds
-	fmt.Printf("NOW %d candys\n", len(g.candys))
-}
 
 func withinLimits(x, y int) bool {
 	return !(x < XMin || x > XMax+BlockSize || y < YMin || y > YMax+BlockSize)
-}
-
-func alligned(candys []*Candy) bool {
-	xaligned := false
-	for i := 1; i < len(candys); i++ {
-		xaligned = candys[i-1].x == candys[i].x
-		if !xaligned {
-			break
-		}
-	}
-
-	yaligned := false
-	for i := 1; i < len(candys); i++ {
-		yaligned = candys[i-1].y == candys[i].y
-		if !yaligned {
-			break
-		}
-	}
-	return xaligned || yaligned
 }
 
 func (g *Game) Click(x, y int) {

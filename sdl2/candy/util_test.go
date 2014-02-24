@@ -61,26 +61,24 @@ func assertVx(t *testing.T, c *Candy, vx int) {
 	}
 }
 
-func assertCrushes(t *testing.T, cs []*Candy, crush bool, mutation CandyType) {
+func assertCrushes(t *testing.T, cs []*Candy, crush bool, _type CandyType) {
 	for _, c := range cs {
-		assertCrush(t, c, crush, mutation)
+		assertCrush(t, c, crush, _type)
 	}
 }
 
-func assertCrush(t *testing.T, c *Candy, crush bool, mutation CandyType) {
+// if _type==EmptyCandy the type assertion is ignored
+func assertCrush(t *testing.T, c *Candy, crush bool, _type CandyType) {
+	_ = debug.Stack()
+
 	if c.crush != crush {
 		debug.PrintStack()
 		t.Fatalf("Wrong matching for %v, expected %t but was %t", c, crush, c.crush)
 	}
-	if c.mutation != mutation {
+	if _type != EmptyCandy && c._type != _type {
 		debug.PrintStack()
-		t.Fatalf("Wrong mutation for %v, expected %d but was %d", c, mutation, c.mutation)
+		t.Fatalf("Wrong _type for %v, expected %d but was %d", c, _type, c._type)
 	}
-}
-
-type C struct {
-	d Direction
-	t CandyType
 }
 
 func popCandys(tss [][]CandyType) []*Candy {
@@ -97,23 +95,27 @@ func popCandys(tss [][]CandyType) []*Candy {
 	return candys
 }
 
-func generateCandys(cs ...C) []*Candy {
-	region := []*Candy{}
+func assertCandyTypes(t *testing.T, ctss [][]CandyType) {
 	curx, cury := XMin, YMin
-	for _, c := range cs {
-		switch c.d {
-		case Left:
-			curx -= BlockSize
-		case Right:
-			curx += BlockSize
-		case Top:
-			cury -= BlockSize
-		case Bottom:
-			cury += BlockSize
+	for _, cts := range ctss {
+		for _, ct := range cts {
+			c, ok := findCandy(g.candys, curx, cury)
+			if ct==EmptyCandy{
+			if ok {
+				t.Fatalf("Error candy found %v but should not", c)
+			}
+		}else{
+			if ok {
+				assertCandyType(t, c._type, ct)
+			} else {
+				t.Fatalf("Error candy not found at %d,%d", curx, cury)
+			}
 		}
-		region = append(region, &Candy{x: curx, y: cury, _type: c.t})
+			curx += BlockSize
+		}
+		cury += BlockSize
+		curx = XMin
 	}
-	return region
 }
 
 func assertCandyType(t *testing.T, ct CandyType, expected CandyType) {
@@ -138,8 +140,15 @@ func assertStripedH(t *testing.T, c *Candy, expected bool) {
 		t.Errorf("Wrong type %v, expected striped h=%t but was %t", c, expected, c.isStripedH())
 	}
 }
+
 func assertStripedV(t *testing.T, c *Candy, expected bool) {
 	if c.isStripedV() != expected {
 		t.Errorf("Wrong type %v, expected striped v=%t but was %t", c, expected, c.isStripedV())
+	}
+}
+
+func crushThem(them ...int) {
+	for _, i := range them {
+		g.candys[i].crush = true
 	}
 }
