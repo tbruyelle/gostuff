@@ -138,6 +138,13 @@ func assertMatch(t *testing.T, match, expected bool) {
 	}
 }
 
+func assertNormal(t *testing.T, c *Candy, expected bool) {
+
+	if c.isNormal() != expected {
+		t.Errorf("Wrong type %v, expected normal=%t but was %t", c, expected, c.isNormal())
+	}
+}
+
 func assertStriped(t *testing.T, c *Candy, expected bool) {
 	if c.isStriped() != expected {
 		t.Errorf("Wrong type %v, expected striped=%t but was %t", c, expected, c.isStriped())

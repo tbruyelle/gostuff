@@ -74,6 +74,11 @@ func (c *Candy) String() string {
 	return fmt.Sprintf("(%d,%d)t%d,%t", c.x, c.y, c._type, c.crush)
 }
 
+// isNormal() returns true if the candy isn't special
+func (c *Candy) isNormal() bool {
+	return c._type > 0 && c._type <= NbCandyType
+}
+
 func (c *Candy) isStriped() bool {
 	return c._type > NbCandyType && c._type <= NbCandyType*3
 }

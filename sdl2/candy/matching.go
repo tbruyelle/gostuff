@@ -68,6 +68,9 @@ func findInLine(all, region Region, c *Candy, t CandyType) Region {
 	return region
 }
 
+// checkRegion() checks the region can produce a match.
+// If yes it verifies also if the match can generate special
+// candys.
 func (g *Game) checkRegion(region Region, vertical bool) bool {
 	nbMatch := len(region)
 	if nbMatch > 2 {
@@ -76,7 +79,7 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 			if !c.crush {
 				// first time the candy receives crush vote
 				c.crush = true
-			} else {
+			} else if c.isNormal() {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
 				c._type = packedCandy(c._type)
@@ -115,7 +118,7 @@ func (g *Game) determineMutableCandy(region Region) *Candy {
 	if !found {
 		//find the first normal candy in the region
 		for i := 0; i < len(region); i++ {
-			if region[i]._type < NbCandyType {
+			if region[i].isNormal(){
 				c = region[i]
 				break
 			}

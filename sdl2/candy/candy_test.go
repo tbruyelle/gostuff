@@ -184,6 +184,21 @@ func TestApplyGravity(t *testing.T) {
 	}
 }
 
+func TestIsNormal(t *testing.T) {
+	assertNormal(t, &Candy{_type: EmptyCandy}, false)
+
+	assertNormal(t, &Candy{_type: RedCandy}, true)
+	assertNormal(t, &Candy{_type: GreenCandy}, true)
+	assertNormal(t, &Candy{_type: YellowCandy}, true)
+	assertNormal(t, &Candy{_type: PinkCandy}, true)
+	assertNormal(t, &Candy{_type: OrangeCandy}, true)
+	assertNormal(t, &Candy{_type: BlueCandy}, true)
+
+	assertNormal(t, &Candy{_type: RedHStripesCandy}, false)
+	assertNormal(t, &Candy{_type: PinkPackedCandy}, false)
+	assertNormal(t, &Candy{_type: BombCandy}, false)
+}
+
 func TestIsStriped(t *testing.T) {
 	assertStriped(t, &Candy{_type: RedHStripesCandy}, true)
 	assertStriped(t, &Candy{_type: RedVStripesCandy}, true)
@@ -214,7 +229,7 @@ func TestIsPacked(t *testing.T) {
 
 	assertPacked(t, &Candy{_type: RedHStripesCandy}, false)
 	assertPacked(t, &Candy{_type: BombCandy}, false)
-	assertPacked(t, &Candy{_type: PinkVStripesCandy},false)
+	assertPacked(t, &Candy{_type: PinkVStripesCandy}, false)
 	assertPacked(t, &Candy{_type: YellowCandy}, false)
 }
 
