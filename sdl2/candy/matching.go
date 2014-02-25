@@ -83,16 +83,64 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 				c.crush = false
 			}
 		}
-		// only special candy here
-		if nbMatch == 4 {
-			region[0]._type = stripesCandy(region[0]._type, vertical)
-			region[0].crush = false
-		}
-		if nbMatch > 4 {
-			region[0]._type = BombCandy
-			region[0].crush = false
+		if nbMatch >= 4 {
+			// Handle special candy here, according
+			// the match, we will mutate a simple
+			// candy to a special one
+			c := g.determineMutableCandy(region)
+			// The mutation will occur only if we were able to
+			// determinate a mutable candy.
+			if c != nil {
+				if nbMatch == 4 {
+					// mutate candy to Stripes
+					c._type = stripesCandy(region[0]._type, vertical)
+					c.crush = false
+				}
+				if nbMatch > 4 {
+					// mutate candy to Bomb
+					c._type = BombCandy
+					c.crush = false
+				}
+			}
 		}
 		return true
+	}
+	return false
+}
+
+// determineCandyToMutate() determines the candy in region
+// which will mutate according to the special match triggered
+func (g *Game) determineMutableCandy(region Region) *Candy {
+	c, found := g.findTranslated(region)
+	if !found {
+		//find the first normal candy in the region
+		for i := 0; i < len(region); i++ {
+			if region[i]._type < NbCandyType {
+				c = region[i]
+				break
+			}
+		}
+	}
+	return c
+}
+
+func (g *Game) findTranslated(region Region) (*Candy, bool) {
+	if g.translation != nil {
+		if isInRegion(region, g.translation.c1) {
+			return g.translation.c1, true
+		}
+		if isInRegion(region, g.translation.c2) {
+			return g.translation.c2, true
+		}
+	}
+	return nil, false
+}
+
+func isInRegion(region Region, c *Candy) bool {
+	for i := 0; i < len(region); i++ {
+		if region[i] == c {
+			return true
+		}
 	}
 	return false
 }

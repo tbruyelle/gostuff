@@ -30,7 +30,7 @@ func TestMatchingThreeInLine(t *testing.T) {
 	assertCrushes(t, g.candys, true, RedCandy)
 }
 
-func TestMatchingThreeInLineColumn(t *testing.T) {
+func TestMatchingThreeInColumn(t *testing.T) {
 	setup()
 	g.candys = popCandys([][]CandyType{
 		{RedCandy},
@@ -46,7 +46,7 @@ func TestMatchingThreeInLineColumn(t *testing.T) {
 	assertCrushes(t, g.candys, true, RedCandy)
 }
 
-func TestMatchingFourInLine(t *testing.T) {
+func TestMatchingStripes(t *testing.T) {
 	setup()
 	g.candys = popCandys([][]CandyType{
 		{RedCandy, RedCandy, RedCandy, RedCandy},
@@ -181,4 +181,42 @@ func TestMatchingWithBomb(t *testing.T) {
 	}
 	assertCrush(t, g.candys[0], true, RedCandy)
 	assertCrush(t, g.candys[1], true, BombCandy)
+}
+
+func TestMatchingStripes_withTranslation(t *testing.T) {
+	setup()
+	g.candys = popCandys([][]CandyType{
+		{RedCandy, RedCandy, RedCandy, RedCandy},
+		{BlueCandy, GreenCandy, OrangeCandy, PinkCandy},
+	})
+	g.translation = &Translation{g.candys[2], g.candys[6]}
+
+	match := g.matching()
+
+	if !match {
+		t.Fatalf("Should find a match")
+	}
+	assertCrushes(t, g.candys[:1], true, RedCandy)
+	assertCrush(t, g.candys[2], false, RedHStripesCandy)
+	assertCrush(t, g.candys[3], true, RedCandy)
+	assertCrushes(t, g.candys[4:], false, EmptyCandy)
+}
+
+func TestMatchingBomb_withTranslation(t *testing.T) {
+	setup()
+	g.candys = popCandys([][]CandyType{
+		{RedCandy, RedCandy, RedCandy, RedCandy, RedCandy},
+		{BlueCandy, BlueCandy, GreenCandy, GreenCandy, YellowCandy},
+	})
+	g.translation = &Translation{g.candys[2], g.candys[7]}
+
+	match := g.matching()
+
+	if !match {
+		t.Fatalf("Should find a match")
+	}
+	assertCrushes(t, g.candys[:1], true, RedCandy)
+	assertCrush(t, g.candys[2], false, BombCandy)
+	assertCrushes(t, g.candys[3:4], true, RedCandy)
+	assertCrushes(t, g.candys[5:], false, EmptyCandy)
 }
