@@ -42,12 +42,18 @@ func (g *Game) crushSpecials(processed map[*Candy]bool) bool {
 				g.crushBomb(c)
 				processed[c] = true
 				return true
+			} else if c.isPacked() {
+				g.crushPacked(c)
+				processed[c] = true
+				return true
 			}
 		}
 	}
 	return false
 }
 
+// crushStripes() crushes candys in a line or
+// column, according the stripes direction.
 func (g *Game) crushStripes(c *Candy) {
 	if c.isStripedH() {
 		crushDir(g.candys, c, Left)
@@ -70,6 +76,8 @@ func crushDir(cs []*Candy, c *Candy, dir Direction) {
 	}
 }
 
+// crushBomb() crushes all candys of a determined
+// type.
 func (g *Game) crushBomb(bomb *Candy) {
 	if g.translation != nil {
 		if g.translation.c1._type == BombCandy {
@@ -90,6 +98,17 @@ func (g *Game) crushBombWith(bomb *Candy, _type CandyType) {
 	// remove all candys with same type
 	for _, c := range g.candys {
 		if matchType(c._type, _type) {
+			c.crush = true
+		}
+	}
+}
+
+// crushPacked() crushed candys that surround the
+// packed candy.
+func (g *Game) crushPacked(packed *Candy) {
+	for dir := Direction(0); dir < NbDirections; dir++ {
+		c := findCandyInDir(g.candys, packed, dir)
+		if c != nil {
 			c.crush = true
 		}
 	}

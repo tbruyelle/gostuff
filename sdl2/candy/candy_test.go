@@ -203,3 +203,103 @@ func TestIsStriped(t *testing.T) {
 	assertStripedV(t, &Candy{_type: RedPackedCandy}, false)
 	assertStripedV(t, &Candy{_type: BombCandy}, false)
 }
+
+func TestIsPacked(t *testing.T) {
+	assertPacked(t, &Candy{_type: RedPackedCandy}, true)
+	assertPacked(t, &Candy{_type: OrangePackedCandy}, true)
+	assertPacked(t, &Candy{_type: PinkPackedCandy}, true)
+	assertPacked(t, &Candy{_type: YellowPackedCandy}, true)
+	assertPacked(t, &Candy{_type: BluePackedCandy}, true)
+	assertPacked(t, &Candy{_type: GreenPackedCandy}, true)
+
+	assertPacked(t, &Candy{_type: RedHStripesCandy}, false)
+	assertPacked(t, &Candy{_type: BombCandy}, false)
+	assertPacked(t, &Candy{_type: PinkVStripesCandy},false)
+	assertPacked(t, &Candy{_type: YellowCandy}, false)
+}
+
+func TestTopCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy},
+		{RedCandy},
+	})
+
+	c := topCandy(candys, candys[1])
+
+	assertCandy(t, c, candys[0])
+}
+
+func TestBottomCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy},
+		{RedCandy},
+	})
+
+	c := bottomCandy(candys, candys[0])
+
+	assertCandy(t, c, candys[1])
+}
+
+func TestLeftCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy, RedCandy},
+	})
+
+	c := leftCandy(candys, candys[1])
+
+	assertCandy(t, c, candys[0])
+}
+
+func TestRightCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy, RedCandy},
+	})
+
+	c := rightCandy(candys, candys[0])
+
+	assertCandy(t, c, candys[1])
+}
+
+func TestTopLeftCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy, RedCandy},
+		{RedCandy, RedCandy},
+	})
+
+	c := topLeftCandy(candys, candys[3])
+
+	assertCandy(t, c, candys[0])
+}
+
+func TestTopRightCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy, RedCandy},
+		{RedCandy, RedCandy},
+	})
+
+	c := topRightCandy(candys, candys[2])
+
+	assertCandy(t, c, candys[1])
+}
+
+func TestBottomLeftCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy, RedCandy},
+		{RedCandy, RedCandy},
+	})
+
+	c := bottomLeftCandy(candys, candys[1])
+
+	assertCandy(t, c, candys[2])
+}
+
+func TestBottomRightCandy(t *testing.T) {
+	candys := popCandys([][]CandyType{
+		{RedCandy, RedCandy},
+		{RedCandy, RedCandy},
+	})
+
+	c := bottomRightCandy(candys, candys[0])
+
+	assertCandy(t, c, candys[3])
+}

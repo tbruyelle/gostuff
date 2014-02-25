@@ -86,6 +86,10 @@ func (c *Candy) isStripedV() bool {
 	return c._type > NbCandyType*2 && c._type <= NbCandyType*3
 }
 
+func (c *Candy) isPacked() bool {
+	return c._type > NbCandyType*3 && c._type <= NbCandyType*4
+}
+
 type Translation struct {
 	c1, c2 *Candy
 }
@@ -97,6 +101,11 @@ const (
 	Top
 	Right
 	Bottom
+	TopLeft
+	TopRight
+	BottomLeft
+	BottomRight
+	NbDirections
 )
 
 type Game struct {
@@ -272,6 +281,18 @@ func findCandyInDir(cs []*Candy, c *Candy, dir Direction) *Candy {
 
 	case Bottom:
 		return bottomCandy(cs, c)
+
+	case TopLeft:
+		return topLeftCandy(cs, c)
+
+	case TopRight:
+		return topRightCandy(cs, c)
+
+	case BottomLeft:
+		return bottomLeftCandy(cs, c)
+
+	case BottomRight:
+		return bottomRightCandy(cs, c)
 	}
 	return nil
 }
@@ -296,6 +317,25 @@ func rightCandy(candys []*Candy, c *Candy) *Candy {
 	return found
 }
 
+func topLeftCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x-BlockSize, c.y-BlockSize)
+	return found
+}
+
+func bottomRightCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x+BlockSize, c.y+BlockSize)
+	return found
+}
+
+func bottomLeftCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x-BlockSize, c.y+BlockSize)
+	return found
+}
+
+func topRightCandy(candys []*Candy, c *Candy) *Candy {
+	found, _ := findCandy(candys, c.x+BlockSize, c.y-BlockSize)
+	return found
+}
 func determineXCandy(x int) int {
 	return determineYCandy(x-XMin) + XMin
 }

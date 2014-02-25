@@ -53,7 +53,7 @@ func assertY(t *testing.T, c *Candy, y int) {
 
 func assertNbCandy(t *testing.T, nb int) {
 	if len(g.candys) != nb {
-		t.Fatalf("Wrong number of candys, expected %d but was %d", nb, len(g.candys))
+		t.Errorf("Wrong number of candys, expected %d but was %d", nb, len(g.candys))
 	}
 }
 
@@ -143,6 +143,7 @@ func assertStriped(t *testing.T, c *Candy, expected bool) {
 		t.Errorf("Wrong type %v, expected striped=%t but was %t", c, expected, c.isStriped())
 	}
 }
+
 func assertStripedH(t *testing.T, c *Candy, expected bool) {
 	if c.isStripedH() != expected {
 		t.Errorf("Wrong type %v, expected striped h=%t but was %t", c, expected, c.isStripedH())
@@ -155,8 +156,20 @@ func assertStripedV(t *testing.T, c *Candy, expected bool) {
 	}
 }
 
+func assertPacked(t *testing.T, c *Candy, expected bool) {
+	if c.isPacked() != expected {
+		t.Errorf("Wrong type %v, expected packed=%t but was %t", c, expected, c.isStriped())
+	}
+}
+
 func crushThem(them ...int) {
 	for _, i := range them {
 		g.candys[i].crush = true
+	}
+}
+
+func assertCandy(t *testing.T, c, expected *Candy) {
+	if c != expected {
+		t.Errorf("Wrong candy, expected %v but was %v", expected, c)
 	}
 }
