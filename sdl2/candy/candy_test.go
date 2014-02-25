@@ -132,7 +132,7 @@ func TestFall(t *testing.T) {
 	moving := g.fall()
 
 	assertNbCandy(t, NbBlockWidth)
-	assertY(t, g.candys[0], 1)
+	assertY(t, g.candys[0], -BlockSize+1)
 	if !moving {
 		t.Error("Wrong move state, should still moving")
 	}

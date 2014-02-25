@@ -419,17 +419,25 @@ func (g *Game) fall() bool {
 	return falling
 }
 
+// populateDropZone() populates the top of the grid
+// with new randomly generated candys.
 func (g *Game) populateDropZone() {
 	for i := 0; i < NbBlockWidth; i++ {
 		newc := g.newCandy()
 		newc.x = XMin + BlockSize*i
-		newc.y = 0
+		newc.y=0
 		if !g.collideColumn(newc, -1) {
+			// Apply -BlockSize to y to see the candy fall
+			// from the top of the screen
+			newc.y = -BlockSize
 			g.candys = append(g.candys, newc)
 		}
 	}
 }
 
+// applyGravity() sets a gravity to all candys
+// and increases each time the method is called
+// to simulate an acceleration.
 func (g *Game) applyGravity() {
 	for _, c := range g.candys {
 		if c.g == 0 {
@@ -463,6 +471,9 @@ func collide(c1, c2 *Candy) bool {
 	return true
 }
 
+// collideColumn() returns true if the candy in parameter
+// collides with another candy.
+// The `ind` parameter is used to prevent self match.
 func (g *Game) collideColumn(newc *Candy, ind int) bool {
 	for i, c := range g.candys {
 		if i != ind && c.x == newc.x && collide(newc, c) {
