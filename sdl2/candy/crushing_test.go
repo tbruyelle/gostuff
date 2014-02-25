@@ -149,7 +149,27 @@ func TestCrushingPacked(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t,0)
+	assertNbCandy(t, 0)
+	assertCandyTypes(t, [][]CandyType{
+		{EmptyCandy, EmptyCandy, EmptyCandy},
+		{EmptyCandy, EmptyCandy, EmptyCandy},
+		{EmptyCandy, EmptyCandy, EmptyCandy},
+	})
+}
+
+func TestCrushBombOnBomb(t *testing.T) {
+	setup()
+	g.candys = popCandys([][]CandyType{
+		{BombCandy, BombCandy, RedCandy},
+		{GreenCandy, YellowCandy, BlueCandy},
+		{PinkCandy, RedCandy, PinkCandy},
+	})
+	crushThem(0, 1)
+	g.translation = &Translation{g.candys[0], g.candys[1]}
+
+	g.crushing()
+
+	assertNbCandy(t, 0)
 	assertCandyTypes(t, [][]CandyType{
 		{EmptyCandy, EmptyCandy, EmptyCandy},
 		{EmptyCandy, EmptyCandy, EmptyCandy},
