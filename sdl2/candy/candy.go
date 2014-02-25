@@ -425,11 +425,10 @@ func (g *Game) populateDropZone() {
 	for i := 0; i < NbBlockWidth; i++ {
 		newc := g.newCandy()
 		newc.x = XMin + BlockSize*i
-		newc.y=0
+		newc.y = -BlockSize
 		if !g.collideColumn(newc, -1) {
 			// Apply -BlockSize to y to see the candy fall
 			// from the top of the screen
-			newc.y = -BlockSize
 			g.candys = append(g.candys, newc)
 		}
 	}
