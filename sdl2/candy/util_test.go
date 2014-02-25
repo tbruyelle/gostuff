@@ -9,6 +9,14 @@ func setup() {
 	g = NewGame()
 }
 
+type candyTypeGenMock struct {
+	_type CandyType
+}
+
+func (c candyTypeGenMock) NewCandyType() CandyType {
+	return c._type
+}
+
 func fillGame() {
 	g.populateDropZone()
 	g.applyGravity()
@@ -100,17 +108,17 @@ func assertCandyTypes(t *testing.T, ctss [][]CandyType) {
 	for _, cts := range ctss {
 		for _, ct := range cts {
 			c, ok := findCandy(g.candys, curx, cury)
-			if ct==EmptyCandy{
-			if ok {
-				t.Fatalf("Error candy found %v but should not", c)
-			}
-		}else{
-			if ok {
-				assertCandyType(t, c._type, ct)
+			if ct == EmptyCandy {
+				if ok {
+					t.Fatalf("Error candy found %v but should not", c)
+				}
 			} else {
-				t.Fatalf("Error candy not found at %d,%d", curx, cury)
+				if ok {
+					assertCandyType(t, c._type, ct)
+				} else {
+					t.Fatalf("Error candy not found at %d,%d", curx, cury)
+				}
 			}
-		}
 			curx += BlockSize
 		}
 		cury += BlockSize

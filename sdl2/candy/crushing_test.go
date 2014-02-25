@@ -108,6 +108,8 @@ func TestCrushingBombOnStripes(t *testing.T) {
 	})
 }
 
+// Tests that a stripes which crushs a BombCandy makes
+// the bomb explodes with a randomly chosen CandyType.
 func TestCrushingStripesOnBomb(t *testing.T) {
 	setup()
 	g.candys = popCandys([][]CandyType{
@@ -118,8 +120,11 @@ func TestCrushingStripesOnBomb(t *testing.T) {
 		{PinkCandy, PinkVStripesCandy, PinkCandy},
 	})
 	crushThem(12, 13, 14)
-	// redefine the newCandy func so we can define
-	// the candy type chosen by the bomb match
+	// Redefine the CandyTypeGenerator with a mock
+	// which will returns only BlueCandy.
+	// So the BlueCandy will be the type chosen by
+	// the BombCandy.
+	g.candyTypeGen = candyTypeGenMock{BlueCandy}
 
 	g.crushing()
 

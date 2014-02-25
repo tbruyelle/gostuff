@@ -100,11 +100,11 @@ const (
 )
 
 type Game struct {
-	candys          []*Candy
-	state           State
-	selected        *Candy
-	translation     *Translation
-	flags           Flags
+	candys       []*Candy
+	state        State
+	selected     *Candy
+	translation  *Translation
+	flags        Flags
 	candyTypeGen CandyTypeGenerator
 }
 
@@ -126,7 +126,7 @@ func (c CandyTypeRandomizer) NewCandyType() CandyType {
 
 func NewGame() *Game {
 	g := &Game{}
-	g.randomCandyType = CandyTypeRandomizer{rand.New(rand.NewSource(time.Now().Unix()))}
+	g.candyTypeGen = CandyTypeRandomizer{rand.New(rand.NewSource(time.Now().Unix()))}
 	g.state = Falling
 	return g
 }
@@ -398,7 +398,7 @@ func (g *Game) applyGravity() {
 }
 
 func (g *Game) newCandy() *Candy {
-	ct := g.randomCandyType()
+	ct := g.candyTypeGen.NewCandyType()
 	return &Candy{_type: CandyType(ct)}
 }
 
