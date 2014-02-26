@@ -21,79 +21,15 @@ const (
 	NbCandyType    = 6
 )
 
-type State int
+type GameState int
 
 const (
-	Idle State = iota
+	Idle GameState = iota
 	Matching
 	Crushing
 	Falling
 	Translating
 )
-
-type CandyType int
-
-const (
-	EmptyCandy CandyType = iota
-	RedCandy
-	GreenCandy
-	BlueCandy
-	YellowCandy
-	PinkCandy
-	OrangeCandy
-	RedHStripesCandy
-	GreenHStripesCandy
-	BlueHStripesCandy
-	YellowHStripesCandy
-	PinkHStripesCandy
-	OrangeHStripesCandy
-	RedVStripesCandy
-	GreenVStripesCandy
-	BlueVStripesCandy
-	YellowVStripesCandy
-	PinkVStripesCandy
-	OrangeVStripesCandy
-	RedPackedCandy
-	GreenPackedCandy
-	BluePackedCandy
-	YellowPackedCandy
-	PinkPackedCandy
-	OrangePackedCandy
-	BombCandy
-)
-
-type Candy struct {
-	_type                      CandyType
-	x, y, vx, vy, g            int
-	visitedLine, visitedColumn bool
-	// crush tells if the candy will be deleted on next Crush state
-	crush bool
-}
-
-func (c *Candy) String() string {
-	return fmt.Sprintf("(%d,%d)t%d,%t", c.x, c.y, c._type, c.crush)
-}
-
-// isNormal() returns true if the candy isn't special
-func (c *Candy) isNormal() bool {
-	return c._type > 0 && c._type <= NbCandyType
-}
-
-func (c *Candy) isStriped() bool {
-	return c._type > NbCandyType && c._type <= NbCandyType*3
-}
-
-func (c *Candy) isStripedH() bool {
-	return c._type > NbCandyType && c._type <= NbCandyType*2
-}
-
-func (c *Candy) isStripedV() bool {
-	return c._type > NbCandyType*2 && c._type <= NbCandyType*3
-}
-
-func (c *Candy) isPacked() bool {
-	return c._type > NbCandyType*3 && c._type <= NbCandyType*4
-}
 
 type Translation struct {
 	c1, c2 *Candy
@@ -115,7 +51,7 @@ const (
 
 type Game struct {
 	candys       []*Candy
-	state        State
+	state        GameState
 	selected     *Candy
 	translation  *Translation
 	flags        Flags
@@ -153,7 +89,29 @@ func (g *Game) Tick() bool {
 	switch g.state {
 	case Idle:
 		fmt.Println("Idle")
-		return true
+		deads := false
+		for _, c := range g.candys {
+			c.Update()
+			if c.dead {
+				deads = true
+			}
+		}
+		if !deads {
+			// No dead candys, just wait for the next
+			// user command
+			return false
+		}
+
+		// Remove the dead candys, then let the Falling state do the job
+		var kept []*Candy
+		for _, c := range g.candys {
+			if !c.dead {
+				kept = append(kept, c)
+			}
+		}
+		g.candys = kept
+		g.state = Falling
+
 	case Matching:
 		fmt.Println("Matching")
 		if g.matching() {
@@ -173,8 +131,8 @@ func (g *Game) Tick() bool {
 		fmt.Println("Crushing")
 		g.crushing()
 		g.translation = nil
-		// trigger the fall of new candys
-		g.state = Falling
+		// Returns to the Idle state during the dying transition
+		g.state = Idle
 
 	case Falling:
 		fmt.Println("Falling")
@@ -451,7 +409,7 @@ func (g *Game) applyGravity() {
 
 func (g *Game) newCandy() *Candy {
 	ct := g.candyTypeGen.NewCandyType()
-	return &Candy{_type: CandyType(ct)}
+	return NewCandy(CandyType(ct))
 }
 
 func collide(c1, c2 *Candy) bool {

@@ -13,16 +13,17 @@ func (g *Game) crushing() {
 		// is no more special candys to crush
 	}
 	// final loop, remove the crushed candys
-	var kept []*Candy
+//	var kept []*Candy
 	for _, c := range g.candys {
 		//fmt.Printf("crushCandy %v\n", c)
-		if !c.crush {
-			kept = append(kept, c)
+		if c.crush {
+			c.changeState(NewDyingState())
+			//kept = append(kept, c)
 		}
 	}
-	fmt.Printf("Crushing %d candys\n", len(g.candys)-len(kept))
-	g.candys = kept
-	//fmt.Printf("NOW %d candys\n", len(g.candys))
+//	fmt.Printf("Crushing %d candys\n", len(g.candys)-len(kept))
+//	g.candys = kept
+	fmt.Printf("NOW %d candys\n", len(g.candys))
 }
 
 // crushSpecials() returns true when a special

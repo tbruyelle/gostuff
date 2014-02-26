@@ -108,6 +108,7 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 var block = sdl.Rect{W: BlockSize, H: BlockSize}
 var source = sdl.Rect{W: BlockSize, H: BlockSize}
 
+// showCandy shows the candy according to a tileset.
 func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	if c._type == EmptyCandy {
 		return
@@ -115,83 +116,90 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	//fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
 	block.X = int32(c.x)
 	block.Y = int32(c.y)
-	switch c._type {
-	case BlueCandy:
+	alpha := uint8(255)
+	switch c.sprite._type {
+	case BlueSprite:
 		source.X = BlockSize
 		source.Y = 0
-	case YellowCandy:
+	case YellowSprite:
 		source.X = BlockSize * 4
 		source.Y = 0
-	case GreenCandy:
+	case GreenSprite:
 		source.X = BlockSize * 3
 		source.Y = 0
-	case RedCandy:
+	case RedSprite:
 		source.X = BlockSize * 5
 		source.Y = 0
-	case PinkCandy:
+	case PinkSprite:
 		source.X = BlockSize * 2
 		source.Y = 0
-	case OrangeCandy:
+	case OrangeSprite:
 		source.X = 0
 		source.Y = 0
-	case BlueHStripesCandy:
+	case BlueHStripesSprite:
 		source.X = BlockSize
 		source.Y = BlockSize
-	case YellowHStripesCandy:
+	case YellowHStripesSprite:
 		source.X = BlockSize * 4
 		source.Y = BlockSize
-	case GreenHStripesCandy:
+	case GreenHStripesSprite:
 		source.X = BlockSize * 3
 		source.Y = BlockSize
-	case RedHStripesCandy:
+	case RedHStripesSprite:
 		source.X = BlockSize * 5
 		source.Y = BlockSize
-	case PinkHStripesCandy:
+	case PinkHStripesSprite:
 		source.X = BlockSize * 2
 		source.Y = BlockSize
-	case OrangeHStripesCandy:
+	case OrangeHStripesSprite:
 		source.X = 0
-		source.Y = BlockSize 
-	case BlueVStripesCandy:
+		source.Y = BlockSize
+	case BlueVStripesSprite:
 		source.X = BlockSize
-		source.Y = BlockSize*2
-	case YellowVStripesCandy:
+		source.Y = BlockSize * 2
+	case YellowVStripesSprite:
 		source.X = BlockSize * 4
-		source.Y = BlockSize*2
-	case GreenVStripesCandy:
+		source.Y = BlockSize * 2
+	case GreenVStripesSprite:
 		source.X = BlockSize * 3
-		source.Y = BlockSize*2
-	case RedVStripesCandy:
+		source.Y = BlockSize * 2
+	case RedVStripesSprite:
 		source.X = BlockSize * 5
-		source.Y = BlockSize*2
-	case PinkVStripesCandy:
+		source.Y = BlockSize * 2
+	case PinkVStripesSprite:
 		source.X = BlockSize * 2
-		source.Y = BlockSize*2
-	case OrangeVStripesCandy:
+		source.Y = BlockSize * 2
+	case OrangeVStripesSprite:
 		source.X = 0
 		source.Y = BlockSize * 2
-	case BluePackedCandy:
+	case BluePackedSprite:
 		source.X = BlockSize
 		source.Y = BlockSize * 3
-	case YellowPackedCandy:
+	case YellowPackedSprite:
 		source.X = BlockSize * 4
 		source.Y = BlockSize * 3
-	case GreenPackedCandy:
+	case GreenPackedSprite:
 		source.X = BlockSize * 3
 		source.Y = BlockSize * 3
-	case RedPackedCandy:
+	case RedPackedSprite:
 		source.X = BlockSize * 5
 		source.Y = BlockSize * 3
-	case PinkPackedCandy:
+	case PinkPackedSprite:
 		source.X = BlockSize * 2
 		source.Y = BlockSize * 3
-	case OrangePackedCandy:
+	case OrangePackedSprite:
 		source.X = 0
 		source.Y = BlockSize * 3
-	case BombCandy:
+	case BombSprite:
 		source.X = 0
 		source.Y = BlockSize * 4
+	case DyingSprite:
+		source.X = 0
+		source.Y = BlockSize * 4
+		alpha = alpha/uint8(c.sprite.frame + 1)
+
 	}
+	tileset.SetAlphaMod(alpha)
 	if c == game.selected {
 		renderer.Copy(tilesetSelected, &source, &block)
 	} else {
@@ -199,6 +207,8 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	}
 }
 
+// showCandySquare is a deprecated method which shows candys as
+// simples colored squares.
 func showCandySquare(renderer *sdl.Renderer, c *Candy, game *Game) {
 	if c._type == EmptyCandy {
 		return
