@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"git.tideland.biz/goas/loop"
 	"github.com/jackyb/go-sdl2/sdl"
 	"os"
 	"runtime"
 	"time"
 )
 
-const FRAME_RATE = time.Second / 40
+const FRAME_RATE = time.Second / 30
 
 var (
 	window          *sdl.Window
@@ -49,49 +50,83 @@ func main() {
 	game := NewGame()
 	defer game.Destroy()
 
-	game.Start()
-	loop(game, renderer)
-	game.Stop()
-}
+	// render loop
+	loop.GoRecoverable(
+		func(loop loop.Loop) error {
+			game.Start()
 
-func loop(game *Game, renderer *sdl.Renderer) {
-	mainTicker := time.NewTicker(FRAME_RATE)
-	for {
-		select {
-		case <-mainTicker.C:
-			wait := game.Tick()
-			renderThings(renderer, game)
-			for wait {
-				event := sdl.PollEvent()
-				switch t := event.(type) {
+			ticker := time.NewTicker(FRAME_RATE)
+
+			for {
+				select {
+				case <-ticker.C:
+					game.Tick()
+					renderThings(renderer, game)
+
+				case <-loop.ShallStop():
+					ticker.Stop()
+					game.Stop()
+					return nil
+
+				}
+			}
+		},
+		func(rs loop.Recoverings) (loop.Recoverings, error) {
+			for _, r := range rs {
+				fmt.Printf("%s\n%s", r.Reason)
+			}
+			return rs, fmt.Errorf("Unrecoverable loop\n")
+		},
+	)
+
+	// event loop
+	eventChan := make(chan sdl.Event)
+	loop.GoRecoverable(
+		func(loop loop.Loop) error {
+			var evt sdl.Event
+			for {
+				evt = <-eventChan
+				switch evt := evt.(type) {
+
 				case *sdl.QuitEvent:
-					return
+					//return nil
+					break
 				case *sdl.KeyDownEvent:
-					switch t.Keysym.Sym {
+					switch evt.Keysym.Sym {
 					case sdl.K_ESCAPE:
-						return
+						//return nil
+						break
 					case sdl.K_r:
 						game.Reset()
-						wait = false
 					case sdl.K_k:
 						game.ToggleKeepUnmatchingTranslation()
 					}
 				case *sdl.MouseButtonEvent:
-					if t.State != 0 {
-						//fmt.Println("Click", t.X, t.Y)
-						game.Click(int(t.X), int(t.Y))
-						wait = false
+					if evt.State != 0 {
+						game.Click(int(evt.X), int(evt.Y))
 					}
 				}
 
 			}
-		}
+		},
+		func(rs loop.Recoverings) (loop.Recoverings, error) {
+			for _, r := range rs {
+				fmt.Printf("%s\n%s", r.Reason)
+			}
+			return rs, fmt.Errorf("Unrecoverable loop\n")
+		},
+	)
+
+	for {
+		eventChan <- sdl.WaitEvent()
 	}
+
 }
 
 func renderThings(renderer *sdl.Renderer, game *Game) {
-	//fmt.Println("rendering")
+	fmt.Println("rendering")
 	renderer.Clear()
+	fmt.Println("rendering2")
 	// show dashboard
 	renderer.SetDrawColor(50, 50, 50, 200)
 	dashboard := sdl.Rect{0, 0, DashboardWidth, WindowHeight}
@@ -102,7 +137,9 @@ func renderThings(renderer *sdl.Renderer, game *Game) {
 		showCandy(renderer, c, game)
 	}
 	renderer.SetDrawColor(255, 255, 255, 255)
+	fmt.Println("rendering3")
 	renderer.Present()
+	fmt.Println("rendering4")
 }
 
 var block = sdl.Rect{W: BlockSize, H: BlockSize}
@@ -196,7 +233,7 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	case DyingSprite:
 		source.X = 0
 		source.Y = BlockSize * 4
-		alpha = alpha/uint8(c.sprite.frame + 1)
+		alpha = alpha / uint8(c.sprite.frame+1)
 
 	}
 	tileset.SetAlphaMod(alpha)
