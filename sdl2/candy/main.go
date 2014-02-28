@@ -16,9 +16,35 @@ var (
 	tilesetSelected *sdl.Texture
 )
 
+// Arrange that main.main runs on main thread.
+func init() {
+	runtime.LockOSThread()
+}
+
+// Queue of work to run in main thread.
+var mainfunc = make(chan func())
+
+// Run all the functions that need to run in the main thread.
+func Main() {
+	var f func()
+	for f = range mainfunc {
+		f()
+	}
+}
+
+// Put the function f on the main thread function queue.
+func do(f func()) {
+	done := make(chan bool, 1)
+	mainfunc <- func() {
+		f()
+		done <- true
+	}
+	<-done
+}
+
 func main() {
 	_ = fmt.Sprint()
-	runtime.LockOSThread()
+	defer sdl.Quit()
 
 	window = sdl.CreateWindow("Candy Crush Saga", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_SHOWN)
 	if window == nil {
@@ -50,40 +76,42 @@ func main() {
 	defer game.Destroy()
 
 	game.Start()
-	loop(game, renderer)
+	go loop(game, renderer)
+	Main()
 	game.Stop()
 }
 
 func loop(game *Game, renderer *sdl.Renderer) {
+	defer close(mainfunc)
+
 	mainTicker := time.NewTicker(FRAME_RATE)
+
+	var evt sdl.Event
 	for {
 		select {
 		case <-mainTicker.C:
-			wait := game.Tick()
-			renderThings(renderer, game)
-			for wait {
-				event := sdl.PollEvent()
-				switch t := event.(type) {
-				case *sdl.QuitEvent:
-					return
-				case *sdl.KeyDownEvent:
-					switch t.Keysym.Sym {
-					case sdl.K_ESCAPE:
-						return
-					case sdl.K_r:
-						game.Reset()
-						wait = false
-					case sdl.K_k:
-						game.ToggleKeepUnmatchingTranslation()
-					}
-				case *sdl.MouseButtonEvent:
-					if t.State != 0 {
-						//fmt.Println("Click", t.X, t.Y)
-						game.Click(int(t.X), int(t.Y))
-						wait = false
-					}
-				}
+			game.Tick()
+			do(func() {
+				renderThings(renderer, game)
+				evt = sdl.PollEvent()
+			})
 
+			switch t := evt.(type) {
+			case *sdl.QuitEvent:
+				return
+			case *sdl.KeyDownEvent:
+				switch t.Keysym.Sym {
+				case sdl.K_ESCAPE:
+					return
+				case sdl.K_r:
+					game.Reset()
+				case sdl.K_k:
+					game.ToggleKeepUnmatchingTranslation()
+				}
+			case *sdl.MouseButtonEvent:
+				if t.State != 0 {
+					game.Click(int(t.X), int(t.Y))
+				}
 			}
 		}
 	}
@@ -196,7 +224,7 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	case DyingSprite:
 		source.X = 0
 		source.Y = BlockSize * 4
-		alpha = alpha/uint8(c.sprite.frame + 1)
+		alpha = alpha / uint8(c.sprite.frame+1)
 
 	}
 	tileset.SetAlphaMod(alpha)

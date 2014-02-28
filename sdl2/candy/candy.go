@@ -88,7 +88,7 @@ func (g *Game) ToggleKeepUnmatchingTranslation() {
 func (g *Game) Tick() bool {
 	switch g.state {
 	case Idle:
-		fmt.Println("Idle")
+		//fmt.Println("Idle")
 		deads := false
 		for _, c := range g.candys {
 			c.Update()
