@@ -11,9 +11,8 @@ import (
 const FRAME_RATE = time.Second / 40
 
 var (
-	window          *sdl.Window
-	tileset         *sdl.Texture
-	tilesetSelected *sdl.Texture
+	window  *sdl.Window
+	tileset *sdl.Texture
 )
 
 // Arrange that main.main runs on main thread.
@@ -69,8 +68,6 @@ func main() {
 		os.Exit(1)
 	}
 	tileset = renderer.CreateTextureFromSurface(tilesetSurface)
-	tilesetSurface.SetAlphaMod(190)
-	tilesetSelected = renderer.CreateTextureFromSurface(tilesetSurface)
 
 	game := NewGame()
 	defer game.Destroy()
@@ -145,94 +142,92 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 	block.X = int32(c.x)
 	block.Y = int32(c.y)
 	alpha := uint8(255)
-	switch c.sprite._type {
-	case BlueSprite:
+	switch c._type {
+	case BlueCandy:
 		source.X = BlockSize
 		source.Y = 0
-	case YellowSprite:
+	case YellowCandy:
 		source.X = BlockSize * 4
 		source.Y = 0
-	case GreenSprite:
+	case GreenCandy:
 		source.X = BlockSize * 3
 		source.Y = 0
-	case RedSprite:
+	case RedCandy:
 		source.X = BlockSize * 5
 		source.Y = 0
-	case PinkSprite:
+	case PinkCandy:
 		source.X = BlockSize * 2
 		source.Y = 0
-	case OrangeSprite:
+	case OrangeCandy:
 		source.X = 0
 		source.Y = 0
-	case BlueHStripesSprite:
+	case BlueHStripesCandy:
 		source.X = BlockSize
 		source.Y = BlockSize
-	case YellowHStripesSprite:
+	case YellowHStripesCandy:
 		source.X = BlockSize * 4
 		source.Y = BlockSize
-	case GreenHStripesSprite:
+	case GreenHStripesCandy:
 		source.X = BlockSize * 3
 		source.Y = BlockSize
-	case RedHStripesSprite:
+	case RedHStripesCandy:
 		source.X = BlockSize * 5
 		source.Y = BlockSize
-	case PinkHStripesSprite:
+	case PinkHStripesCandy:
 		source.X = BlockSize * 2
 		source.Y = BlockSize
-	case OrangeHStripesSprite:
+	case OrangeHStripesCandy:
 		source.X = 0
 		source.Y = BlockSize
-	case BlueVStripesSprite:
+	case BlueVStripesCandy:
 		source.X = BlockSize
 		source.Y = BlockSize * 2
-	case YellowVStripesSprite:
+	case YellowVStripesCandy:
 		source.X = BlockSize * 4
 		source.Y = BlockSize * 2
-	case GreenVStripesSprite:
+	case GreenVStripesCandy:
 		source.X = BlockSize * 3
 		source.Y = BlockSize * 2
-	case RedVStripesSprite:
+	case RedVStripesCandy:
 		source.X = BlockSize * 5
 		source.Y = BlockSize * 2
-	case PinkVStripesSprite:
+	case PinkVStripesCandy:
 		source.X = BlockSize * 2
 		source.Y = BlockSize * 2
-	case OrangeVStripesSprite:
+	case OrangeVStripesCandy:
 		source.X = 0
 		source.Y = BlockSize * 2
-	case BluePackedSprite:
+	case BluePackedCandy:
 		source.X = BlockSize
 		source.Y = BlockSize * 3
-	case YellowPackedSprite:
+	case YellowPackedCandy:
 		source.X = BlockSize * 4
 		source.Y = BlockSize * 3
-	case GreenPackedSprite:
+	case GreenPackedCandy:
 		source.X = BlockSize * 3
 		source.Y = BlockSize * 3
-	case RedPackedSprite:
+	case RedPackedCandy:
 		source.X = BlockSize * 5
 		source.Y = BlockSize * 3
-	case PinkPackedSprite:
+	case PinkPackedCandy:
 		source.X = BlockSize * 2
 		source.Y = BlockSize * 3
-	case OrangePackedSprite:
+	case OrangePackedCandy:
 		source.X = 0
 		source.Y = BlockSize * 3
-	case BombSprite:
+	case BombCandy:
 		source.X = 0
 		source.Y = BlockSize * 4
-	case DyingSprite:
-		source.X = 0
-		source.Y = BlockSize * 4
-		alpha = alpha / uint8(c.sprite.frame+1)
+	}
 
+	if c.sprite._type == DyingSprite {
+		alpha = alpha / uint8(c.sprite.frame+1)
+	} else if c == game.selected {
+		alpha = uint8(190)
 	}
+
 	tileset.SetAlphaMod(alpha)
-	if c == game.selected {
-		renderer.Copy(tilesetSelected, &source, &block)
-	} else {
-		renderer.Copy(tileset, &source, &block)
-	}
+	renderer.Copy(tileset, &source, &block)
 }
 
 // showCandySquare is a deprecated method which shows candys as

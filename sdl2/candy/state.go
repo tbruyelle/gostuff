@@ -10,7 +10,7 @@ type State interface {
 type baseState struct{}
 
 func (s *baseState) Enter(c *Candy) {
-	c.sprite = c.determineIdleSprite()
+	c.sprite = NewSprite(CandySprite)
 }
 
 func (s *baseState) Exit(c *Candy) {
@@ -46,5 +46,5 @@ func NewIdleState() State {
 }
 
 func NewDyingState() State {
-return &dyingState{}
+	return &dyingState{}
 }
