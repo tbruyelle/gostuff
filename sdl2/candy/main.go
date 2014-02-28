@@ -73,43 +73,52 @@ func main() {
 	defer game.Destroy()
 
 	game.Start()
-	go loop(game, renderer)
+	go eventLoop(game)
+	go renderLoop(game, renderer)
 	Main()
 	game.Stop()
 }
 
-func loop(game *Game, renderer *sdl.Renderer) {
+func eventLoop(game *Game) {
+	defer close(mainfunc)
+	var evt sdl.Event
+	for {
+		do(func() {
+			evt = sdl.PollEvent()
+		})
+		switch t := evt.(type) {
+		case *sdl.QuitEvent:
+			return
+		case *sdl.KeyDownEvent:
+			switch t.Keysym.Sym {
+			case sdl.K_ESCAPE:
+				return
+			case sdl.K_r:
+				game.Reset()
+			case sdl.K_k:
+				game.ToggleKeepUnmatchingTranslation()
+			}
+		case *sdl.MouseButtonEvent:
+			if t.State != 0 {
+				game.Click(int(t.X), int(t.Y))
+			}
+		}
+	}
+}
+
+func renderLoop(game *Game, renderer *sdl.Renderer) {
 	defer close(mainfunc)
 
 	mainTicker := time.NewTicker(FRAME_RATE)
 
-	var evt sdl.Event
 	for {
 		select {
 		case <-mainTicker.C:
 			game.Tick()
 			do(func() {
 				renderThings(renderer, game)
-				evt = sdl.PollEvent()
 			})
 
-			switch t := evt.(type) {
-			case *sdl.QuitEvent:
-				return
-			case *sdl.KeyDownEvent:
-				switch t.Keysym.Sym {
-				case sdl.K_ESCAPE:
-					return
-				case sdl.K_r:
-					game.Reset()
-				case sdl.K_k:
-					game.ToggleKeepUnmatchingTranslation()
-				}
-			case *sdl.MouseButtonEvent:
-				if t.State != 0 {
-					game.Click(int(t.X), int(t.Y))
-				}
-			}
 		}
 	}
 }
