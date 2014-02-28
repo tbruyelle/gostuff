@@ -1,10 +1,18 @@
 package main
 
+type StateType int
+
+const (
+	IdleStateType StateType = iota
+	DyingStateType
+)
+
 // State exposes the state methods
 type State interface {
 	Enter(c *Candy)
 	Exit(c *Candy)
 	Update(c *Candy)
+	Type() StateType
 }
 
 type baseState struct{}
@@ -23,6 +31,10 @@ type idleState struct {
 	baseState
 }
 
+func (s *idleState) Type() StateType{
+	return IdleStateType
+}
+
 type dyingState struct {
 	baseState
 	beforeDie int
@@ -39,6 +51,10 @@ func (s *dyingState) Update(c *Candy) {
 	} else {
 		c.dead = true
 	}
+}
+
+func (s *dyingState) Type() StateType {
+	return DyingStateType
 }
 
 func NewIdleState() State {

@@ -13,7 +13,6 @@ func TestCrushingStripesH(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 4)
 	assertCandyTypes(t, [][]CandyType{
 		{BlueCandy, EmptyCandy, OrangeCandy},
 		{EmptyCandy, EmptyCandy, EmptyCandy},
@@ -32,7 +31,6 @@ func TestCrushingStripesV(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 4)
 	assertCandyTypes(t, [][]CandyType{
 		{BlueCandy, EmptyCandy, OrangeCandy},
 		{EmptyCandy, EmptyCandy, EmptyCandy},
@@ -49,7 +47,9 @@ func TestCrushingStripesH2(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 0)
+	assertCandyTypes(t, [][]CandyType{
+		{EmptyCandy, EmptyCandy, EmptyCandy},
+	})
 }
 
 func TestCrushingBomb(t *testing.T) {
@@ -62,7 +62,6 @@ func TestCrushingBomb(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 1)
 	assertCandyTypes(t, [][]CandyType{
 		{EmptyCandy, EmptyCandy, BlueCandy, EmptyCandy, EmptyCandy},
 	})
@@ -78,7 +77,6 @@ func TestCrushingBomb_permuteOtherSide(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 1)
 	assertCandyTypes(t, [][]CandyType{
 		{EmptyCandy, EmptyCandy, BlueCandy, EmptyCandy, EmptyCandy},
 	})
@@ -98,7 +96,6 @@ func TestCrushingBombOnStripes(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 8)
 	assertCandyTypes(t, [][]CandyType{
 		{BlueCandy, EmptyCandy, BlueCandy},
 		{YellowCandy, EmptyCandy, YellowCandy},
@@ -128,7 +125,6 @@ func TestCrushingStripesOnBomb(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 6)
 	assertCandyTypes(t, [][]CandyType{
 		{EmptyCandy, EmptyCandy, EmptyCandy},
 		{YellowCandy, EmptyCandy, YellowCandy},
@@ -149,7 +145,6 @@ func TestCrushingPacked(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 0)
 	assertCandyTypes(t, [][]CandyType{
 		{EmptyCandy, EmptyCandy, EmptyCandy},
 		{EmptyCandy, EmptyCandy, EmptyCandy},
@@ -169,7 +164,6 @@ func TestCrushBombOnBomb(t *testing.T) {
 
 	g.crushing()
 
-	assertNbCandy(t, 0)
 	assertCandyTypes(t, [][]CandyType{
 		{EmptyCandy, EmptyCandy, EmptyCandy},
 		{EmptyCandy, EmptyCandy, EmptyCandy},

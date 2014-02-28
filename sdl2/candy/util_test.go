@@ -109,10 +109,9 @@ func assertCandyTypes(t *testing.T, ctss [][]CandyType) {
 		for _, ct := range cts {
 			c, ok := findCandy(g.candys, curx, cury)
 			if ct == EmptyCandy {
-				if ok {
-					t.Fatalf("Error candy found %v but should not", c)
-				}
-			} else {
+			if c.state.Type() != DyingStateType {
+				t.Fatalf("Error candy found %v but should not", c)
+			}} else {
 				if ok {
 					assertCandyType(t, c._type, ct)
 				} else {

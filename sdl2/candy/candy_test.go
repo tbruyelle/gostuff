@@ -162,7 +162,7 @@ func TestFallAll(t *testing.T) {
 	//	y := WindowHeight - BlockSize*(1+(i/NbBlockHeight))
 	//	assertXY(t, c, x, y)
 	//}
-	assertNbCandy(t, NbBlockWidth*NbBlockHeight)
+	assertNbCandy(t, NbBlockWidth*NbBlockHeight+NbBlockWidth)
 }
 
 func TestGenerateCandy(t *testing.T) {
