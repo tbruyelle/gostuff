@@ -68,7 +68,7 @@ func (c *Candy) changeState(state State) {
 }
 
 func (c *Candy) String() string {
-	return fmt.Sprintf("(%d,%d)t%d,%t", c.x, c.y, c._type, c.crush)
+	return fmt.Sprintf("(%d,%d)t%d,%t-%t", c.x, c.y, c._type, c.crush, c.dead)
 }
 
 // isNormal() returns true if the candy isn't special

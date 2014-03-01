@@ -79,10 +79,12 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 			if !c.crush {
 				// first time the candy receives crush vote
 				c.crush = true
+				c.changeState(NewDyingState())
 			} else if c.isNormal() {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
 				c._type = packedCandy(c._type)
+				c.changeState(NewIdleState())
 				c.crush = false
 			}
 		}
@@ -97,11 +99,13 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 				if nbMatch == 4 {
 					// mutate candy to Stripes
 					c._type = stripesCandy(region[0]._type, vertical)
+				c.changeState(NewIdleState())
 					c.crush = false
 				}
 				if nbMatch > 4 {
 					// mutate candy to Bomb
 					c._type = BombCandy
+				c.changeState(NewIdleState())
 					c.crush = false
 				}
 			}
@@ -118,7 +122,7 @@ func (g *Game) determineMutableCandy(region Region) *Candy {
 	if !found {
 		//find the first normal candy in the region
 		for i := 0; i < len(region); i++ {
-			if region[i].isNormal(){
+			if region[i].isNormal() {
 				c = region[i]
 				break
 			}
@@ -171,7 +175,9 @@ func (g *Game) translateBomb() bool {
 	if g.translation != nil {
 		if g.translation.c1._type == BombCandy || g.translation.c2._type == BombCandy {
 			g.translation.c1.crush = true
+			g.translation.c1.changeState(NewDyingState())
 			g.translation.c2.crush = true
+			g.translation.c2.changeState(NewDyingState())
 			return true
 		}
 	}

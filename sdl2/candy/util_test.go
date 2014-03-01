@@ -94,7 +94,7 @@ func popCandys(tss [][]CandyType) []*Candy {
 	curx, cury := XMin, YMin
 	for _, ts := range tss {
 		for _, t := range ts {
-			candys = append(candys, &Candy{_type: t, x: curx, y: cury})
+			candys = append(candys, &Candy{_type: t, x: curx, y: cury, state: NewIdleState()})
 			curx += BlockSize
 		}
 		cury += BlockSize
@@ -109,9 +109,10 @@ func assertCandyTypes(t *testing.T, ctss [][]CandyType) {
 		for _, ct := range cts {
 			c, ok := findCandy(g.candys, curx, cury)
 			if ct == EmptyCandy {
-			if c.state.Type() != DyingStateType {
-				t.Fatalf("Error candy found %v but should not", c)
-			}} else {
+				if !c.crush{
+					t.Fatalf("Error candy found %v but should not", c)
+				}
+			} else {
 				if ok {
 					assertCandyType(t, c._type, ct)
 				} else {

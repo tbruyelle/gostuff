@@ -85,32 +85,37 @@ func (g *Game) ToggleKeepUnmatchingTranslation() {
 	g.flags.keepUnmatchingTranslation = !g.flags.keepUnmatchingTranslation
 }
 
-func (g *Game) Tick() bool {
+func (g *Game) Tick() {
 	switch g.state {
 	case Idle:
 		//fmt.Println("Idle")
-		deads := false
+		nbcrush, nbdeads := 0, 0
 		for _, c := range g.candys {
 			c.Update()
 			if c.dead {
-				deads = true
+				nbdeads++
+			}
+			if c.crush {
+				nbcrush++
 			}
 		}
-		if !deads {
-			// No dead candys, just wait for the next
-			// user command
-			return false
-		}
+		if nbcrush>0{
+		fmt.Printf("nbcrush=%d, nbdeads=%d\n", nbcrush,nbdeads)
 
-		// Remove the dead candys, then let the Falling state do the job
-		var kept []*Candy
-		for _, c := range g.candys {
-			if !c.dead {
-				kept = append(kept, c)
+		if nbdeads != 0 && nbcrush != 0 && nbdeads == nbcrush {
+			fmt.Println("Idle end")
+			// The dying animation is done
+			// Remove the dead candys, then let the Falling state do the job
+			var kept []*Candy
+			for _, c := range g.candys {
+				if !c.dead {
+					kept = append(kept, c)
+				}
 			}
+			g.candys = kept
+			g.state = Falling
 		}
-		g.candys = kept
-		g.state = Falling
+	}
 
 	case Matching:
 		fmt.Println("Matching")
@@ -149,8 +154,6 @@ func (g *Game) Tick() bool {
 			g.state = Matching
 		}
 	}
-
-	return false
 }
 
 func withinLimits(x, y int) bool {
