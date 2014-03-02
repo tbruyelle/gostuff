@@ -19,7 +19,7 @@ func (g *Game) crushSpecials(processed map[*Candy]bool) bool {
 	for _, c := range g.candys {
 		if _, done := processed[c]; !done && c.crush && c._type > NbCandyType {
 			// the candy needs a special crush
-			if c.isStriped() {
+			if c.IsStriped() {
 				g.crushStripes(c)
 				processed[c] = true
 				return true
@@ -27,7 +27,7 @@ func (g *Game) crushSpecials(processed map[*Candy]bool) bool {
 				g.crushBomb(c)
 				processed[c] = true
 				return true
-			} else if c.isPacked() {
+			} else if c.IsPacked() {
 				g.crushPacked(c)
 				processed[c] = true
 				return true
@@ -41,11 +41,11 @@ func (g *Game) crushSpecials(processed map[*Candy]bool) bool {
 // column, according the stripes direction.
 func (g *Game) crushStripes(c *Candy) {
 	c.ChangeState(NewDyingState())
-	if c.isStripedH() {
+	if c.IsStripedH() {
 		crushDir(g.candys, c, Left)
 		crushDir(g.candys, c, Right)
 	}
-	if c.isStripedV() {
+	if c.IsStripedV() {
 		crushDir(g.candys, c, Top)
 		crushDir(g.candys, c, Bottom)
 	}

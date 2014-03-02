@@ -79,7 +79,7 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 			if !c.crush {
 				// first time the candy receives crush vote
 				c.ChangeState(NewDyingState())
-			} else if c.isNormal() {
+			} else if c.IsNormal() {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
 				c._type = packedCandy(c._type)
@@ -118,7 +118,7 @@ func (g *Game) determineMutableCandy(region Region) *Candy {
 	if !found {
 		//find the first normal candy in the region
 		for i := 0; i < len(region); i++ {
-			if region[i].isNormal() {
+			if region[i].IsNormal() {
 				c = region[i]
 				break
 			}

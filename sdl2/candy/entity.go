@@ -71,23 +71,23 @@ func (c *Candy) String() string {
 	return fmt.Sprintf("(%d,%d)t%d,%t-%t", c.x, c.y, c._type, c.crush, c.dead)
 }
 
-// isNormal() returns true if the candy isn't special
-func (c *Candy) isNormal() bool {
+// IsNormal() returns true if the candy isn't special
+func (c *Candy) IsNormal() bool {
 	return c._type > 0 && c._type <= NbCandyType
 }
 
-func (c *Candy) isStriped() bool {
+func (c *Candy) IsStriped() bool {
 	return c._type > NbCandyType && c._type <= NbCandyType*3
 }
 
-func (c *Candy) isStripedH() bool {
+func (c *Candy) IsStripedH() bool {
 	return c._type > NbCandyType && c._type <= NbCandyType*2
 }
 
-func (c *Candy) isStripedV() bool {
+func (c *Candy) IsStripedV() bool {
 	return c._type > NbCandyType*2 && c._type <= NbCandyType*3
 }
 
-func (c *Candy) isPacked() bool {
+func (c *Candy) IsPacked() bool {
 	return c._type > NbCandyType*3 && c._type <= NbCandyType*4
 }
