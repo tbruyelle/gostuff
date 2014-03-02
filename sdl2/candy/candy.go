@@ -99,23 +99,23 @@ func (g *Game) Tick() {
 				nbcrush++
 			}
 		}
-		if nbcrush>0{
-		fmt.Printf("nbcrush=%d, nbdeads=%d\n", nbcrush,nbdeads)
+		if nbcrush > 0 {
+			fmt.Printf("nbcrush=%d, nbdeads=%d\n", nbcrush, nbdeads)
 
-		if nbdeads != 0 && nbcrush != 0 && nbdeads == nbcrush {
-			fmt.Println("Idle end")
-			// The dying animation is done
-			// Remove the dead candys, then let the Falling state do the job
-			var kept []*Candy
-			for _, c := range g.candys {
-				if !c.dead {
-					kept = append(kept, c)
+			if nbdeads == nbcrush {
+				fmt.Println("Idle end")
+				// The dying animation is done
+				// Remove the dead candys, then let the Falling state do the job
+				var kept []*Candy
+				for _, c := range g.candys {
+					if !c.dead {
+						kept = append(kept, c)
+					}
 				}
+				g.candys = kept
+				g.state = Falling
 			}
-			g.candys = kept
-			g.state = Falling
 		}
-	}
 
 	case Matching:
 		fmt.Println("Matching")
