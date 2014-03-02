@@ -98,7 +98,7 @@ func (g *Game) Tick() {
 				hasDeads = true
 			}
 		}
-		fmt.Printf("allupdated=%t, hasgead=%t\n",allUpdated, hasDeads)
+		fmt.Printf("allupdated=%t, hasgead=%t\n", allUpdated, hasDeads)
 		if allUpdated {
 			if hasDeads {
 				fmt.Println("Remove dead candys")

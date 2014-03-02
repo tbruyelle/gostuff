@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type StateType int
 
 const (
@@ -65,7 +61,7 @@ func (s *dyingState) Update(c *Candy) bool {
 	} else if s.beforeDie <= c.sprite.nbframes {
 		c.sprite.frame++
 	}
-	fmt.Printf("Update dying state beforeDie=%d candy=%v\n", s.beforeDie, c)
+	//fmt.Printf("Update dying state beforeDie=%d candy=%v\n", s.beforeDie, c)
 	return false
 }
 
