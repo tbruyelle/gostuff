@@ -69,27 +69,43 @@ func crushDir(cs []*Candy, c *Candy, dir Direction) {
 func (g *Game) crushBomb(bomb *Candy) {
 	if g.translation != nil {
 		if g.translation.c1 == bomb {
-			g.crushBombWith(bomb, g.translation.c2._type)
+			g.crushBombWith(bomb, g.translation.c2)
 			return
 		} else if g.translation.c2 == bomb {
-			g.crushBombWith(bomb, g.translation.c1._type)
+			g.crushBombWith(bomb, g.translation.c1)
 			return
 		}
 	}
 	// The bomb is crushed because of a combo
 	// we need to pick a random CandyType.
-	g.crushBombWith(bomb, g.candyTypeGen.NewCandyType())
+	g.crushAllType(g.candyTypeGen.NewCandyType())
 }
 
-func (g *Game) crushBombWith(bomb *Candy, _type CandyType) {
-	if _type == BombCandy {
+func (g *Game) crushBombWith(bomb *Candy, other *Candy) {
+	if other._type == BombCandy {
 		// both candys are Bombs, we remove everything
 		for i, c := range g.candys {
 			c.ChangeState(NewDyingStateDelayed(i))
 		}
 		return
 	}
-	// remove all candys with same type
+	if other.IsNormal() {
+		g.crushAllType(other._type)
+		return
+	}
+
+	if other.IsStriped() {
+		// Mutate all other matchable candy to striped
+		for _, c := range g.candys {
+			if matchType(c._type, other._type) {
+				c._type = other._type
+			}
+		}
+	}
+}
+
+// crushAllType removes all candys with same type
+func (g *Game) crushAllType(_type CandyType) {
 	for i, c := range g.candys {
 		if matchType(c._type, _type) {
 			c.ChangeState(NewDyingStateDelayed(i))

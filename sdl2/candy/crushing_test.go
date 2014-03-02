@@ -170,3 +170,20 @@ func TestCrushBombOnBomb(t *testing.T) {
 		{EmptyCandy, EmptyCandy, EmptyCandy},
 	})
 }
+
+func TestCrushBombOnStriped(t *testing.T) {
+	setup()
+	g.candys = popCandys([][]CandyType{
+		{BombCandy, PinkVStripesCandy, RedCandy},
+		{GreenCandy, YellowCandy, BlueCandy},
+		{PinkCandy, RedCandy, PinkCandy},
+	})
+	crushThem(0, 1)
+	g.translation = &Translation{g.candys[0], g.candys[1]}
+
+	g.crushing()
+
+	assertStriped(t, g.candys[1], true)
+	assertStriped(t, g.candys[6], true)
+	assertStriped(t, g.candys[8], true)
+}
