@@ -37,7 +37,7 @@ const (
 
 type Candy struct {
 	// state represents the current state of the Candy
-	state                      State
+	state State
 	// sprite represents how the candu will be rendered
 	sprite                     Sprite
 	_type                      CandyType
@@ -91,3 +91,12 @@ func (c *Candy) IsStripedV() bool {
 func (c *Candy) IsPacked() bool {
 	return c._type > NbCandyType*3 && c._type <= NbCandyType*4
 }
+
+func (c *Candy) WillDie() bool {
+	return c.crush
+}
+
+func (c *Candy) IsDead() bool {
+	return c.dead
+}
+

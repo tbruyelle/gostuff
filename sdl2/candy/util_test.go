@@ -140,32 +140,32 @@ func assertMatch(t *testing.T, match, expected bool) {
 
 func assertNormal(t *testing.T, c *Candy, expected bool) {
 
-	if c.isNormal() != expected {
-		t.Errorf("Wrong type %v, expected normal=%t but was %t", c, expected, c.isNormal())
+	if c.IsNormal() != expected {
+		t.Errorf("Wrong type %v, expected normal=%t but was %t", c, expected, c.IsNormal())
 	}
 }
 
 func assertStriped(t *testing.T, c *Candy, expected bool) {
-	if c.isStriped() != expected {
-		t.Errorf("Wrong type %v, expected striped=%t but was %t", c, expected, c.isStriped())
+	if c.IsStriped() != expected {
+		t.Errorf("Wrong type %v, expected striped=%t but was %t", c, expected, c.IsStriped())
 	}
 }
 
 func assertStripedH(t *testing.T, c *Candy, expected bool) {
-	if c.isStripedH() != expected {
-		t.Errorf("Wrong type %v, expected striped h=%t but was %t", c, expected, c.isStripedH())
+	if c.IsStripedH() != expected {
+		t.Errorf("Wrong type %v, expected striped h=%t but was %t", c, expected, c.IsStripedH())
 	}
 }
 
 func assertStripedV(t *testing.T, c *Candy, expected bool) {
-	if c.isStripedV() != expected {
-		t.Errorf("Wrong type %v, expected striped v=%t but was %t", c, expected, c.isStripedV())
+	if c.IsStripedV() != expected {
+		t.Errorf("Wrong type %v, expected striped v=%t but was %t", c, expected, c.IsStripedV())
 	}
 }
 
 func assertPacked(t *testing.T, c *Candy, expected bool) {
-	if c.isPacked() != expected {
-		t.Errorf("Wrong type %v, expected packed=%t but was %t", c, expected, c.isStriped())
+	if c.IsPacked() != expected {
+		t.Errorf("Wrong type %v, expected packed=%t but was %t", c, expected, c.IsStriped())
 	}
 }
 

@@ -76,7 +76,7 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 	if nbMatch > 2 {
 		//fmt.Printf("match region %v\n", region)
 		for _, c := range region {
-			if !c.crush {
+			if !c.WillDie() {
 				// first time the candy receives crush vote
 				c.ChangeState(NewDyingState())
 			} else if c.IsNormal() {

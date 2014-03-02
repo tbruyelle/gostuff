@@ -17,7 +17,7 @@ func (g *Game) crushing() {
 // candys that needs to be handled by that method
 func (g *Game) crushSpecials(processed map[*Candy]bool) bool {
 	for _, c := range g.candys {
-		if _, done := processed[c]; !done && c.crush && c._type > NbCandyType {
+		if _, done := processed[c]; !done && c.WillDie() && c._type > NbCandyType {
 			// the candy needs a special crush
 			if c.IsStriped() {
 				g.crushStripes(c)
