@@ -78,14 +78,12 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 		for _, c := range region {
 			if !c.crush {
 				// first time the candy receives crush vote
-				c.crush = true
-				c.changeState(NewDyingState())
+				c.ChangeState(NewDyingState())
 			} else if c.isNormal() {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
 				c._type = packedCandy(c._type)
-				c.changeState(NewIdleState())
-				c.crush = false
+				c.ChangeState(NewIdleState())
 			}
 		}
 		if nbMatch >= 4 {
@@ -99,14 +97,12 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 				if nbMatch == 4 {
 					// mutate candy to Stripes
 					c._type = stripesCandy(region[0]._type, vertical)
-				c.changeState(NewIdleState())
-					c.crush = false
+					c.ChangeState(NewIdleState())
 				}
 				if nbMatch > 4 {
 					// mutate candy to Bomb
 					c._type = BombCandy
-				c.changeState(NewIdleState())
-					c.crush = false
+					c.ChangeState(NewIdleState())
 				}
 			}
 		}
@@ -174,10 +170,8 @@ func matchType(t1, t2 CandyType) bool {
 func (g *Game) translateBomb() bool {
 	if g.translation != nil {
 		if g.translation.c1._type == BombCandy || g.translation.c2._type == BombCandy {
-			g.translation.c1.crush = true
-			g.translation.c1.changeState(NewDyingState())
-			g.translation.c2.crush = true
-			g.translation.c2.changeState(NewDyingState())
+			g.translation.c1.ChangeState(NewDyingState())
+			g.translation.c2.ChangeState(NewDyingState())
 			return true
 		}
 	}

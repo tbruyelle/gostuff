@@ -51,7 +51,7 @@ type Candy struct {
 
 func NewCandy(_type CandyType) *Candy {
 	c := &Candy{_type: _type}
-	c.changeState(NewIdleState())
+	c.ChangeState(NewIdleState())
 	return c
 }
 
@@ -59,7 +59,7 @@ func (c *Candy) Update() {
 	c.state.Update(c)
 }
 
-func (c *Candy) changeState(state State) {
+func (c *Candy) ChangeState(state State) {
 	if c.state != nil {
 		state.Exit(c)
 	}

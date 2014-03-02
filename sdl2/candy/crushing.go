@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 // remove crushed candys
 func (g *Game) crushing() {
 	// first loop, handled crushed special candys
@@ -12,13 +8,6 @@ func (g *Game) crushing() {
 		// recall crushSpecials() until there
 		// is no more special candys to crush
 	}
-	// final loop, remove the crushed candys
-	//for _, c := range g.candys {
-	//	if c.crush {
-	//		c.changeState(NewDyingState())
-	//	}
-	//}
-	fmt.Printf("NOW %d candys\n", len(g.candys))
 }
 
 // crushSpecials() returns true when a special
@@ -51,7 +40,7 @@ func (g *Game) crushSpecials(processed map[*Candy]bool) bool {
 // crushStripes() crushes candys in a line or
 // column, according the stripes direction.
 func (g *Game) crushStripes(c *Candy) {
-	c.changeState(NewDyingState())
+	c.ChangeState(NewDyingState())
 	if c.isStripedH() {
 		crushDir(g.candys, c, Left)
 		crushDir(g.candys, c, Right)
@@ -66,13 +55,12 @@ func crushDir(cs []*Candy, c *Candy, dir Direction) {
 	cc := c
 	i := 0
 	for {
-		i += 2
+		i += 3
 		cc = findCandyInDir(cs, cc, dir)
 		if cc == nil {
 			break
 		}
-		cc.crush = true
-		cc.changeState(NewDyingStateDelayed(i))
+		cc.ChangeState(NewDyingStateDelayed(i))
 	}
 }
 
@@ -97,16 +85,14 @@ func (g *Game) crushBombWith(bomb *Candy, _type CandyType) {
 	if _type == BombCandy {
 		// both candys are Bombs, we remove everything
 		for _, c := range g.candys {
-			c.crush = true
-			c.changeState(NewDyingState())
+			c.ChangeState(NewDyingState())
 		}
 		return
 	}
 	// remove all candys with same type
 	for _, c := range g.candys {
 		if matchType(c._type, _type) {
-			c.crush = true
-			c.changeState(NewDyingState())
+			c.ChangeState(NewDyingState())
 		}
 	}
 }
@@ -117,8 +103,7 @@ func (g *Game) crushPacked(packed *Candy) {
 	for dir := Direction(0); dir < NbDirections; dir++ {
 		c := findCandyInDir(g.candys, packed, dir)
 		if c != nil {
-			c.crush = true
-			c.changeState(NewDyingState())
+			c.ChangeState(NewDyingState())
 		}
 	}
 }

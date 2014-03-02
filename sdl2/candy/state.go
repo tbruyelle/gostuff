@@ -35,6 +35,10 @@ type idleState struct {
 	baseState
 }
 
+func (s *idleState) Enter(c *Candy) {
+	c.crush = false
+}
+
 func (s *idleState) Type() StateType {
 	return IdleStateType
 }
@@ -46,6 +50,7 @@ type dyingState struct {
 }
 
 func (s *dyingState) Enter(c *Candy) {
+	c.crush = true
 	c.sprite = NewSprite(DyingSprite)
 }
 
