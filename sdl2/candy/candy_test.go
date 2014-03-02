@@ -4,35 +4,6 @@ import (
 	"testing"
 )
 
-func TestPermuteLeftRight(t *testing.T) {
-	setup()
-	fillGame()
-	c1 := g.candys[0]
-	c2 := g.candys[1]
-
-	g.permute(c1, c2)
-
-	assertVx(t, c1, BlockSize)
-	assertVx(t, c2, -BlockSize)
-}
-
-func TestTranslateLeftRight(t *testing.T) {
-	setup()
-	fillGame()
-	c1 := g.candys[0]
-	ox1 := c1.x
-	oy1 := c1.y
-	c2 := g.candys[1]
-	ox2 := c2.x
-	oy2 := c2.y
-	g.permute(c1, c2)
-
-	g.translate()
-
-	assertXY(t, c1, ox1+tSpeed, oy1)
-	assertXY(t, c2, ox2-tSpeed, oy2)
-}
-
 func TestClickTopLeft(t *testing.T) {
 	setup()
 	fillGame()
@@ -96,7 +67,7 @@ func TestCollisionColumn(t *testing.T) {
 	setup()
 	g.candys = popCandys([][]CandyType{{RedPackedCandy, RedPackedCandy}})
 
-	collision := g.collideColumn(g.candys[0], 0)
+	collision := g.collideColumn(g.candys[0])
 
 	if collision {
 		t.Errorf("(0,0) and (0,%d) should not collide", BlockSize)
@@ -124,64 +95,12 @@ func TestPopulateDropZone(t *testing.T) {
 	assertNotEmpty(t, g.candys[0])
 }
 
-func TestFall(t *testing.T) {
-	setup()
-	g.populateDropZone()
-	g.applyGravity()
-
-	moving := g.fall()
-
-	assertNbCandy(t, NbBlockWidth)
-	assertY(t, g.candys[0], -BlockSize+1)
-	if !moving {
-		t.Error("Wrong move state, should still moving")
-	}
-}
-
-func TestFalls(t *testing.T) {
-	setup()
-	g.populateDropZone()
-	g.applyGravity()
-
-	for g.fall() {
-	}
-
-	assertY(t, g.candys[0], WindowHeight-BlockSize)
-}
-
-func TestFallAll(t *testing.T) {
-	setup()
-
-	fillGame()
-
-	// disable because the order is not respected because the gravity speed
-	// is different threw columns
-	//for i, c := range g.candys {
-	//	x := XMin + BlockSize*(i%NbBlockWidth)
-	//	fmt.Println(i, i%NbBlockWidth, x)
-	//	y := WindowHeight - BlockSize*(1+(i/NbBlockHeight))
-	//	assertXY(t, c, x, y)
-	//}
-	assertNbCandy(t, NbBlockWidth*NbBlockHeight+NbBlockWidth)
-}
-
 func TestGenerateCandy(t *testing.T) {
 	setup()
 
 	candy := g.newCandy()
 
 	assertNotEmpty(t, candy)
-}
-
-func TestApplyGravity(t *testing.T) {
-	setup()
-	g.populateDropZone()
-
-	g.applyGravity()
-
-	for i, c := range g.candys {
-		assertGravity(t, c, i%2+1)
-	}
 }
 
 func TestIsNormal(t *testing.T) {

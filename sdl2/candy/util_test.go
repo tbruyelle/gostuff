@@ -19,18 +19,10 @@ func (c candyTypeGenMock) NewCandyType() CandyType {
 
 func fillGame() {
 	g.populateDropZone()
-	g.applyGravity()
-	for g.fall() {
+	for !g.Update() {
 		g.populateDropZone()
-		g.applyGravity()
 	}
 	g.populateDropZone()
-}
-
-func assertGravity(t *testing.T, c *Candy, expected int) {
-	if c.g != expected {
-		t.Errorf("Wrong candy vector, expected %d but was %d", expected, c.g)
-	}
 }
 
 func assertNotEmpty(t *testing.T, c *Candy) {
@@ -109,7 +101,7 @@ func assertCandyTypes(t *testing.T, ctss [][]CandyType) {
 		for _, ct := range cts {
 			c, ok := findCandy(g.candys, curx, cury)
 			if ct == EmptyCandy {
-				if !c.crush{
+				if !c.crush {
 					t.Fatalf("Error candy found %v but should not", c)
 				}
 			} else {

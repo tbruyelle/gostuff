@@ -85,13 +85,8 @@ func (g *Game) ToggleKeepUnmatchingTranslation() {
 	g.flags.keepUnmatchingTranslation = !g.flags.keepUnmatchingTranslation
 }
 
-func (g *Game) Tick() {
+func (g *Game) Update() bool {
 	allUpdated := true
-	if g.state == Falling {
-		// Ensure new candys will appear on top
-		// during the Falling state
-		g.populateDropZone()
-	}
 	// Update all candys until all of them are
 	// in a finished state.
 	for _, c := range g.candys {
@@ -99,6 +94,16 @@ func (g *Game) Tick() {
 			allUpdated = false
 		}
 	}
+	return allUpdated
+}
+
+func (g *Game) Tick() {
+	if g.state == Falling {
+		// Ensure new candys will appear on top
+		// during the Falling state
+		g.populateDropZone()
+	}
+	allUpdated := g.Update()
 	//fmt.Printf("%d allupdated=%t\n", g.state, allUpdated)
 	if allUpdated {
 		// All candys updates, compute whats next
