@@ -41,7 +41,7 @@ type Candy struct {
 	// sprite represents how the candu will be rendered
 	sprite                     Sprite
 	_type                      CandyType
-	x, y, vx, vy, g            int
+	x, y, vx, vy            int
 	visitedLine, visitedColumn bool
 	// crush tells if the candy will be deleted on next Crush state
 	crush bool
@@ -58,8 +58,8 @@ func NewCandy(_type CandyType) *Candy {
 // Update trigger the state update, and
 // returns true if the current state allows has
 // finished its animation.
-func (c *Candy) Update() bool {
-	return c.state.Update(c)
+func (c *Candy) Update(g *Game) bool {
+	return c.state.Update(g, c)
 }
 
 func (c *Candy) ChangeState(state State) {

@@ -50,3 +50,13 @@ func TestDyingStatesDelayed(t *testing.T) {
 	assert.True(t, r, "After being invoked DyingFrame+delay times, Update should return true")
 	assert.True(t, c.IsDead(), "Candy should be dead")
 }
+
+func TestFallingState(t *testing.T) {
+	setup()
+	c:=&Candy{}
+	c.ChangeState(NewFallingState())
+
+	r:=c.Update()
+
+	assert.False(t, r, "Update should return false")
+}

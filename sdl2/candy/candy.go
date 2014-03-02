@@ -86,70 +86,62 @@ func (g *Game) ToggleKeepUnmatchingTranslation() {
 }
 
 func (g *Game) Tick() {
-	switch g.state {
-	case Idle:
-		allUpdated := true
-		hasDeads := false
-		for _, c := range g.candys {
-			if !c.Update() {
-				allUpdated = false
-			}
-			if c.IsDead() {
-				hasDeads = true
-			}
+	allUpdated := true
+	if g.state == Falling {
+		// Ensure new candys will appear on top
+		// during the Falling state
+		g.populateDropZone()
+	}
+	// Update all candys until all of them are
+	// in a finished state.
+	for _, c := range g.candys {
+		if !c.Update(g) {
+			allUpdated = false
 		}
-		fmt.Printf("allupdated=%t, hasgead=%t\n", allUpdated, hasDeads)
-		if allUpdated {
-			if hasDeads {
-				fmt.Println("Remove dead candys")
-				// The dying animation is done
-				// Remove the dead candys, then let the Falling state do the job
-				var kept []*Candy
-				for _, c := range g.candys {
-					if !c.dead {
-						kept = append(kept, c)
-					}
+	}
+	//fmt.Printf("%d allupdated=%t\n", g.state, allUpdated)
+	if allUpdated {
+		// All candys updates, compute whats next
+		switch g.state {
+		case Crushing:
+			// End of crushing, time to remove dead candys
+			fmt.Println("Remove dead candys")
+			var kept []*Candy
+			for _, c := range g.candys {
+				if !c.dead {
+					kept = append(kept, c)
+					c.ChangeState(NewFallingState())
 				}
-				g.candys = kept
-				g.state = Falling
 			}
-		}
+			g.candys = kept
+			g.state = Falling
 
-	case Matching:
-		fmt.Println("Matching")
-		if g.matching() {
-			g.state = Crushing
-		} else {
-			// no match
-			if !g.flags.keepUnmatchingTranslation && g.translation != nil {
-				// cancel previous translation
-				g.permute(g.translation.c2, g.translation.c1)
+			// TODO merge translating and falling
+		case Falling:
+			// End of falling, check if there is some match
+			if g.matching() {
+				// TODO put state=crusing in g.crushing()
+				g.crushing()
+				g.state = Crushing
+			}
+
+		case Translating:
+			// End of translating, check if there a match
+			fmt.Println("Translating")
+			g.unselectAll()
+			if g.matching() {
+				g.crushing()
+				g.state = Crushing
 			} else {
+				if !g.flags.keepUnmatchingTranslation {
+					// revert translation
+					fmt.Println("Revert permutation")
+					g.translation.c1.ChangeState(NewPermuteState(g.translation.c2))
+					g.translation.c2.ChangeState(NewPermuteState(g.translation.c1))
+				}
 				g.state = Idle
 			}
 			g.translation = nil
-		}
-
-	case Crushing:
-		fmt.Println("Crushing")
-		g.crushing()
-		g.translation = nil
-		// Returns to the Idle state during the dying transition
-		g.state = Idle
-
-	case Falling:
-		fmt.Println("Falling")
-		g.populateDropZone()
-		g.applyGravity()
-		if !g.fall() {
-			g.populateDropZone()
-			g.state = Matching
-		}
-	case Translating:
-		fmt.Println("Translating")
-		if !g.translate() {
-			g.unselectAll()
-			g.state = Matching
 		}
 	}
 }
@@ -158,6 +150,7 @@ func withinLimits(x, y int) bool {
 	return !(x < XMin || x > XMax+BlockSize || y < YMin || y > YMax+BlockSize)
 }
 
+// TODO Register clicks only in Idle state
 func (g *Game) Click(x, y int) {
 	if !withinLimits(x, y) {
 		//fmt.Printf("Out of limits %d,%d\n", x, y)
@@ -177,7 +170,9 @@ func (g *Game) Click(x, y int) {
 				if near(c, g.selected) {
 					// init permutation
 					g.translation = &Translation{c, g.selected}
-					g.permute(c, g.selected)
+					c.ChangeState(NewPermuteState(g.selected))
+					g.selected.ChangeState(NewPermuteState(c))
+					g.state = Translating
 				} else {
 					// remove previous selection
 					g.selected = nil
@@ -186,28 +181,6 @@ func (g *Game) Click(x, y int) {
 			g.selected = c
 		}
 	}
-}
-
-func (g *Game) permute(c1, c2 *Candy) {
-	g.state = Translating
-	if c1.x > c2.x {
-		c1.vx = -BlockSize
-		c2.vx = BlockSize
-		return
-	}
-	if c1.x < c2.x {
-		c1.vx = BlockSize
-		c2.vx = -BlockSize
-		return
-	}
-	if c1.y > c2.y {
-		c1.vy = -BlockSize
-		c2.vy = BlockSize
-		return
-	}
-	// c1.y<c2.y
-	c1.vy = BlockSize
-	c2.vy = -BlockSize
 }
 
 func near(c1, c2 *Candy) bool {
@@ -324,86 +297,19 @@ func (g *Game) unselectAll() {
 	g.selected = nil
 }
 
-var tSpeed = 4
-
-func (g *Game) translate() bool {
-	moving := false
-	for _, c := range g.candys {
-		if c.vx > 0 {
-			c.x += tSpeed
-			c.vx -= tSpeed
-			moving = true
-		} else if c.vx < 0 {
-			c.x -= tSpeed
-			c.vx += tSpeed
-			moving = true
-		}
-		if c.vy > 0 {
-			c.y += tSpeed
-			c.vy -= tSpeed
-			moving = true
-		} else if c.vy < 0 {
-			c.y -= tSpeed
-			c.vy += tSpeed
-			moving = true
-		}
-	}
-	return moving
-
-}
-
-func (g *Game) fall() bool {
-	falling := false
-	for i, c := range g.candys {
-		if c.g > 0 {
-			c.y += c.g
-			if c.y < YMax && !g.collideColumn(c, i) {
-				//fmt.Printf("moving %d -> %d\n", j, c.g)
-				falling = true
-			} else {
-				// adjust y position according to the collision
-				if c.y >= YMax {
-					c.y = YMax
-				} else {
-					c.y--
-					for g.collideColumn(c, i) {
-						c.y--
-					}
-				}
-				c.g = 0
-			}
-
-		}
-	}
-	return falling
-}
-
-// populateDropZone() populates the top of the grid
+// populateDropZone populates the top of the grid
 // with new randomly generated candys.
 func (g *Game) populateDropZone() {
 	for i := 0; i < NbBlockWidth; i++ {
-		newc := g.newCandy()
-		newc.x = XMin + BlockSize*i
-		newc.y = -BlockSize
-		if !g.collideColumn(newc, -1) {
-			// Apply -BlockSize to y to see the candy fall
-			// from the top of the screen
-			g.candys = append(g.candys, newc)
-		}
-	}
-}
-
-// applyGravity() sets a gravity to all candys
-// and increases each time the method is called
-// to simulate an acceleration.
-func (g *Game) applyGravity() {
-	for _, c := range g.candys {
-		if c.g == 0 {
-			// init gravity
-			c.g = 1 + (c.x / BlockSize % 2)
-		} else {
-			// increase gravity
-			c.g++
+		c := g.newCandy()
+		c.x = XMin + BlockSize*i
+		// Apply -BlockSize to y to see the candy fall
+		// from the top of the screen
+		c.y = -BlockSize
+		if !g.collideColumn(c) {
+			// pop the candy
+			c.ChangeState(NewFallingState())
+			g.candys = append(g.candys, c)
 		}
 	}
 }
@@ -429,12 +335,11 @@ func collide(c1, c2 *Candy) bool {
 	return true
 }
 
-// collideColumn() returns true if the candy in parameter
+// collideColumn returns true if the candy in parameter
 // collides with another candy.
-// The `ind` parameter is used to prevent self match.
-func (g *Game) collideColumn(newc *Candy, ind int) bool {
-	for i, c := range g.candys {
-		if i != ind && c.x == newc.x && collide(newc, c) {
+func (g *Game) collideColumn(newc *Candy) bool {
+	for _, c := range g.candys {
+		if c != newc && c.x == newc.x && collide(newc, c) {
 			return true
 		}
 	}
