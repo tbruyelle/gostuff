@@ -68,10 +68,10 @@ func crushDir(cs []*Candy, c *Candy, dir Direction) {
 // type.
 func (g *Game) crushBomb(bomb *Candy) {
 	if g.translation != nil {
-		if g.translation.c1._type == BombCandy {
+		if g.translation.c1 == bomb {
 			g.crushBombWith(bomb, g.translation.c2._type)
 			return
-		} else if g.translation.c2._type == BombCandy {
+		} else if g.translation.c2 == bomb {
 			g.crushBombWith(bomb, g.translation.c1._type)
 			return
 		}
