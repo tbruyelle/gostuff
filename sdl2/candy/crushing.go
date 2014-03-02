@@ -84,15 +84,15 @@ func (g *Game) crushBomb(bomb *Candy) {
 func (g *Game) crushBombWith(bomb *Candy, _type CandyType) {
 	if _type == BombCandy {
 		// both candys are Bombs, we remove everything
-		for _, c := range g.candys {
-			c.ChangeState(NewDyingState())
+		for i, c := range g.candys {
+			c.ChangeState(NewDyingStateDelayed(i))
 		}
 		return
 	}
 	// remove all candys with same type
-	for _, c := range g.candys {
+	for i, c := range g.candys {
 		if matchType(c._type, _type) {
-			c.ChangeState(NewDyingState())
+			c.ChangeState(NewDyingStateDelayed(i))
 		}
 	}
 }
