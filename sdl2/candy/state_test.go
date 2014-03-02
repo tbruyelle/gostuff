@@ -27,7 +27,7 @@ func TestDyingState(t *testing.T) {
 }
 
 func TestDyingStates(t *testing.T) {
-setup()
+	setup()
 	c := &Candy{}
 	c.ChangeState(NewDyingState())
 
@@ -41,7 +41,7 @@ setup()
 }
 
 func TestDyingStatesDelayed(t *testing.T) {
-setup()
+	setup()
 	c := &Candy{}
 	c.ChangeState(NewDyingStateDelayed(10))
 
@@ -63,3 +63,5 @@ func TestFallingState(t *testing.T) {
 
 	assert.False(t, r, "Update should return false")
 }
+
+//TODO more falling tests
