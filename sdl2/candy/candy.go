@@ -88,26 +88,20 @@ func (g *Game) ToggleKeepUnmatchingTranslation() {
 func (g *Game) Tick() {
 	switch g.state {
 	case Idle:
-		// Count number of crush and number of deads
-		// If nbcrush > 0 and is not equals to nbdeads
-		// that means the dying animaton is not done.
-		// So we stay in the Idle state to let the animation
-		// finish itself.
-		nbcrush, nbdeads := 0, 0
+		allUpdated := true
+		hasDeads := false
 		for _, c := range g.candys {
-			c.Update()
-			if c.IsDead() {
-				nbdeads++
+			if !c.Update() {
+				allUpdated = false
 			}
-			if c.WillDie() {
-				nbcrush++
+			if c.IsDead() {
+				hasDeads = true
 			}
 		}
-		if nbcrush > 0 {
-			fmt.Printf("nbcrush=%d, nbdeads=%d\n", nbcrush, nbdeads)
-
-			if nbdeads == nbcrush {
-				fmt.Println("Idle end")
+		fmt.Printf("allupdated=%t, hasgead=%t\n",allUpdated, hasDeads)
+		if allUpdated {
+			if hasDeads {
+				fmt.Println("Remove dead candys")
 				// The dying animation is done
 				// Remove the dead candys, then let the Falling state do the job
 				var kept []*Candy

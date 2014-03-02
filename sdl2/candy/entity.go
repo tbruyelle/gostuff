@@ -55,8 +55,11 @@ func NewCandy(_type CandyType) *Candy {
 	return c
 }
 
-func (c *Candy) Update() {
-	c.state.Update(c)
+// Update trigger the state update, and
+// returns true if the current state allows has
+// finished its animation.
+func (c *Candy) Update() bool {
+	return c.state.Update(c)
 }
 
 func (c *Candy) ChangeState(state State) {
@@ -99,4 +102,3 @@ func (c *Candy) WillDie() bool {
 func (c *Candy) IsDead() bool {
 	return c.dead
 }
-

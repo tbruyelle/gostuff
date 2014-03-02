@@ -15,7 +15,7 @@ const (
 type State interface {
 	Enter(c *Candy)
 	Exit(c *Candy)
-	Update(c *Candy)
+	Update(c *Candy) bool
 	Type() StateType
 }
 
@@ -28,7 +28,8 @@ func (s *baseState) Enter(c *Candy) {
 func (s *baseState) Exit(c *Candy) {
 }
 
-func (s *baseState) Update(c *Candy) {
+func (s *baseState) Update(c *Candy) bool {
+	return true
 }
 
 type idleState struct {
@@ -54,7 +55,10 @@ func (s *dyingState) Enter(c *Candy) {
 	c.sprite = NewSprite(DyingSprite)
 }
 
-func (s *dyingState) Update(c *Candy) {
+func (s *dyingState) Update(c *Candy) bool {
+	if c.dead {
+		return true
+	}
 	s.beforeDie--
 	if s.beforeDie == 0 {
 		c.dead = true
@@ -62,6 +66,7 @@ func (s *dyingState) Update(c *Candy) {
 		c.sprite.frame++
 	}
 	fmt.Printf("Update dying state beforeDie=%d candy=%v\n", s.beforeDie, c)
+	return false
 }
 
 func (s *dyingState) Type() StateType {
