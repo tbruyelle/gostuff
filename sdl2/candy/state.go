@@ -26,7 +26,6 @@ type State interface {
 type baseState struct{}
 
 func (s *baseState) Enter(c *Candy) {
-	c.sprite = NewSprite(CandySprite)
 }
 
 func (s *baseState) Exit(c *Candy) {
@@ -47,6 +46,7 @@ func NewIdleState() State {
 
 func (s *idleState) Enter(c *Candy) {
 	c.crush = false
+	c.sprite = NewSprite(CandySprite)
 }
 
 func (s *idleState) Type() StateType {
@@ -57,6 +57,7 @@ func (s *idleState) Type() StateType {
 type dyingState struct {
 	baseState
 	beforeDie int
+	alphaDec  uint8
 }
 
 func NewDyingState() State {
@@ -70,6 +71,7 @@ func NewDyingStateDelayed(delay int) State {
 func (s *dyingState) Enter(c *Candy) {
 	c.crush = true
 	c.sprite = NewSprite(DyingSprite)
+	s.alphaDec = c.sprite.alpha / DyingFrames
 }
 
 func (s *dyingState) Update(g *Game, c *Candy) bool {
@@ -80,7 +82,7 @@ func (s *dyingState) Update(g *Game, c *Candy) bool {
 	if s.beforeDie == 0 {
 		c.dead = true
 	} else if s.beforeDie <= c.sprite.nbframes {
-		c.sprite.frame++
+		c.sprite.alpha -= s.alphaDec
 	}
 	//fmt.Printf("Update dying state beforeDie=%d candy=%v\n", s.beforeDie, c)
 	return false

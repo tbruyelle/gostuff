@@ -229,10 +229,10 @@ func showCandy(renderer *sdl.Renderer, c *Candy, game *Game) {
 		source.Y = BlockSize * 4
 	}
 
-	if c.sprite._type == DyingSprite {
-		alpha = alpha / uint8(c.sprite.frame+1)
-	} else if c == game.selected {
-		alpha = uint8(190)
+	if c == game.selected {
+		alpha = uint8(150)
+	} else {
+		alpha = c.sprite.alpha
 	}
 
 	tileset.SetAlphaMod(alpha)
