@@ -113,7 +113,7 @@ func (g *Game) Tick() {
 			fmt.Println("Remove dead candys")
 			var kept []*Candy
 			for _, c := range g.candys {
-				if !c.dead {
+				if !c.IsDead() {
 					kept = append(kept, c)
 					c.ChangeState(NewFallingState())
 				}
