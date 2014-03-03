@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type StateType int
 
 const (
@@ -162,11 +158,11 @@ func (s *permuteState) Enter(c *Candy) {
 		// c.y<s.y
 		c.vy = PermuteInitSpeed
 	}
-	fmt.Printf("Enter permuteState c=%v, vx=%d, vy=%d, ox=%d, oy=%d\n", c, c.vx, c.vy, s.x, s.y)
+	//fmt.Printf("Enter permuteState c=%v, vx=%d, vy=%d, ox=%d, oy=%d\n", c, c.vx, c.vy, s.x, s.y)
 }
 
 func (s *permuteState) Update(g *Game, c *Candy) bool {
-	fmt.Printf("Permuting %v\n", c)
+	//fmt.Printf("Permuting %v\n", c)
 	if c.vx != 0 {
 		c.x += c.vx
 	} else if c.vy != 0 {

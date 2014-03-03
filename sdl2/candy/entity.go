@@ -64,7 +64,7 @@ func (c *Candy) Update(g *Game) bool {
 
 func (c *Candy) ChangeState(state State) {
 	if c.state != nil {
-		state.Exit(c)
+		c.state.Exit(c)
 	}
 	c.state = state
 	c.state.Enter(c)
