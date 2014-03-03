@@ -82,8 +82,7 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 			} else if c.IsNormal() {
 				// more than one time the candy receivees a crush vote
 				// it will be transformed to a Packed Candy
-				c._type = packedCandy(c._type)
-				c.ChangeState(NewIdleState())
+				c.ChangeState(NewMorphState(packedCandy(c._type)))
 			}
 		}
 		if nbMatch >= 4 {
@@ -96,13 +95,11 @@ func (g *Game) checkRegion(region Region, vertical bool) bool {
 			if c != nil {
 				if nbMatch == 4 {
 					// mutate candy to Stripes
-					c._type = stripesCandy(region[0]._type, vertical)
-					c.ChangeState(NewIdleState())
+					c.ChangeState(NewMorphState(stripesCandy(region[0]._type, vertical)))
 				}
 				if nbMatch > 4 {
 					// mutate candy to Bomb
-					c._type = BombCandy
-					c.ChangeState(NewIdleState())
+					c.ChangeState(NewMorphState(BombCandy))
 				}
 			}
 		}

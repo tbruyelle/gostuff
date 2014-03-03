@@ -7,11 +7,13 @@ const (
 	DyingStateType
 	FallingStateType
 	PermuteStateType
+	MorphStateType
 )
 
 const (
 	FallingInitSpeed = 8
 	PermuteInitSpeed = 4
+	MorphTicks       = 20
 )
 
 // State exposes the state methods
@@ -56,8 +58,8 @@ func (s *idleState) Type() StateType {
 // dyingState controls how the entity will die
 type dyingState struct {
 	baseState
-	beforeDie int
-	alphaDec  uint8
+	beforeDie  int
+	alphaShift uint8
 }
 
 func NewDyingState() State {
@@ -71,7 +73,7 @@ func NewDyingStateDelayed(delay int) State {
 func (s *dyingState) Enter(c *Candy) {
 	c.crush = true
 	c.sprite = NewSprite(DyingSprite)
-	s.alphaDec = c.sprite.alpha / DyingFrames
+	s.alphaShift = c.sprite.alpha / DyingFrames
 }
 
 func (s *dyingState) Update(g *Game, c *Candy) bool {
@@ -82,7 +84,7 @@ func (s *dyingState) Update(g *Game, c *Candy) bool {
 	if s.beforeDie == 0 {
 		c.dead = true
 	} else if s.beforeDie <= c.sprite.nbframes {
-		c.sprite.alpha -= s.alphaDec
+		c.sprite.alpha -= s.alphaShift
 	}
 	//fmt.Printf("Update dying state beforeDie=%d candy=%v\n", s.beforeDie, c)
 	return false
@@ -181,4 +183,43 @@ func (s *permuteState) Update(g *Game, c *Candy) bool {
 func (s *permuteState) Exit(c *Candy) {
 	c.vx = 0
 	c.vy = 0
+}
+
+// morphState controls the candy mutation to another special candy
+type morphState struct {
+	baseState
+	morphTo    CandyType
+	frame      int
+	alphaShift uint8
+}
+
+func NewMorphState(t CandyType) State {
+	return &morphState{morphTo: t}
+}
+
+func (s *morphState) Type() StateType {
+	return MorphStateType
+}
+
+func (s *morphState) Enter(c *Candy) {
+	c.sprite.alpha = 255
+	s.alphaShift = c.sprite.alpha / (MorphTicks / 2)
+}
+
+func (s *morphState) Update(g *Game, c *Candy) bool {
+	if s.frame >= MorphTicks && c.sprite.alpha >= 255 {
+		// end condition
+		c.ChangeState(NewIdleState())
+		return true
+	}
+	if s.frame < MorphTicks/2 {
+		// first step, fade out the initial candy
+		c.sprite.alpha -= s.alphaShift
+	} else {
+		// second step, fade in the morphed candy
+		c._type = s.morphTo
+		c.sprite.alpha += s.alphaShift
+	}
+	s.frame++
+	return false
 }

@@ -114,3 +114,15 @@ func TestPermuteStateExit(t *testing.T) {
 	assert.Equal(t, c.vx, 0, "Quit permute state should reset vx")
 	assert.Equal(t, c.vy, 0, "Quit permute state should reset vy")
 }
+
+func TestMorphState(t *testing.T) {
+	setup()
+	c := &Candy{}
+	c.ChangeState(NewIdleState())
+	c.ChangeState(NewMorphState(RedPackedCandy))
+
+	for !c.Update(g) {
+	}
+
+	assert.Equal(t, c._type, RedPackedCandy, "Candy should have morph to RedPackedCandy")
+}
