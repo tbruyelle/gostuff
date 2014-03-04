@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-var g *Game
-
 func setup() {
 	g = NewGame()
 }
