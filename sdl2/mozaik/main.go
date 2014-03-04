@@ -136,75 +136,45 @@ func renderThings(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	for _, b := range g.blocks {
-		gl.Begin(gl.QUADS)
-		switch b.Color {
-		case Red:
-
-			gl.Color3f(1.0, 0.0, 0.0)
-		case Blue:
-			gl.Color3f(0.0, 0.0, 1.0)
-
-		case Green:
-			gl.Color3f(0.0, 1.0, 0.0)
-
-		case Pink:
-			gl.Color3f(0.5, 0.0, 0.3)
-		}
-		gl.Vertex2i(b.X, b.Y)
-		gl.Vertex2i(b.X+BlockSize, b.Y)
-		gl.Vertex2i(b.X+BlockSize, b.Y+BlockSize)
-		gl.Vertex2i(b.X, b.Y+BlockSize)
-		gl.End()
+		renderBlock(b)
+	}
+	for _, s := range g.switches {
+		renderSwitch(s)
 	}
 	window.SwapBuffers()
-	//	//fmt.Println("rendering")
-	//	renderer.Clear()
-	//	// show dashboard
-	//	renderer.SetDrawColor(50, 50, 50, 200)
-	//	dashboard := sdl.Rect{0, 0, DashboardWidth, WindowHeight}
-	//	renderer.FillRect(&dashboard)
-	//
-	//	// render blocks
-	//	for _, b := range g.blocks {
-	//		renderBlock(renderer, b, g)
-	//	}
-	//	// render switches
-	//	for _, s := range g.switches {
-	//		renderSwitch(renderer, s, g)
-	//	}
-	//	renderer.SetDrawColor(255, 255, 255, 255)
-	//	renderer.Present()
 }
 
-//var block = sdl.Rect{W: BlockSize, H: BlockSize}
+func renderBlock(b *Block) {
+	gl.Begin(gl.QUADS)
+	switch b.Color {
+	case Red:
+		gl.Color3f(1.0, 0.0, 0.0)
+	case Blue:
+		gl.Color3f(0.0, 0.0, 1.0)
 
-//var source = sdl.Rect{W: BlockSize, H: BlockSize}
+	case Green:
+		gl.Color3f(0.0, 1.0, 0.0)
 
-// renderBlock renders a block
-//func renderBlock(renderer *sdl.Renderer, b *Block, g *Game) {
-//	//fmt.Printf("showCandy (%d,%d), %d\n", c.x, c.y, c._type)
-//	block.X = int32(b.X)
-//	block.Y = int32(b.Y)
-//	alpha := uint8(255)
-//
-//	switch b.Color {
-//	case Blue:
-//		renderer.SetDrawColor(153, 50, 204, alpha)
-//	case Yellow:
-//		renderer.SetDrawColor(255, 215, 0, alpha)
-//	case Green:
-//		renderer.SetDrawColor(60, 179, 113, alpha)
-//	case Red:
-//		renderer.SetDrawColor(220, 20, 60, alpha)
-//	case Pink:
-//		renderer.SetDrawColor(255, 192, 203, alpha)
-//
-//	}
-//	renderer.FillRect(&block)
-//	renderer.SetDrawColor(255, 255, 255, 255)
-//}
-//
-//var switch_ = sdl.Rect{W: SwitchSize, H: SwitchSize}
+	case Yellow:
+		gl.Color3f(0.5, 0.0, 0.3)
+	}
+	gl.Vertex2i(b.X, b.Y)
+	gl.Vertex2i(b.X+BlockSize, b.Y)
+	gl.Vertex2i(b.X+BlockSize, b.Y+BlockSize)
+	gl.Vertex2i(b.X, b.Y+BlockSize)
+	gl.End()
+}
+
+func renderSwitch(s *Switch) {
+	gl.Begin(gl.QUADS)
+	gl.Color3f(1.0, 1.0, 1.0)
+	gl.Vertex2i(s.X, s.Y)
+	gl.Vertex2i(s.X+SwitchSize, s.Y)
+	gl.Vertex2i(s.X+SwitchSize, s.Y+SwitchSize)
+	gl.Vertex2i(s.X, s.Y+SwitchSize)
+	gl.End()
+}
+
 //
 //// renderSwitch renders a switch
 //func renderSwitch(renderer *sdl.Renderer, s *Switch, g *Game) {
