@@ -141,10 +141,20 @@ func renderThings(g *Game) {
 	for _, s := range g.switches {
 		renderSwitch(s)
 	}
+	// TODO What for?
+	//gl.Flush()
 	window.SwapBuffers()
 }
 
 func renderBlock(b *Block) {
+	// TODO pb to call it on every block?
+	gl.MatrixMode(gl.MODELVIEW)
+	gl.LoadIdentity()
+	// TODO constant
+	v := BlockSize / 2
+
+	gl.Translatef(float32(b.X+v), float32(b.Y+v), 0)
+
 	gl.Begin(gl.QUADS)
 	switch b.Color {
 	case Red:
@@ -158,21 +168,30 @@ func renderBlock(b *Block) {
 	case Yellow:
 		gl.Color3f(0.5, 0.0, 0.3)
 	}
-	gl.Vertex2i(b.X, b.Y)
-	gl.Vertex2i(b.X+BlockSize, b.Y)
-	gl.Vertex2i(b.X+BlockSize, b.Y+BlockSize)
-	gl.Vertex2i(b.X, b.Y+BlockSize)
+	renderSquare(v)
 	gl.End()
 }
 
 func renderSwitch(s *Switch) {
+	// TODO pb to call it on every block?
+	gl.MatrixMode(gl.MODELVIEW)
+	gl.LoadIdentity()
+	// TODO constant
+	v := SwitchSize / 2
+
+	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
+
 	gl.Begin(gl.QUADS)
 	gl.Color3f(1.0, 1.0, 1.0)
-	gl.Vertex2i(s.X, s.Y)
-	gl.Vertex2i(s.X+SwitchSize, s.Y)
-	gl.Vertex2i(s.X+SwitchSize, s.Y+SwitchSize)
-	gl.Vertex2i(s.X, s.Y+SwitchSize)
+	renderSquare(v)
 	gl.End()
+}
+
+func renderSquare(side int) {
+	gl.Vertex2i(-side, side)
+	gl.Vertex2i(side, side)
+	gl.Vertex2i(side, -side)
+	gl.Vertex2i(-side, -side)
 }
 
 //
