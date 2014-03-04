@@ -135,9 +135,6 @@ func renderLoop(g *Game) {
 func renderThings(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	for _, b := range g.blocks {
-		renderBlock(b)
-	}
 	for _, s := range g.switches {
 		renderSwitch(s)
 	}
@@ -146,17 +143,61 @@ func renderThings(g *Game) {
 	window.SwapBuffers()
 }
 
-func renderBlock(b *Block) {
+func renderSwitch(s *Switch) {
 	// TODO pb to call it on every block?
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 	// TODO constant
-	v := BlockSize / 2
+	v := SwitchSize / 2
 
-	gl.Translatef(float32(b.X+v), float32(b.Y+v), 0)
+	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
+	//gl.Rotatef(35, 0, 0, 1)
 
+	// render block top left
 	gl.Begin(gl.QUADS)
-	switch b.Color {
+	setColor(s.blocks[0].Color)
+	gl.Vertex2i(-BlockSize, -BlockSize)
+	gl.Vertex2i(0, -BlockSize)
+	gl.Vertex2i(0, 0)
+	gl.Vertex2i(-BlockSize, 0)
+	gl.End()
+
+	// render block top right
+	gl.Begin(gl.QUADS)
+	setColor(s.blocks[1].Color)
+	gl.Vertex2i(0, -BlockSize)
+	gl.Vertex2i(BlockSize, -BlockSize)
+	gl.Vertex2i(BlockSize, 0)
+	gl.Vertex2i(0, 0)
+	gl.End()
+
+	// render block bottom right
+	gl.Begin(gl.QUADS)
+	setColor(s.blocks[2].Color)
+	gl.Vertex2i(0, 0)
+	gl.Vertex2i(BlockSize, 0)
+	gl.Vertex2i(BlockSize, BlockSize)
+	gl.Vertex2i(0, BlockSize)
+	gl.End()
+
+	// render block bottom left
+	gl.Begin(gl.QUADS)
+	setColor(s.blocks[3].Color)
+	gl.Vertex2i(-BlockSize, 0)
+	gl.Vertex2i(0, 0)
+	gl.Vertex2i(0, BlockSize)
+	gl.Vertex2i(-BlockSize, BlockSize)
+	gl.End()
+
+	// render the switch
+	gl.Begin(gl.QUADS)
+	gl.Color3f(1.0, 1.0, 1.0)
+	renderSquare(v)
+	gl.End()
+}
+
+func setColor(color ColorDef) {
+	switch color {
 	case Red:
 		gl.Color3f(1.0, 0.0, 0.0)
 	case Blue:
@@ -168,23 +209,6 @@ func renderBlock(b *Block) {
 	case Yellow:
 		gl.Color3f(0.5, 0.0, 0.3)
 	}
-	renderSquare(v)
-	gl.End()
-}
-
-func renderSwitch(s *Switch) {
-	// TODO pb to call it on every block?
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
-	// TODO constant
-	v := SwitchSize / 2
-
-	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
-
-	gl.Begin(gl.QUADS)
-	gl.Color3f(1.0, 1.0, 1.0)
-	renderSquare(v)
-	gl.End()
 }
 
 func renderSquare(side int) {
@@ -193,12 +217,3 @@ func renderSquare(side int) {
 	gl.Vertex2i(side, -side)
 	gl.Vertex2i(-side, -side)
 }
-
-//
-//// renderSwitch renders a switch
-//func renderSwitch(renderer *sdl.Renderer, s *Switch, g *Game) {
-//	switch_.X = int32(s.X)
-//	switch_.Y = int32(s.Y)
-//
-//	renderer.FillRect(&switch_)
-//}

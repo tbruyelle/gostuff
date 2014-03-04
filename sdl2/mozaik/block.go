@@ -16,7 +16,6 @@ const (
 
 type Block struct {
 	Color ColorDef
-	X, Y  int
 }
 
 type Switch struct {

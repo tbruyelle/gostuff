@@ -11,7 +11,7 @@ func setup() {
 
 func TestFindSwitch(t *testing.T) {
 	setup()
-	g.addSwitch(XMin, YMin)
+	g.addSwitch(XMin, YMin,Red,Red,Red,Red)
 
 	s := g.findSwitch(XMin+BlockSize, YMin+BlockSize)
 
