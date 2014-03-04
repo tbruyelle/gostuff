@@ -53,6 +53,7 @@ func (g *Game) findSwitch(x, y int) *Switch {
 
 func (g *Game) Stop() {
 }
+
 func (g *Game) Click(x, y int) {
 	fmt.Println("click", x, y)
 	if g.listening {

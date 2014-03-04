@@ -43,7 +43,7 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 var (
 	window *glfw.Window
 	err    error
-	g *Game
+	g      *Game
 )
 
 func main() {
@@ -71,6 +71,11 @@ func main() {
 
 	gl.Init()
 	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
+
+	// Use window coordinates
+	gl.MatrixMode(gl.PROJECTION)
+	gl.LoadIdentity()
+	gl.Ortho(0, WindowWidth, WindowHeight, 0, 0, 1)
 
 	g = NewGame()
 
@@ -107,21 +112,6 @@ func eventLoop(g *Game) {
 		do(func() {
 			glfw.PollEvents()
 		})
-		//		switch t := evt.(type) {
-		//		case *sdl.QuitEvent:
-		//			return
-		//		case *sdl.KeyDownEvent:
-		//			switch t.Keysym.Sym {
-		//			case sdl.K_ESCAPE:
-		//				return
-		//			case sdl.K_r:
-		//				g.Reset()
-		//			}
-		//		case *sdl.MouseButtonEvent:
-		//			if t.State != 0 {
-		//				g.Click(int(t.X), int(t.Y))
-		//			}
-		//		}
 	}
 }
 
@@ -143,16 +133,29 @@ func renderLoop(g *Game) {
 }
 
 func renderThings(g *Game) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	gl.Begin(gl.TRIANGLES)
-	gl.Color3f(1.0, 0.0, 0.0)
-	gl.Vertex2f(0.5, 0.0)
-	gl.Color3f(0.0, 1.0, 0.0)
-	gl.Vertex2f(-0.5, -0.5)
-	gl.Color3f(0.0, 0.0, 1.0)
-	gl.Vertex2f(-0.5, 0.5)
-	gl.End()
+	for _, b := range g.blocks {
+		gl.Begin(gl.QUADS)
+		switch b.Color {
+		case Red:
+
+			gl.Color3f(1.0, 0.0, 0.0)
+		case Blue:
+			gl.Color3f(0.0, 0.0, 1.0)
+
+		case Green:
+			gl.Color3f(0.0, 1.0, 0.0)
+
+		case Pink:
+			gl.Color3f(0.5, 0.0, 0.3)
+		}
+		gl.Vertex2i(b.X, b.Y)
+		gl.Vertex2i(b.X+BlockSize, b.Y)
+		gl.Vertex2i(b.X+BlockSize, b.Y+BlockSize)
+		gl.Vertex2i(b.X, b.Y+BlockSize)
+		gl.End()
+	}
 	window.SwapBuffers()
 	//	//fmt.Println("rendering")
 	//	renderer.Clear()
