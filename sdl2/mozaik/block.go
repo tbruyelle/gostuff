@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type ColorDef int
 
 const (
@@ -21,5 +25,5 @@ type Switch struct {
 }
 
 func (s *Switch) Rotate() {
-
+	fmt.Println("Rotate", s)
 }
