@@ -16,5 +16,10 @@ type Block struct {
 }
 
 type Switch struct {
-	X, Y int
+	X, Y   int
+	blocks [4]*Block
+}
+
+func (s *Switch) Rotate() {
+
 }

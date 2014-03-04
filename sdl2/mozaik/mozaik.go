@@ -13,8 +13,9 @@ const (
 )
 
 type Game struct {
-	blocks   []*Block
-	switches []*Switch
+	blocks    []*Block
+	switches  []*Switch
+	listening bool
 }
 
 func NewGame() *Game {
@@ -27,15 +28,34 @@ func (g *Game) Start() {
 		&Block{Red, XMin, YMin}, &Block{Blue, XMin + BlockSize, YMin},
 		&Block{Yellow, XMin, YMin + BlockSize}, &Block{Green, XMin + BlockSize, YMin + BlockSize},
 	}
-	g.switches = []*Switch{
-		&Switch{XMin + BlockSize - SwitchSize/2, YMin + BlockSize - SwitchSize/2},
+	g.addSwitch(XMin, YMin)
+	g.listening = true
+}
+
+// addSwitch appends a new switch at the bottom right
+// of the coordinates in parameters.
+func (g *Game) addSwitch(x, y int) {
+	g.switches = append(g.switches, &Switch{X:x + BlockSize - SwitchSize/2, Y:y + BlockSize - SwitchSize/2})
+}
+
+func (g *Game) findSwitch(x, y int) *Switch {
+	for _, s := range g.switches {
+		if x >= s.X && x <= s.X+SwitchSize && y >= s.Y && y <= s.Y+SwitchSize {
+			return s
+		}
 	}
+	return nil
 }
 
 func (g *Game) Stop() {
 }
-
-func (g *Game) Click(x, y int) {}
+func (g *Game) Click(x, y int) {
+	if g.listening {
+		if s := g.findSwitch(x, y); s != nil {
+			s.Rotate()
+		}
+	}
+}
 
 func (g *Game) Update() {}
 

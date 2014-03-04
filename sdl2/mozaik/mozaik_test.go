@@ -1,0 +1,21 @@
+package main
+
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+var g *Game
+
+func setup() {
+	g = NewGame()
+}
+
+func TestFindSwitch(t *testing.T) {
+	setup()
+	g.addSwitch(XMin, YMin)
+
+	s := g.findSwitch(XMin+BlockSize, YMin+BlockSize)
+
+	assert.NotNil(t, s, "Should found a switch")
+}
