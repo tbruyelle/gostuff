@@ -43,6 +43,7 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 var (
 	window *glfw.Window
 	err    error
+	g *Game
 )
 
 func main() {
@@ -66,11 +67,12 @@ func main() {
 	//glfw.SwapInterval(1)
 
 	window.SetKeyCallback(keyCb)
+	window.SetMouseButtonCallback(mouseCb)
 
 	gl.Init()
 	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
 
-	g := NewGame()
+	g = NewGame()
 
 	g.Start()
 	go eventLoop(g)
@@ -80,9 +82,22 @@ func main() {
 }
 
 func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-	switch key {
-	case glfw.KeyEscape:
-		close(mainfunc)
+	if action == glfw.Press {
+		switch key {
+		case glfw.KeyEscape:
+			close(mainfunc)
+		}
+	}
+}
+
+func mouseCb(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
+	if action == glfw.Press {
+		switch button {
+
+		case glfw.MouseButtonLeft:
+			x, y := window.GetCursorPosition()
+			g.Click(int(x), int(y))
+		}
 	}
 }
 

@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 const (
 	WindowWidth    = 800
 	WindowHeight   = 600
@@ -35,7 +39,7 @@ func (g *Game) Start() {
 // addSwitch appends a new switch at the bottom right
 // of the coordinates in parameters.
 func (g *Game) addSwitch(x, y int) {
-	g.switches = append(g.switches, &Switch{X:x + BlockSize - SwitchSize/2, Y:y + BlockSize - SwitchSize/2})
+	g.switches = append(g.switches, &Switch{X: x + BlockSize - SwitchSize/2, Y: y + BlockSize - SwitchSize/2})
 }
 
 func (g *Game) findSwitch(x, y int) *Switch {
@@ -50,6 +54,7 @@ func (g *Game) findSwitch(x, y int) *Switch {
 func (g *Game) Stop() {
 }
 func (g *Game) Click(x, y int) {
+	fmt.Println("click", x, y)
 	if g.listening {
 		if s := g.findSwitch(x, y); s != nil {
 			s.Rotate()
