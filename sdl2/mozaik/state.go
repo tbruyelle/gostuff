@@ -1,19 +1,19 @@
 package main
 
 type State interface {
-	Enter(s *Switch)
-	Exit(s *Switch)
-	Update(g *Game, s *Switch) bool
+	Enter(sw *Switch)
+	Exit(sw *Switch)
+	Update(g *Game, sw *Switch) bool
 }
 
 type IdleState struct {
 }
 
-func (s *IdleState) Enter(s *Switch) {}
+func (s *IdleState) Enter(sw *Switch) {}
 
-func (s *IdleState) Exit(s *Switch) {}
+func (s *IdleState) Exit(sw *Switch) {}
 
-func (s *IdleState) Update(g *Game, s *Switch) bool {
+func (s *IdleState) Update(g *Game, sw *Switch) bool {
 	return true
 }
 
@@ -22,8 +22,8 @@ type RotateState struct {
 	IdleState
 }
 
-const rotateTicks=20
+const rotateTicks = 20
 
 func (s *RotateState) Update() bool {
-
+return true
 }
