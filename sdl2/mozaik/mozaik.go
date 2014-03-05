@@ -8,15 +8,15 @@ import (
 )
 
 const (
-	WindowWidth     = 800
-	WindowHeight    = 800
-	BlockSize       = 128
-	SwitchSize      = 48
-	DashboardHeight = 256
-	XMin            = 32
-	YMin            = 32
-	XMax            = WindowHeight - 32
-	YMax            = WindowWidth - 32 - DashboardHeight
+	WindowWidth        = 800
+	WindowHeight       = 800
+	BlockSize          = 128
+	SwitchSize         = 48
+	DashboardHeight    = 256
+	XMin               = 32
+	YMin               = 32
+	XMax               = WindowHeight - 32
+	YMax               = WindowWidth - 32 - DashboardHeight
 	SignatureBlockSize = 48
 )
 
@@ -27,15 +27,16 @@ type Game struct {
 	// is currently rotating
 	rotating     *Switch
 	winSignature string
+	currentLevel int
 }
 
 func NewGame() *Game {
-	return &Game{}
+	return &Game{currentLevel: 1}
 }
 
 func (g *Game) Start() {
 	// Load first level
-	g.LoadLevel(1)
+	g.LoadLevel()
 }
 
 // addSwitch appends a new switch at the bottom right
@@ -74,11 +75,16 @@ func (g *Game) Click(x, y int) {
 }
 
 func (g *Game) Update() {
-	if g.Win() {
-		fmt.Println("WiN@!")
-	}
 	for _, s := range g.switches {
 		s.state.Update(g, s)
+	}
+}
+
+func (g *Game) Continue() {
+	if g.Win() {
+		// Next level
+		g.currentLevel++
+		g.LoadLevel()
 	}
 }
 
@@ -87,8 +93,8 @@ func (g *Game) Reset() {
 	g.Start()
 }
 
-func (g *Game) LoadLevel(lvl int) {
-	b, err := ioutil.ReadFile(fmt.Sprintf("./levels/%d", lvl))
+func (g *Game) LoadLevel() {
+	b, err := ioutil.ReadFile(fmt.Sprintf("./levels/%d", g.currentLevel))
 	if err != nil {
 		panic(err)
 	}
@@ -98,6 +104,10 @@ func (g *Game) LoadLevel(lvl int) {
 func (g *Game) LoadLevelStr(str string) {
 	lines := strings.Split(str, "\n")
 	step := 0
+	g.blocks = nil
+	g.switches = nil
+	g.winSignature=""
+
 	for i := 0; i < len(lines); i++ {
 		if len(lines[i]) == 0 {
 			step++

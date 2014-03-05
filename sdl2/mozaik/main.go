@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/andrebq/gas"
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
+	"github.com/go-gl/gltext"
+	"os"
 	"runtime"
 	"time"
 )
@@ -41,9 +44,11 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 }
 
 var (
-	window *glfw.Window
-	err    error
-	g      *Game
+	window  *glfw.Window
+	err     error
+	g       *Game
+	fonts   []*gltext.Font
+	fontInd int
 )
 
 func main() {
@@ -72,6 +77,12 @@ func main() {
 	gl.Init()
 	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
 
+	for i := int32(64); i < 72; i++ {
+		font := loadFonts(i)
+		defer font.Release()
+		fonts = append(fonts, font)
+	}
+
 	// Use window coordinates
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
@@ -88,11 +99,34 @@ func main() {
 	g.Stop()
 }
 
+// Load the font
+func loadFonts(scale int32) *gltext.Font {
+	file, err := gas.Abs("code.google.com/p/freetype-go/testdata/luxisr.ttf")
+	if err != nil {
+		panic(err)
+	}
+	fd, err := os.Open(file)
+	if err != nil {
+		panic(err)
+	}
+	defer fd.Close()
+
+	font, err := gltext.LoadTruetype(fd, scale, 32, 127, gltext.LeftToRight)
+	if err != nil {
+		panic(err)
+	}
+	return font
+}
+
 func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 	if action == glfw.Press {
 		switch key {
 		case glfw.KeyEscape:
 			close(mainfunc)
+		case glfw.KeyR:
+			g.Reset()
+		case glfw.KeyC:
+			g.Continue()
 		}
 	}
 }
@@ -173,6 +207,16 @@ func renderThings(g *Game) {
 	}
 
 	renderDashboard()
+
+	if g.Win() {
+		fontInd++
+		if fontInd >= len(fonts) {
+			fontInd = 0
+		}
+		gl.LoadIdentity()
+		gl.Color3ub(107, 142, 35)
+		fonts[fontInd].Printf(float32(WindowWidth/2)-100, float32(WindowHeight/2), "GAGNE !!")
+	}
 
 	// TODO What for?
 	//gl.Flush()
@@ -267,13 +311,16 @@ func setColor(color ColorDef) {
 
 func renderDashboard() {
 	gl.LoadIdentity()
-	gl.Translatef(float32(XMin), float32(WindowHeight-DashboardHeight), 0)
+	setColor(Blue)
+	fonts[0].Printf(float32(XMin), float32(WindowHeight-DashboardHeight),
+		"Level %d", g.currentLevel)
+	gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight), 0)
 	line := 0
 	for _, c := range g.winSignature {
 		if c == '\n' {
 			line++
 			gl.LoadIdentity()
-			gl.Translatef(float32(XMin), float32(WindowHeight-DashboardHeight+SignatureBlockSize*line), 0)
+			gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight+SignatureBlockSize*line), 0)
 			continue
 		}
 		gl.Begin(gl.QUADS)
