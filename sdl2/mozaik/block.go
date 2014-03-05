@@ -15,15 +15,14 @@ const (
 )
 
 type Block struct {
-	X, Y     int
 	Color    ColorDef
 	Rendered bool
 }
 
 type Switch struct {
 	state  State
+	bx,by int
 	X, Y   int
-	blocks [4]*Block
 	rotate int
 }
 

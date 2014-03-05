@@ -19,7 +19,7 @@ const (
 )
 
 type Game struct {
-	blocks   []*Block
+	blocks   [][]*Block
 	switches []*Switch
 	// rotating represents a rotate which
 	// is currently rotating
@@ -35,25 +35,18 @@ func (g *Game) Start() {
 	g.LoadLevel(1)
 }
 
-func (g *Game) addBlock(x, y int, color ColorDef) {
-	b := &Block{X: x, Y: y, Color: color}
-	g.blocks = append(g.blocks, b)
-}
-
 // addSwitch appends a new switch at the bottom right
 // of the coordinates in parameters.
-func (g *Game) addSwitch(b1, b2, b3, b4 int) {
+func (g *Game) addSwitch(x, y int) {
 
 	s := &Switch{
-		X: g.blocks[b1].X + BlockSize - SwitchSize/2,
-		Y: g.blocks[b1].Y + BlockSize - SwitchSize/2,
+		bx: x, by: y,
+		X: XMin + x*BlockSize + BlockSize - SwitchSize/2,
+		Y: YMin + y*BlockSize + BlockSize - SwitchSize/2,
 	}
-	s.blocks[0] = g.blocks[b1]
-	s.blocks[1] = g.blocks[b2]
-	s.blocks[2] = g.blocks[b3]
-	s.blocks[3] = g.blocks[b4]
 	s.ChangeState(NewIdleState())
 	g.switches = append(g.switches, s)
+	fmt.Println("Switch added",s.X,s.Y)
 }
 
 func (g *Game) findSwitch(x, y int) *Switch {
@@ -96,7 +89,6 @@ func (g *Game) LoadLevel(lvl int) {
 func (g *Game) LoadLevelStr(str string) {
 	lines := strings.Split(str, "\n")
 	handleBlocks := true
-	cx, cy := XMin, YMin
 	for i := 0; i < len(lines); i++ {
 		if len(lines[i]) == 0 {
 			handleBlocks = false
@@ -104,15 +96,13 @@ func (g *Game) LoadLevelStr(str string) {
 		}
 		tokens := strings.Split(lines[i], ",")
 		if handleBlocks {
+			bline := make([]*Block, len(tokens))
+			g.blocks = append(g.blocks, bline)
 			for j := 0; j < len(tokens); j++ {
-				g.addBlock(cx, cy, atoc(tokens[j]))
-				cx += BlockSize
+				bline[j] = &Block{Color: atoc(tokens[j])}
 			}
-			cx = XMin
-			cy += BlockSize
 		} else {
-			g.addSwitch(atoi(tokens[0]), atoi(tokens[1]),
-				atoi(tokens[2]), atoi(tokens[3]))
+			g.addSwitch(atoi(tokens[0]), atoi(tokens[1]))
 		}
 	}
 }
