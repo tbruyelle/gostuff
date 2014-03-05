@@ -32,8 +32,8 @@ func TestFindSwitch(t *testing.T) {
 func TestLoadLevel(t *testing.T) {
 	setup()
 
-	lvl := `0,1
-2,4
+	lvl := `01
+24
 
 0,0
 
@@ -72,8 +72,8 @@ func TestRotateState(t *testing.T) {
 func TestBlockSignature(t *testing.T) {
 	setup()
 
-	g.LoadLevelStr(`0,1
-2,4
+	g.LoadLevelStr(`01
+24
 
 0,0`)
 

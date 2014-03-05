@@ -106,24 +106,24 @@ func (g *Game) LoadLevelStr(str string) {
 	step := 0
 	g.blocks = nil
 	g.switches = nil
-	g.winSignature=""
+	g.winSignature = ""
 
 	for i := 0; i < len(lines); i++ {
 		if len(lines[i]) == 0 {
 			step++
 			continue
 		}
-		tokens := strings.Split(lines[i], ",")
 		switch step {
 		case 0:
 			// read block colors
-			bline := make([]*Block, len(tokens))
+			bline := make([]*Block, len(lines[i]))
 			g.blocks = append(g.blocks, bline)
-			for j := 0; j < len(tokens); j++ {
-				bline[j] = &Block{Color: atoc(tokens[j])}
+			for j, c := range lines[i] {
+				bline[j] = &Block{Color: atoc(string(c))}
 			}
 		case 1:
-			// reead switch locations
+			// read switch locations
+			tokens := strings.Split(lines[i], ",")
 			g.addSwitch(atoi(tokens[0]), atoi(tokens[1]))
 		case 2:
 			//read win
