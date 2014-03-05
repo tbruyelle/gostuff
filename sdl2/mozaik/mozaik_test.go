@@ -9,16 +9,20 @@ func setup() {
 	g = NewGame()
 }
 
-func TestFindSwitch(t *testing.T) {
-	setup()
+func fill() {
 	g.blocks = make([][]*Block, 2)
 	g.blocks[0] = make([]*Block, 2)
 	g.blocks[1] = make([]*Block, 2)
 	g.blocks[0][0] = &Block{Color: Red}
-	g.blocks[0][1] = &Block{Color: Red}
-	g.blocks[1][0] = &Block{Color: Red}
-	g.blocks[1][1] = &Block{Color: Red}
+	g.blocks[0][1] = &Block{Color: Blue}
+	g.blocks[1][1] = &Block{Color: Pink}
+	g.blocks[1][0] = &Block{Color: Yellow}
 	g.addSwitch(0, 0)
+}
+
+func TestFindSwitch(t *testing.T) {
+	setup()
+	fill()
 
 	s := g.findSwitch(XMin+BlockSize, YMin+BlockSize)
 
@@ -34,8 +38,8 @@ func TestLoadLevel(t *testing.T) {
 0,0`)
 
 	assert.Equal(t, 1, len(g.switches))
-	assert.Equal(t, 0, g.switches[0].bx)
-	assert.Equal(t, 0, g.switches[0].by)
+	assert.Equal(t, 0, g.switches[0].line)
+	assert.Equal(t, 0, g.switches[0].col)
 	assert.Equal(t, 2, len(g.blocks))
 	assert.Equal(t, 2, len(g.blocks[0]))
 	assert.Equal(t, 2, len(g.blocks[1]))
@@ -43,4 +47,20 @@ func TestLoadLevel(t *testing.T) {
 	assert.Equal(t, 1, g.blocks[0][1].Color)
 	assert.Equal(t, 2, g.blocks[1][0].Color)
 	assert.Equal(t, 4, g.blocks[1][1].Color)
+}
+
+func TestRotateState(t *testing.T) {
+	setup()
+	fill()
+
+	g.switches[0].ChangeState(NewRotateState())
+	g.switches[0].ChangeState(NewIdleState())
+
+	assert.Equal(t, 2, len(g.blocks))
+	assert.Equal(t, 2, len(g.blocks[0]))
+	assert.Equal(t, 2, len(g.blocks[1]))
+	assert.Equal(t, Yellow, g.blocks[0][0].Color)
+	assert.Equal(t, Red, g.blocks[0][1].Color)
+	assert.Equal(t, Blue, g.blocks[1][1].Color)
+	assert.Equal(t, Pink, g.blocks[1][0].Color)
 }

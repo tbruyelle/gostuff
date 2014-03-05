@@ -21,7 +21,7 @@ type Block struct {
 
 type Switch struct {
 	state  State
-	bx,by int
+	line,col int
 	X, Y   int
 	rotate int
 }

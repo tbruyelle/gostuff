@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type State interface {
 	Enter(g *Game, sw *Switch)
 	Exit(g *Game, sw *Switch)
@@ -52,6 +56,15 @@ func (s *RotateState) Enter(g *Game, sw *Switch) {
 }
 
 func (s *RotateState) Exit(g *Game, sw *Switch) {
+	// Swap bocks according to the 90d rotation
+	l, c := sw.line, sw.col
+	fmt.Println("Swap from", l, c)
+	b := g.blocks[l][c]
+	g.blocks[l][c] = g.blocks[l+1][c]
+	g.blocks[l+1][c] = g.blocks[l+1][c+1]
+	g.blocks[l+1][c+1] = g.blocks[l][c+1]
+	g.blocks[l][c+1] = b
+
 	g.rotating = nil
 }
 

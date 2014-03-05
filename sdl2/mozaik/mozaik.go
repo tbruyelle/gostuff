@@ -37,16 +37,16 @@ func (g *Game) Start() {
 
 // addSwitch appends a new switch at the bottom right
 // of the coordinates in parameters.
-func (g *Game) addSwitch(x, y int) {
+func (g *Game) addSwitch(line, col int) {
 
 	s := &Switch{
-		bx: x, by: y,
-		X: XMin + x*BlockSize + BlockSize - SwitchSize/2,
-		Y: YMin + y*BlockSize + BlockSize - SwitchSize/2,
+		line: line, col: col,
+		X: XMin + col*BlockSize + BlockSize - SwitchSize/2,
+		Y: YMin + line*BlockSize + BlockSize - SwitchSize/2,
 	}
 	s.ChangeState(NewIdleState())
 	g.switches = append(g.switches, s)
-	fmt.Println("Switch added",s.X,s.Y)
+	fmt.Println("Switch added", s.X, s.Y)
 }
 
 func (g *Game) findSwitch(x, y int) *Switch {
@@ -104,6 +104,11 @@ func (g *Game) LoadLevelStr(str string) {
 		} else {
 			g.addSwitch(atoi(tokens[0]), atoi(tokens[1]))
 		}
+	}
+	fmt.Printf("Level loaded blocks=%d, swicthes=%d\n", len(g.blocks), len(g.switches))
+
+	for i := 0; i < len(g.blocks); i++ {
+		fmt.Printf("line %d blocks %d\n", i, len(g.blocks[i]))
 	}
 }
 
