@@ -170,6 +170,9 @@ func renderThings(g *Game) {
 	for _, s := range g.switches {
 		renderSwitch(s)
 	}
+
+	renderDashboard()
+
 	// TODO What for?
 	//gl.Flush()
 	window.SwapBuffers()
@@ -242,7 +245,10 @@ func renderSwitch(s *Switch) {
 	// render the switch
 	gl.Begin(gl.QUADS)
 	gl.Color3f(1.0, 1.0, 1.0)
-	renderSquare(v)
+	gl.Vertex2i(-v, v)
+	gl.Vertex2i(v, v)
+	gl.Vertex2i(v, -v)
+	gl.Vertex2i(-v, -v)
 	gl.End()
 }
 
@@ -262,9 +268,24 @@ func setColor(color ColorDef) {
 	}
 }
 
-func renderSquare(side int) {
-	gl.Vertex2i(-side, side)
-	gl.Vertex2i(side, side)
-	gl.Vertex2i(side, -side)
-	gl.Vertex2i(-side, -side)
+func renderDashboard() {
+	gl.LoadIdentity()
+	gl.Translatef(float32(XMin), float32(WindowHeight-DashboardHeight), 0)
+	line := 0
+	for _, c := range g.winSignature {
+		if c == '\n' {
+			line++
+			gl.LoadIdentity()
+			gl.Translatef(float32(XMin), float32(WindowHeight-DashboardHeight+SignatureBlockSize*line), 0)
+			continue
+		}
+		gl.Begin(gl.QUADS)
+		setColor(atoc(string(c)))
+		gl.Vertex2i(0, 0)
+		gl.Vertex2i(SignatureBlockSize, 0)
+		gl.Vertex2i(SignatureBlockSize, SignatureBlockSize)
+		gl.Vertex2i(0, SignatureBlockSize)
+		gl.End()
+		gl.Translated(SignatureBlockSize, 0, 0)
+	}
 }

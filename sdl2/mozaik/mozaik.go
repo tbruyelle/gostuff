@@ -8,14 +8,16 @@ import (
 )
 
 const (
-	WindowWidth  = 800
-	WindowHeight = 600
-	BlockSize    = 128
-	SwitchSize   = 32
-	XMin         = 32
-	YMin         = 32
-	XMax         = WindowHeight - 32
-	YMax         = WindowWidth - 32
+	WindowWidth     = 800
+	WindowHeight    = 800
+	BlockSize       = 128
+	SwitchSize      = 48
+	DashboardHeight = 256
+	XMin            = 32
+	YMin            = 32
+	XMax            = WindowHeight - 32
+	YMax            = WindowWidth - 32 - DashboardHeight
+	SignatureBlockSize = 48
 )
 
 type Game struct {
