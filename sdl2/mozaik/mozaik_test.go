@@ -32,10 +32,13 @@ func TestFindSwitch(t *testing.T) {
 func TestLoadLevel(t *testing.T) {
 	setup()
 
-	g.LoadLevelStr(`0,1
+	lvl := `0,1
 2,4
 
-0,0`)
+0,0
+
+24`
+	g.LoadLevelStr(lvl)
 
 	assert.Equal(t, 1, len(g.switches))
 	assert.Equal(t, 0, g.switches[0].line)
@@ -47,6 +50,7 @@ func TestLoadLevel(t *testing.T) {
 	assert.Equal(t, 1, g.blocks[0][1].Color)
 	assert.Equal(t, 2, g.blocks[1][0].Color)
 	assert.Equal(t, 4, g.blocks[1][1].Color)
+	assert.Equal(t, "24\n", g.winSignature)
 }
 
 func TestRotateState(t *testing.T) {
@@ -63,4 +67,18 @@ func TestRotateState(t *testing.T) {
 	assert.Equal(t, Red, g.blocks[0][1].Color)
 	assert.Equal(t, Blue, g.blocks[1][1].Color)
 	assert.Equal(t, Pink, g.blocks[1][0].Color)
+}
+
+func TestBlockSignature(t *testing.T) {
+	setup()
+
+	g.LoadLevelStr(`0,1
+2,4
+
+0,0`)
+
+	signature := `01
+24
+`
+	assert.Equal(t, signature, g.BlockSignature())
 }

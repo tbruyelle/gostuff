@@ -23,7 +23,8 @@ type Game struct {
 	switches []*Switch
 	// rotating represents a rotate which
 	// is currently rotating
-	rotating *Switch
+	rotating     *Switch
+	winSignature string
 }
 
 func NewGame() *Game {
@@ -71,12 +72,18 @@ func (g *Game) Click(x, y int) {
 }
 
 func (g *Game) Update() {
+	if g.Win() {
+		fmt.Println("WiN@!")
+	}
 	for _, s := range g.switches {
 		s.state.Update(g, s)
 	}
 }
 
-func (g *Game) Reset() {}
+func (g *Game) Reset() {
+	g.Stop()
+	g.Start()
+}
 
 func (g *Game) LoadLevel(lvl int) {
 	b, err := ioutil.ReadFile(fmt.Sprintf("./levels/%d", lvl))
@@ -88,21 +95,27 @@ func (g *Game) LoadLevel(lvl int) {
 
 func (g *Game) LoadLevelStr(str string) {
 	lines := strings.Split(str, "\n")
-	handleBlocks := true
+	step := 0
 	for i := 0; i < len(lines); i++ {
 		if len(lines[i]) == 0 {
-			handleBlocks = false
+			step++
 			continue
 		}
 		tokens := strings.Split(lines[i], ",")
-		if handleBlocks {
+		switch step {
+		case 0:
+			// read block colors
 			bline := make([]*Block, len(tokens))
 			g.blocks = append(g.blocks, bline)
 			for j := 0; j < len(tokens); j++ {
 				bline[j] = &Block{Color: atoc(tokens[j])}
 			}
-		} else {
+		case 1:
+			// reead switch locations
 			g.addSwitch(atoi(tokens[0]), atoi(tokens[1]))
+		case 2:
+			//read win
+			g.winSignature += lines[i] + "\n"
 		}
 	}
 	fmt.Printf("Level loaded blocks=%d, swicthes=%d\n", len(g.blocks), len(g.switches))
@@ -110,6 +123,22 @@ func (g *Game) LoadLevelStr(str string) {
 	for i := 0; i < len(g.blocks); i++ {
 		fmt.Printf("line %d blocks %d\n", i, len(g.blocks[i]))
 	}
+	fmt.Printf("winSignature\n%s\n---\n", g.winSignature)
+}
+
+func (g *Game) Win() bool {
+	return g.winSignature == g.BlockSignature()
+}
+
+func (g *Game) BlockSignature() string {
+	var signature string
+	for i := 0; i < len(g.blocks); i++ {
+		for j := 0; j < len(g.blocks[i]); j++ {
+			signature += ctoa(g.blocks[i][j].Color)
+		}
+		signature += "\n"
+	}
+	return signature
 }
 
 func atoi(s string) int {
@@ -122,4 +151,8 @@ func atoi(s string) int {
 
 func atoc(s string) ColorDef {
 	return ColorDef(atoi(s))
+}
+
+func ctoa(c ColorDef) string {
+	return fmt.Sprintf("%d", c)
 }
