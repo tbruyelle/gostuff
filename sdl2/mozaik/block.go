@@ -15,7 +15,8 @@ const (
 )
 
 type Block struct {
-	Color ColorDef
+	X, Y     int
+	Color    ColorDef
 	Rendered bool
 }
 

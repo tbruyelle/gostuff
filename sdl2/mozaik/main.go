@@ -224,15 +224,16 @@ func renderSwitch(s *Switch) {
 func setColor(color ColorDef) {
 	switch color {
 	case Red:
-		gl.Color3f(1.0, 0.0, 0.0)
-	case Blue:
-		gl.Color3f(0.0, 0.0, 1.0)
-
-	case Green:
-		gl.Color3f(0.0, 1.0, 0.0)
-
+		gl.Color3ub(255, 51, 51)
 	case Yellow:
-		gl.Color3f(0.5, 0.0, 0.3)
+		gl.Color3ub(255, 215, 0)
+	case Blue:
+		gl.Color3ub(100, 149, 237)
+	case Green:
+		gl.Color3ub(102, 204, 0)
+	case Pink:
+		gl.Color3ub(255,104,255)
+
 	}
 }
 
