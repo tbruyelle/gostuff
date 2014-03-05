@@ -37,7 +37,6 @@ func (s *IdleState) AllowChange(state State) bool {
 // RotateState performs a 90d rotation
 type RotateState struct {
 	IdleState
-	startDegree int
 }
 
 func NewRotateState() State {
@@ -52,7 +51,7 @@ const (
 
 func (s *RotateState) Enter(g *Game, sw *Switch) {
 	g.rotating = sw
-	s.startDegree = sw.rotate
+	sw.rotate = 0
 }
 
 func (s *RotateState) Exit(g *Game, sw *Switch) {
@@ -70,7 +69,7 @@ func (s *RotateState) Exit(g *Game, sw *Switch) {
 
 func (s *RotateState) Update(g *Game, sw *Switch) {
 	sw.rotate += rotatePerTick
-	if sw.rotate-s.startDegree >= rotateDegree {
+	if sw.rotate >= rotateDegree {
 		sw.ChangeState(NewIdleState())
 	}
 }

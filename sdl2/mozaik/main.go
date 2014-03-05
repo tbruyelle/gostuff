@@ -136,38 +136,35 @@ func renderThings(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	// reinit blocks as not renderered
-	//for _, s := range g.switches {
-	//	for _, b := range s.blocks {
-	//		b.Rendered = false
-	//	}
-	//}
+	for i := 0; i < len(g.blocks); i++ {
+		for j := 0; j < len(g.blocks[i]); j++ {
+			g.blocks[i][j].Rendered = false
+		}
+	}
+
+	// render first the rotating switch if there's one
+	if g.rotating != nil {
+		renderRotatingSwitch(g.rotating)
+	}
 
 	for i := 0; i < len(g.blocks); i++ {
 		gl.MatrixMode(gl.MODELVIEW)
 		gl.LoadIdentity()
 		gl.Translatef(float32(XMin), float32(YMin+BlockSize*i), 0)
 		for j := 0; j < len(g.blocks[i]); j++ {
-			gl.Begin(gl.QUADS)
-			setColor(g.blocks[i][j].Color)
-			gl.Vertex2i(0, 0)
-			gl.Vertex2i(BlockSize, 0)
-			gl.Vertex2i(BlockSize, BlockSize)
-			gl.Vertex2i(0, BlockSize)
-			gl.End()
+			if !g.blocks[i][j].Rendered {
+				gl.Begin(gl.QUADS)
+				setColor(g.blocks[i][j].Color)
+				gl.Vertex2i(0, 0)
+				gl.Vertex2i(BlockSize, 0)
+				gl.Vertex2i(BlockSize, BlockSize)
+				gl.Vertex2i(0, BlockSize)
+				gl.End()
+			}
 			gl.Translatef(float32(BlockSize), 0, 0)
 		}
 	}
 
-	//// render first the rotating switch if there's one
-	//if g.rotating != nil {
-	//	renderSwitchBlocks(g.rotating)
-	//}
-	//// render other switches
-	//for _, s := range g.switches {
-	//	if s != g.rotating {
-	//		renderSwitchBlocks(s)
-	//	}
-	//}
 	// render the switches
 	// TODO can we use z to make them upper?
 	for _, s := range g.switches {
@@ -178,67 +175,61 @@ func renderThings(g *Game) {
 	window.SwapBuffers()
 }
 
-//func renderSwitchBlocks(s *Switch) {
-//	// TODO pb to call it on every block?
-//	gl.MatrixMode(gl.MODELVIEW)
-//	gl.LoadIdentity()
-//	// TODO constant
-//	v := SwitchSize / 2
-//
-//	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
-//
-//	if s.rotate > 0 {
-//		gl.Rotatef(float32(s.rotate), 0, 0, 1)
-//	}
-//
-//	if !s.blocks[0].Rendered {
-//		// render block top left
-//		gl.Begin(gl.QUADS)
-//		setColor(s.blocks[0].Color)
-//		gl.Vertex2i(-BlockSize, -BlockSize)
-//		gl.Vertex2i(0, -BlockSize)
-//		gl.Vertex2i(0, 0)
-//		gl.Vertex2i(-BlockSize, 0)
-//		gl.End()
-//		s.blocks[0].Rendered = true
-//	}
-//
-//	if !s.blocks[1].Rendered {
-//		// render block top right
-//		gl.Begin(gl.QUADS)
-//		setColor(s.blocks[1].Color)
-//		gl.Vertex2i(0, -BlockSize)
-//		gl.Vertex2i(BlockSize, -BlockSize)
-//		gl.Vertex2i(BlockSize, 0)
-//		gl.Vertex2i(0, 0)
-//		gl.End()
-//		s.blocks[1].Rendered = true
-//	}
-//
-//	if !s.blocks[2].Rendered {
-//		// render block bottom right
-//		gl.Begin(gl.QUADS)
-//		setColor(s.blocks[2].Color)
-//		gl.Vertex2i(0, 0)
-//		gl.Vertex2i(BlockSize, 0)
-//		gl.Vertex2i(BlockSize, BlockSize)
-//		gl.Vertex2i(0, BlockSize)
-//		gl.End()
-//		s.blocks[2].Rendered = true
-//	}
-//
-//	if !s.blocks[3].Rendered {
-//		// render block bottom left
-//		gl.Begin(gl.QUADS)
-//		setColor(s.blocks[3].Color)
-//		gl.Vertex2i(-BlockSize, 0)
-//		gl.Vertex2i(0, 0)
-//		gl.Vertex2i(0, BlockSize)
-//		gl.Vertex2i(-BlockSize, BlockSize)
-//		gl.End()
-//		s.blocks[3].Rendered = true
-//	}
-//}
+func renderRotatingSwitch(s *Switch) {
+	// TODO pb to call it on every block?
+	gl.MatrixMode(gl.MODELVIEW)
+	gl.LoadIdentity()
+	// TODO constant
+	v := SwitchSize / 2
+
+	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
+	gl.Rotatef(float32(s.rotate), 0, 0, 1)
+
+	var b *Block
+	// render block top left
+	b = g.blocks[s.line][s.col]
+	gl.Begin(gl.QUADS)
+	setColor(b.Color)
+	gl.Vertex2i(-BlockSize, -BlockSize)
+	gl.Vertex2i(0, -BlockSize)
+	gl.Vertex2i(0, 0)
+	gl.Vertex2i(-BlockSize, 0)
+	gl.End()
+	b.Rendered = true
+
+	// render block top right
+	b = g.blocks[s.line][s.col+1]
+	gl.Begin(gl.QUADS)
+	setColor(b.Color)
+	gl.Vertex2i(0, -BlockSize)
+	gl.Vertex2i(BlockSize, -BlockSize)
+	gl.Vertex2i(BlockSize, 0)
+	gl.Vertex2i(0, 0)
+	gl.End()
+	b.Rendered = true
+
+	// render block bottom right
+	b = g.blocks[s.line+1][s.col+1]
+	gl.Begin(gl.QUADS)
+	setColor(b.Color)
+	gl.Vertex2i(0, 0)
+	gl.Vertex2i(BlockSize, 0)
+	gl.Vertex2i(BlockSize, BlockSize)
+	gl.Vertex2i(0, BlockSize)
+	gl.End()
+	b.Rendered = true
+
+	// render block bottom left
+	b = g.blocks[s.line+1][s.col]
+	gl.Begin(gl.QUADS)
+	setColor(b.Color)
+	gl.Vertex2i(-BlockSize, 0)
+	gl.Vertex2i(0, 0)
+	gl.Vertex2i(0, BlockSize)
+	gl.Vertex2i(-BlockSize, BlockSize)
+	gl.End()
+	b.Rendered = true
+}
 
 func renderSwitch(s *Switch) {
 	// TODO pb to call it on every block?
