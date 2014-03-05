@@ -16,6 +16,7 @@ const (
 
 type Block struct {
 	Color ColorDef
+	Rendered bool
 }
 
 type Switch struct {

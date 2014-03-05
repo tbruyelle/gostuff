@@ -135,6 +135,12 @@ func renderLoop(g *Game) {
 func renderThings(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
+	// reinit blocks as not renderered
+	for _, s := range g.switches {
+		for _, b := range s.blocks {
+			b.Rendered = false
+		}
+	}
 	for _, s := range g.switches {
 		renderSwitch(s)
 	}
@@ -156,41 +162,57 @@ func renderSwitch(s *Switch) {
 		gl.Rotatef(float32(s.rotate), 0, 0, 1)
 	}
 
-	// render block top left
-	gl.Begin(gl.QUADS)
-	setColor(s.blocks[0].Color)
-	gl.Vertex2i(-BlockSize, -BlockSize)
-	gl.Vertex2i(0, -BlockSize)
-	gl.Vertex2i(0, 0)
-	gl.Vertex2i(-BlockSize, 0)
-	gl.End()
+	if !s.blocks[0].Rendered {
+		// render block top left
+		gl.Begin(gl.QUADS)
+		setColor(s.blocks[0].Color)
+		gl.Vertex2i(-BlockSize, -BlockSize)
+		gl.Vertex2i(0, -BlockSize)
+		gl.Vertex2i(0, 0)
+		gl.Vertex2i(-BlockSize, 0)
+		gl.End()
+		s.blocks[0].Rendered = true
+	}
 
-	// render block top right
-	gl.Begin(gl.QUADS)
-	setColor(s.blocks[1].Color)
-	gl.Vertex2i(0, -BlockSize)
-	gl.Vertex2i(BlockSize, -BlockSize)
-	gl.Vertex2i(BlockSize, 0)
-	gl.Vertex2i(0, 0)
-	gl.End()
+	if !s.blocks[1].Rendered {
+		// render block top right
+		gl.Begin(gl.QUADS)
+		setColor(s.blocks[1].Color)
+		gl.Vertex2i(0, -BlockSize)
+		gl.Vertex2i(BlockSize, -BlockSize)
+		gl.Vertex2i(BlockSize, 0)
+		gl.Vertex2i(0, 0)
+		gl.End()
+		s.blocks[1].Rendered = true
+	}
 
-	// render block bottom right
-	gl.Begin(gl.QUADS)
-	setColor(s.blocks[2].Color)
-	gl.Vertex2i(0, 0)
-	gl.Vertex2i(BlockSize, 0)
-	gl.Vertex2i(BlockSize, BlockSize)
-	gl.Vertex2i(0, BlockSize)
-	gl.End()
+	if !s.blocks[2].Rendered {
+		// render block bottom right
+		gl.Begin(gl.QUADS)
+		setColor(s.blocks[2].Color)
+		gl.Vertex2i(0, 0)
+		gl.Vertex2i(BlockSize, 0)
+		gl.Vertex2i(BlockSize, BlockSize)
+		gl.Vertex2i(0, BlockSize)
+		gl.End()
+		s.blocks[2].Rendered = true
+	}
 
-	// render block bottom left
-	gl.Begin(gl.QUADS)
-	setColor(s.blocks[3].Color)
-	gl.Vertex2i(-BlockSize, 0)
-	gl.Vertex2i(0, 0)
-	gl.Vertex2i(0, BlockSize)
-	gl.Vertex2i(-BlockSize, BlockSize)
-	gl.End()
+	if !s.blocks[3].Rendered {
+		// render block bottom left
+		gl.Begin(gl.QUADS)
+		setColor(s.blocks[3].Color)
+		gl.Vertex2i(-BlockSize, 0)
+		gl.Vertex2i(0, 0)
+		gl.Vertex2i(0, BlockSize)
+		gl.Vertex2i(-BlockSize, BlockSize)
+		gl.End()
+		s.blocks[3].Rendered = true
+	}
+	if s.rotate > 0 {
+		// The switch doesn't rotate
+		gl.Rotatef(float32(-s.rotate), 0, 0, 1)
+	}
 
 	// render the switch
 	gl.Begin(gl.QUADS)

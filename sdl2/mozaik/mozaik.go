@@ -35,10 +35,10 @@ func (g *Game) Start() {
 // of the coordinates in parameters.
 func (g *Game) addSwitch(x, y int, c1, c2, c3, c4 ColorDef) {
 	s := &Switch{X: x + BlockSize - SwitchSize/2, Y: y + BlockSize - SwitchSize/2}
-	s.blocks[0] = &Block{c1}
-	s.blocks[1] = &Block{c2}
-	s.blocks[2] = &Block{c3}
-	s.blocks[3] = &Block{c4}
+	s.blocks[0] = &Block{Color:c1}
+	s.blocks[1] = &Block{Color:c2}
+	s.blocks[2] = &Block{Color:c3}
+	s.blocks[3] = &Block{Color:c4}
 	s.ChangeState(NewIdleState())
 	g.switches = append(g.switches, s)
 }
