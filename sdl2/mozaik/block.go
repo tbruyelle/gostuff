@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type ColorDef int
 
 const (
@@ -19,10 +15,20 @@ type Block struct {
 }
 
 type Switch struct {
+	state  State
 	X, Y   int
 	blocks [4]*Block
+	rotate int
 }
 
 func (s *Switch) Rotate() {
-	fmt.Println("Rotate", s)
+	s.ChangeState(NewRotateState())
+}
+
+func (s *Switch) ChangeState(state State) {
+	if s.state != nil {
+		s.state.Exit(s)
+	}
+	s.state = state
+	s.state.Enter(s)
 }

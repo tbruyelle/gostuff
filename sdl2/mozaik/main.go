@@ -151,7 +151,10 @@ func renderSwitch(s *Switch) {
 	v := SwitchSize / 2
 
 	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
-	//gl.Rotatef(35, 0, 0, 1)
+
+	if s.rotate > 0 {
+		gl.Rotatef(float32(s.rotate), 0, 0, 1)
+	}
 
 	// render block top left
 	gl.Begin(gl.QUADS)

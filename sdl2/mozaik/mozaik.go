@@ -39,6 +39,7 @@ func (g *Game) addSwitch(x, y int, c1, c2, c3, c4 ColorDef) {
 	s.blocks[1] = &Block{c2}
 	s.blocks[2] = &Block{c3}
 	s.blocks[3] = &Block{c4}
+	s.ChangeState(NewIdleState())
 	g.switches = append(g.switches, s)
 }
 
@@ -63,6 +64,10 @@ func (g *Game) Click(x, y int) {
 	}
 }
 
-func (g *Game) Update() {}
+func (g *Game) Update() {
+	for _, s := range g.switches {
+		s.state.Update(g, s)
+	}
+}
 
 func (g *Game) Reset() {}
