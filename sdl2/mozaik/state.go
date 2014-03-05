@@ -22,7 +22,7 @@ func (s *IdleState) Exit(sw *Switch) {}
 func (s *IdleState) Update(g *Game, sw *Switch) {
 }
 
-func (s *IdleState) AllowChange(state State) bool{
+func (s *IdleState) AllowChange(state State) bool {
 	switch state.(type) {
 	case *IdleState:
 		return false
@@ -47,10 +47,12 @@ const (
 )
 
 func (s *RotateState) Enter(sw *Switch) {
+	g.listening = false
 	s.startDegree = sw.rotate
 }
 
 func (s *RotateState) Exit(sw *Switch) {
+	g.listening = true
 }
 
 func (s *RotateState) Update(g *Game, sw *Switch) {
