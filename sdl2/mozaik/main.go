@@ -76,6 +76,8 @@ func main() {
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
 	gl.Ortho(0, WindowWidth, WindowHeight, 0, 0, 1)
+	gl.MatrixMode(gl.MODELVIEW)
+	gl.LoadIdentity()
 
 	g = NewGame()
 
@@ -148,7 +150,6 @@ func renderThings(g *Game) {
 	}
 
 	for i := 0; i < len(g.blocks); i++ {
-		gl.MatrixMode(gl.MODELVIEW)
 		gl.LoadIdentity()
 		gl.Translatef(float32(XMin), float32(YMin+BlockSize*i), 0)
 		for j := 0; j < len(g.blocks[i]); j++ {
@@ -179,8 +180,6 @@ func renderThings(g *Game) {
 }
 
 func renderRotatingSwitch(s *Switch) {
-	// TODO pb to call it on every block?
-	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 	// TODO constant
 	v := SwitchSize / 2
@@ -235,8 +234,6 @@ func renderRotatingSwitch(s *Switch) {
 }
 
 func renderSwitch(s *Switch) {
-	// TODO pb to call it on every block?
-	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 	// TODO constant
 	v := SwitchSize / 2
