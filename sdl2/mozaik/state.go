@@ -1,8 +1,8 @@
 package main
 
 type State interface {
-	Enter(sw *Switch)
-	Exit(sw *Switch)
+	Enter(g *Game, sw *Switch)
+	Exit(g *Game, sw *Switch)
 	Update(g *Game, sw *Switch)
 	AllowChange(state State) bool
 }
@@ -14,10 +14,10 @@ func NewIdleState() State {
 	return &IdleState{}
 }
 
-func (s *IdleState) Enter(sw *Switch) {
+func (s *IdleState) Enter(g *Game, sw *Switch) {
 }
 
-func (s *IdleState) Exit(sw *Switch) {}
+func (s *IdleState) Exit(g *Game, sw *Switch) {}
 
 func (s *IdleState) Update(g *Game, sw *Switch) {
 }
@@ -46,13 +46,13 @@ const (
 	rotatePerTick = rotateDegree / rotateTicks
 )
 
-func (s *RotateState) Enter(sw *Switch) {
-	g.listening = false
+func (s *RotateState) Enter(g *Game, sw *Switch) {
+	g.rotating = sw
 	s.startDegree = sw.rotate
 }
 
-func (s *RotateState) Exit(sw *Switch) {
-	g.listening = true
+func (s *RotateState) Exit(g *Game, sw *Switch) {
+	g.rotating = nil
 }
 
 func (s *RotateState) Update(g *Game, sw *Switch) {

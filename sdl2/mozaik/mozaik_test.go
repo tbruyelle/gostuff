@@ -36,6 +36,4 @@ func TestLoadLevel(t *testing.T) {
 	assert.Equal(t, 1, g.blocks[1].Color)
 	assert.Equal(t, 2, g.blocks[2].Color)
 	assert.Equal(t, 4, g.blocks[3].Color)
-
-
 }

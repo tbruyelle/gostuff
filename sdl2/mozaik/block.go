@@ -33,12 +33,12 @@ func (s *Switch) Rotate() {
 
 func (s *Switch) ChangeState(state State) {
 	if s.state != nil {
-		s.state.Exit(s)
+		s.state.Exit(g, s)
 		if !s.state.AllowChange(state) {
 			fmt.Println("Change state not allowed")
 			return
 		}
 	}
 	s.state = state
-	s.state.Enter(s)
+	s.state.Enter(g, s)
 }

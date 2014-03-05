@@ -8,20 +8,22 @@ import (
 )
 
 const (
-	WindowWidth    = 800
-	WindowHeight   = 600
-	BlockSize      = 128
-	SwitchSize     = 32
-	XMin           = 32
-	YMin           = 32
-	XMax           = WindowHeight - 32
-	YMax           = WindowWidth - 32
+	WindowWidth  = 800
+	WindowHeight = 600
+	BlockSize    = 128
+	SwitchSize   = 32
+	XMin         = 32
+	YMin         = 32
+	XMax         = WindowHeight - 32
+	YMax         = WindowWidth - 32
 )
 
 type Game struct {
-	blocks    []*Block
-	switches  []*Switch
-	listening bool
+	blocks   []*Block
+	switches []*Switch
+	// rotating represents a rotate which
+	// is currently rotating
+	rotating *Switch
 }
 
 func NewGame() *Game {
@@ -31,7 +33,6 @@ func NewGame() *Game {
 func (g *Game) Start() {
 	// Load first level
 	g.LoadLevel(1)
-	g.listening = true
 }
 
 func (g *Game) addBlock(x, y int, color ColorDef) {
@@ -68,8 +69,8 @@ func (g *Game) Stop() {
 }
 
 func (g *Game) Click(x, y int) {
-	fmt.Println("click", x, y)
-	if g.listening {
+	// Handle click only when no switch are rotating
+	if g.rotating == nil {
 		if s := g.findSwitch(x, y); s != nil {
 			s.Rotate()
 		}

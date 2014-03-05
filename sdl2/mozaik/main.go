@@ -141,8 +141,16 @@ func renderThings(g *Game) {
 			b.Rendered = false
 		}
 	}
+
+	// render first the rotating switch if there's one
+	if g.rotating != nil {
+		renderSwitch(g.rotating)
+	}
+	// render other switches
 	for _, s := range g.switches {
+		if s!=g.rotating{
 		renderSwitch(s)
+	}
 	}
 	// TODO What for?
 	//gl.Flush()
@@ -232,7 +240,7 @@ func setColor(color ColorDef) {
 	case Green:
 		gl.Color3ub(102, 204, 0)
 	case Pink:
-		gl.Color3ub(255,104,255)
+		gl.Color3ub(255, 104, 255)
 
 	}
 }
