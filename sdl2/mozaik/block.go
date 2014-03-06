@@ -20,10 +20,10 @@ type Block struct {
 }
 
 type Switch struct {
-	state  State
-	line,col int
-	X, Y   int
-	rotate int
+	state     State
+	line, col int
+	X, Y      int
+	rotate    int
 }
 
 func (s *Switch) Rotate() {

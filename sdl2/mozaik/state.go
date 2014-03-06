@@ -50,7 +50,7 @@ const (
 )
 
 func (s *RotateState) Enter(g *Game, sw *Switch) {
-	g.rotating = sw
+	g.level.rotating = sw
 	sw.rotate = 0
 }
 
@@ -58,13 +58,13 @@ func (s *RotateState) Exit(g *Game, sw *Switch) {
 	// Swap bocks according to the 90d rotation
 	l, c := sw.line, sw.col
 	fmt.Println("Swap from", l, c)
-	b := g.blocks[l][c]
-	g.blocks[l][c] = g.blocks[l+1][c]
-	g.blocks[l+1][c] = g.blocks[l+1][c+1]
-	g.blocks[l+1][c+1] = g.blocks[l][c+1]
-	g.blocks[l][c+1] = b
+	b := g.level.blocks[l][c]
+	g.level.blocks[l][c] = g.level.blocks[l+1][c]
+	g.level.blocks[l+1][c] = g.level.blocks[l+1][c+1]
+	g.level.blocks[l+1][c+1] = g.level.blocks[l][c+1]
+	g.level.blocks[l][c+1] = b
 
-	g.rotating = nil
+	g.level.rotating = nil
 }
 
 func (s *RotateState) Update(g *Game, sw *Switch) {
@@ -95,13 +95,13 @@ func (s *RotateStateReverse) Exit(g *Game, sw *Switch) {
 	// Swap bocks according to the -90d rotation
 	l, c := sw.line, sw.col
 	fmt.Println("Reverse swap from", l, c)
-	b := g.blocks[l][c]
-	g.blocks[l][c] = g.blocks[l][c+1]
-	g.blocks[l][c+1] = g.blocks[l+1][c+1]
-	g.blocks[l+1][c+1] = g.blocks[l+1][c]
-	g.blocks[l+1][c] = b
+	b := g.level.blocks[l][c]
+	g.level.blocks[l][c] = g.level.blocks[l][c+1]
+	g.level.blocks[l][c+1] = g.level.blocks[l+1][c+1]
+	g.level.blocks[l+1][c+1] = g.level.blocks[l+1][c]
+	g.level.blocks[l+1][c] = b
 
-	g.rotating = nil
+	g.level.rotating = nil
 }
 
 func (s *RotateStateReverse) Update(g *Game, sw *Switch) {

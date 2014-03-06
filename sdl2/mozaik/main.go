@@ -131,7 +131,7 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 		case glfw.KeyW:
 			g.Warp()
 		case glfw.KeyC:
-			g.Cancel()
+			g.UndoLastMove()
 		case glfw.KeySpace:
 			g.Continue()
 		}
@@ -179,26 +179,26 @@ func renderThings(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	// reinit blocks as not renderered
-	for i := 0; i < len(g.blocks); i++ {
-		for j := 0; j < len(g.blocks[i]); j++ {
-			if g.blocks[i][j] != nil {
-				g.blocks[i][j].Rendered = false
+	for i := 0; i < len(g.level.blocks); i++ {
+		for j := 0; j < len(g.level.blocks[i]); j++ {
+			if g.level.blocks[i][j] != nil {
+				g.level.blocks[i][j].Rendered = false
 			}
 		}
 	}
 
 	// render first the rotating switch if there's one
-	if g.rotating != nil {
-		renderRotatingSwitch(g.rotating)
+	if g.level.rotating != nil {
+		renderRotatingSwitch(g.level.rotating)
 	}
 
-	for i := 0; i < len(g.blocks); i++ {
+	for i := 0; i < len(g.level.blocks); i++ {
 		gl.LoadIdentity()
 		gl.Translatef(float32(XMin), float32(YMin+BlockSize*i), 0)
-		for j := 0; j < len(g.blocks[i]); j++ {
-			if g.blocks[i][j] != nil && !g.blocks[i][j].Rendered {
+		for j := 0; j < len(g.level.blocks[i]); j++ {
+			if g.level.blocks[i][j] != nil && !g.level.blocks[i][j].Rendered {
 				gl.Begin(gl.QUADS)
-				setColor(g.blocks[i][j].Color)
+				setColor(g.level.blocks[i][j].Color)
 				gl.Vertex2i(0, 0)
 				gl.Vertex2i(BlockSize, 0)
 				gl.Vertex2i(BlockSize, BlockSize)
@@ -211,13 +211,13 @@ func renderThings(g *Game) {
 
 	// render the switches
 	// TODO can we use z to make them upper?
-	for _, s := range g.switches {
+	for _, s := range g.level.switches {
 		renderSwitch(s)
 	}
 
 	renderDashboard()
 
-	if g.Win() {
+	if g.level.Win() {
 		fontInd++
 		if fontInd >= len(fonts) {
 			fontInd = 0
@@ -242,7 +242,7 @@ func renderRotatingSwitch(s *Switch) {
 
 	var b *Block
 	// render block top left
-	b = g.blocks[s.line][s.col]
+	b = g.level.blocks[s.line][s.col]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
 	gl.Vertex2i(-BlockSize, -BlockSize)
@@ -253,7 +253,7 @@ func renderRotatingSwitch(s *Switch) {
 	b.Rendered = true
 
 	// render block top right
-	b = g.blocks[s.line][s.col+1]
+	b = g.level.blocks[s.line][s.col+1]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
 	gl.Vertex2i(0, -BlockSize)
@@ -264,7 +264,7 @@ func renderRotatingSwitch(s *Switch) {
 	b.Rendered = true
 
 	// render block bottom right
-	b = g.blocks[s.line+1][s.col+1]
+	b = g.level.blocks[s.line+1][s.col+1]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
 	gl.Vertex2i(0, 0)
@@ -275,7 +275,7 @@ func renderRotatingSwitch(s *Switch) {
 	b.Rendered = true
 
 	// render block bottom left
-	b = g.blocks[s.line+1][s.col]
+	b = g.level.blocks[s.line+1][s.col]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
 	gl.Vertex2i(-BlockSize, 0)
@@ -329,7 +329,7 @@ func renderDashboard() {
 		"Level %d", g.currentLevel)
 	gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight), 0)
 	line := 0
-	for _, c := range g.winSignature {
+	for _, c := range g.level.winSignature {
 		if c == '\n' {
 			line++
 			gl.LoadIdentity()
