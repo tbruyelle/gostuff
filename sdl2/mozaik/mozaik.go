@@ -12,12 +12,12 @@ const (
 	WindowHeight       = 800
 	BlockSize          = 128
 	SwitchSize         = 48
-	DashboardHeight    = 256
+	DashboardHeight    = 128
 	XMin               = 32
 	YMin               = 32
 	XMax               = WindowHeight - 32
 	YMax               = WindowWidth - 32 - DashboardHeight
-	SignatureBlockSize = 48
+	SignatureBlockSize = 32
 )
 
 type Game struct {
@@ -82,10 +82,13 @@ func (g *Game) Update() {
 
 func (g *Game) Continue() {
 	if g.Win() {
+		g.Warp()
+	}
+}
+func (g *Game) Warp() {
 		// Next level
 		g.currentLevel++
 		g.LoadLevel()
-	}
 }
 
 func (g *Game) Reset() {
@@ -119,7 +122,9 @@ func (g *Game) LoadLevelStr(str string) {
 			bline := make([]*Block, len(lines[i]))
 			g.blocks = append(g.blocks, bline)
 			for j, c := range lines[i] {
-				bline[j] = &Block{Color: atoc(string(c))}
+				if c != '-' {
+					bline[j] = &Block{Color: atoc(string(c))}
+				}
 			}
 		case 1:
 			// read switch locations
@@ -146,7 +151,11 @@ func (g *Game) BlockSignature() string {
 	var signature string
 	for i := 0; i < len(g.blocks); i++ {
 		for j := 0; j < len(g.blocks[i]); j++ {
-			signature += ctoa(g.blocks[i][j].Color)
+			if g.blocks[i][j] == nil {
+				signature += "-"
+			} else {
+				signature += ctoa(g.blocks[i][j].Color)
+			}
 		}
 		signature += "\n"
 	}

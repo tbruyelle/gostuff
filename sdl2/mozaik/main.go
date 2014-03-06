@@ -127,6 +127,8 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 			g.Reset()
 		case glfw.KeyC:
 			g.Continue()
+		case glfw.KeyW:
+			g.Warp()
 		}
 	}
 }
@@ -174,7 +176,9 @@ func renderThings(g *Game) {
 	// reinit blocks as not renderered
 	for i := 0; i < len(g.blocks); i++ {
 		for j := 0; j < len(g.blocks[i]); j++ {
-			g.blocks[i][j].Rendered = false
+			if g.blocks[i][j] != nil {
+				g.blocks[i][j].Rendered = false
+			}
 		}
 	}
 
@@ -187,7 +191,7 @@ func renderThings(g *Game) {
 		gl.LoadIdentity()
 		gl.Translatef(float32(XMin), float32(YMin+BlockSize*i), 0)
 		for j := 0; j < len(g.blocks[i]); j++ {
-			if !g.blocks[i][j].Rendered {
+			if g.blocks[i][j] != nil && !g.blocks[i][j].Rendered {
 				gl.Begin(gl.QUADS)
 				setColor(g.blocks[i][j].Color)
 				gl.Vertex2i(0, 0)
@@ -323,13 +327,15 @@ func renderDashboard() {
 			gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight+SignatureBlockSize*line), 0)
 			continue
 		}
-		gl.Begin(gl.QUADS)
-		setColor(atoc(string(c)))
-		gl.Vertex2i(0, 0)
-		gl.Vertex2i(SignatureBlockSize, 0)
-		gl.Vertex2i(SignatureBlockSize, SignatureBlockSize)
-		gl.Vertex2i(0, SignatureBlockSize)
-		gl.End()
+		if c != '-' {
+			gl.Begin(gl.QUADS)
+			setColor(atoc(string(c)))
+			gl.Vertex2i(0, 0)
+			gl.Vertex2i(SignatureBlockSize, 0)
+			gl.Vertex2i(SignatureBlockSize, SignatureBlockSize)
+			gl.Vertex2i(0, SignatureBlockSize)
+			gl.End()
+		}
 		gl.Translated(SignatureBlockSize, 0, 0)
 	}
 }
