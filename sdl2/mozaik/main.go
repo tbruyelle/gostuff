@@ -6,6 +6,7 @@ import (
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
 	"github.com/go-gl/gltext"
+	"math"
 	"os"
 	"runtime"
 	"time"
@@ -76,6 +77,8 @@ func main() {
 
 	gl.Init()
 	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
+	// useless in 2D
+	gl.Disable(gl.DEPTH_TEST)
 
 	for i := int32(64); i < 72; i++ {
 		font := loadFonts(i)
@@ -288,12 +291,16 @@ func renderSwitch(s *Switch) {
 
 	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
 	// render the switch
-	gl.Begin(gl.QUADS)
+	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Color3f(1.0, 1.0, 1.0)
-	gl.Vertex2i(-v, v)
-	gl.Vertex2i(v, v)
-	gl.Vertex2i(v, -v)
-	gl.Vertex2i(-v, -v)
+	vv := float64(v)
+	for a := float64(0); a < 360; a += 5 {
+		gl.Vertex2d(math.Sin(a)*vv,  math.Cos(a)*vv)
+	}
+	//gl.Vertex2i(-v, v)
+	//gl.Vertex2i(v, v)
+	//gl.Vertex2i(v, -v)
+	//gl.Vertex2i(-v, -v)
 	gl.End()
 }
 
