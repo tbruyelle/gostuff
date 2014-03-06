@@ -81,3 +81,32 @@ func (s *RotateState) AllowChange(state State) bool {
 	}
 	return true
 }
+
+// rotateStateReverse is used to cancel a previous rotate
+type RotateStateReverse struct {
+	RotateState
+}
+
+func NewRotateStateReverse() State {
+	return &RotateStateReverse{}
+}
+
+func (s *RotateStateReverse) Exit(g *Game, sw *Switch) {
+	// Swap bocks according to the -90d rotation
+	l, c := sw.line, sw.col
+	fmt.Println("Reverse swap from", l, c)
+	b := g.blocks[l][c]
+	g.blocks[l][c] = g.blocks[l][c+1]
+	g.blocks[l][c+1] = g.blocks[l+1][c+1]
+	g.blocks[l+1][c+1] = g.blocks[l+1][c]
+	g.blocks[l+1][c] = b
+
+	g.rotating = nil
+}
+
+func (s *RotateStateReverse) Update(g *Game, sw *Switch) {
+	sw.rotate -= rotatePerTick
+	if sw.rotate <= -rotateDegree {
+		sw.ChangeState(NewIdleState())
+	}
+}

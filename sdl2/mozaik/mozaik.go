@@ -28,6 +28,8 @@ type Game struct {
 	rotating     *Switch
 	winSignature string
 	currentLevel int
+	// rotated represents the historics of rotations
+	rotated []int
 }
 
 func NewGame() *Game {
@@ -53,13 +55,13 @@ func (g *Game) addSwitch(line, col int) {
 	fmt.Println("Switch added", s.X, s.Y)
 }
 
-func (g *Game) findSwitch(x, y int) *Switch {
-	for _, s := range g.switches {
+func (g *Game) findSwitch(x, y int) (int, *Switch) {
+	for i, s := range g.switches {
 		if x >= s.X && x <= s.X+SwitchSize && y >= s.Y && y <= s.Y+SwitchSize {
-			return s
+			return i, s
 		}
 	}
-	return nil
+	return -1, nil
 }
 
 func (g *Game) Stop() {
@@ -68,8 +70,9 @@ func (g *Game) Stop() {
 func (g *Game) Click(x, y int) {
 	// Handle click only when no switch are rotating
 	if g.rotating == nil {
-		if s := g.findSwitch(x, y); s != nil {
+		if i, s := g.findSwitch(x, y); s != nil {
 			s.Rotate()
+			g.rotated = append(g.rotated, i)
 		}
 	}
 }
@@ -86,9 +89,18 @@ func (g *Game) Continue() {
 	}
 }
 func (g *Game) Warp() {
-		// Next level
-		g.currentLevel++
-		g.LoadLevel()
+	// Next level
+	g.currentLevel++
+	g.LoadLevel()
+}
+
+func (g *Game) Cancel() {
+	if g.rotating!=nil||len(g.rotated) == 0 {
+		return
+	}
+	i := len(g.rotated) - 1
+	g.switches[g.rotated[i]].ChangeState(NewRotateStateReverse())
+	g.rotated = g.rotated[:i]
 }
 
 func (g *Game) Reset() {

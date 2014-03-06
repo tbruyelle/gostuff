@@ -24,7 +24,7 @@ func TestFindSwitch(t *testing.T) {
 	setup()
 	fill()
 
-	s := g.findSwitch(XMin+BlockSize, YMin+BlockSize)
+	_, s := g.findSwitch(XMin+BlockSize, YMin+BlockSize)
 
 	assert.NotNil(t, s, "Should found a switch")
 }

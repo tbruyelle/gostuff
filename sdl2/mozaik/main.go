@@ -128,10 +128,12 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 			close(mainfunc)
 		case glfw.KeyR:
 			g.Reset()
-		case glfw.KeyC:
-			g.Continue()
 		case glfw.KeyW:
 			g.Warp()
+		case glfw.KeyC:
+			g.Cancel()
+		case glfw.KeySpace:
+			g.Continue()
 		}
 	}
 }
@@ -295,7 +297,7 @@ func renderSwitch(s *Switch) {
 	gl.Color3f(1.0, 1.0, 1.0)
 	vv := float64(v)
 	for a := float64(0); a < 360; a += 5 {
-		gl.Vertex2d(math.Sin(a)*vv,  math.Cos(a)*vv)
+		gl.Vertex2d(math.Sin(a)*vv, math.Cos(a)*vv)
 	}
 	//gl.Vertex2i(-v, v)
 	//gl.Vertex2i(v, v)
