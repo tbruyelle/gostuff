@@ -95,7 +95,7 @@ func (g *Game) Warp() {
 }
 
 func (g *Game) Cancel() {
-	if g.rotating!=nil||len(g.rotated) == 0 {
+	if g.rotating != nil || len(g.rotated) == 0 {
 		return
 	}
 	i := len(g.rotated) - 1
@@ -122,6 +122,7 @@ func (g *Game) LoadLevelStr(str string) {
 	g.blocks = nil
 	g.switches = nil
 	g.winSignature = ""
+	g.rotated=nil
 
 	for i := 0; i < len(lines); i++ {
 		if len(lines[i]) == 0 {
