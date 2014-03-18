@@ -41,3 +41,7 @@ func (s *Switch) ChangeState(state State) {
 	s.state = state
 	s.state.Enter(g, s)
 }
+
+func (s *Switch) String() string {
+	return fmt.Sprintf("sw{line:%d, col:%d}",s.line,s.col)
+}

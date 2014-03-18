@@ -151,10 +151,15 @@ func mouseCb(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod gl
 
 func eventLoop(g *Game) {
 	defer close(mainfunc)
+	eventTicker := time.NewTicker(time.Millisecond * 10)
+
 	for {
-		do(func() {
-			glfw.PollEvents()
-		})
+		select {
+		case <-eventTicker.C:
+			do(func() {
+				glfw.PollEvents()
+			})
+		}
 	}
 }
 
@@ -170,7 +175,6 @@ func renderLoop(g *Game) {
 			do(func() {
 				renderThings(g)
 			})
-
 		}
 	}
 }
