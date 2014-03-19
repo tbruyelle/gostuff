@@ -6,6 +6,23 @@ import (
 	"testing"
 )
 
+//func TestResolve_Level1(t *testing.T) {
+//	lvl := LoadLevel(1)
+//
+//	res := Resolve(lvl)
+//
+//	assert.Equal(t, len(res), 6)
+//	assert.Equal(t, res, []int{1, 1, 0, 0, 2, 2})
+//}
+
+func TestFindPaths(t *testing.T) {
+	lvl := LoadLevel(1)
+
+	paths := FindPaths(lvl)
+
+	fmt.Printf("PATHS %+v\n", paths)
+}
+
 func TestDetermineNearestSwicthes_Level1(t *testing.T) {
 	lvl := LoadLevel(1)
 

@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type State interface {
 	Enter(g *Game, sw *Switch)
 	Exit(g *Game, sw *Switch)
@@ -55,15 +51,7 @@ func (s *RotateState) Enter(g *Game, sw *Switch) {
 }
 
 func (s *RotateState) Exit(g *Game, sw *Switch) {
-	// Swap bocks according to the 90d rotation
-	l, c := sw.line, sw.col
-	fmt.Println("Swap from", l, c)
-	b := g.level.blocks[l][c]
-	g.level.blocks[l][c] = g.level.blocks[l+1][c]
-	g.level.blocks[l+1][c] = g.level.blocks[l+1][c+1]
-	g.level.blocks[l+1][c+1] = g.level.blocks[l][c+1]
-	g.level.blocks[l][c+1] = b
-
+	g.level.RotateSwitch(sw)
 	g.level.rotating = nil
 }
 
@@ -94,7 +82,7 @@ func NewRotateStateReverse() State {
 func (s *RotateStateReverse) Exit(g *Game, sw *Switch) {
 	// Swap bocks according to the -90d rotation
 	l, c := sw.line, sw.col
-	fmt.Println("Reverse swap from", l, c)
+	//fmt.Println("Reverse swap from", l, c)
 	b := g.level.blocks[l][c]
 	g.level.blocks[l][c] = g.level.blocks[l][c+1]
 	g.level.blocks[l][c+1] = g.level.blocks[l+1][c+1]

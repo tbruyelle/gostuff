@@ -44,7 +44,7 @@ func (l *Level) addSwitch(line, col int) {
 	}
 	s.ChangeState(NewIdleState())
 	l.switches = append(l.switches, s)
-	fmt.Println("Switch added", s.X, s.Y)
+	//fmt.Println("Switch added", s.X, s.Y)
 }
 
 // PressSwitch tries to find a swicth from the coordinates
@@ -138,11 +138,22 @@ func ParseLevel(str string) Level {
 			l.winSignature += lines[i] + "\n"
 		}
 	}
-	fmt.Printf("Level loaded blocks=%d, swicthes=%d\n", len(l.blocks), len(l.switches))
+	//fmt.Printf("Level loaded blocks=%d, swicthes=%d\n", len(l.blocks), len(l.switches))
 
-	for i := 0; i < len(l.blocks); i++ {
-		fmt.Printf("line %d blocks %d\n", i, len(l.blocks[i]))
-	}
-	fmt.Printf("winSignature\n%s\n---\n", l.winSignature)
+	//for i := 0; i < len(l.blocks); i++ {
+	//	fmt.Printf("line %d blocks %d\n", i, len(l.blocks[i]))
+	//}
+	//fmt.Printf("winSignature\n%s\n---\n", l.winSignature)
 	return l
+}
+
+func (lvl *Level) RotateSwitch(s *Switch) {
+	// Swap bocks according to the 90d rotation
+	l, c := s.line, s.col
+	//fmt.Println("Swap from", l, c)
+	b := lvl.blocks[l][c]
+	lvl.blocks[l][c] = lvl.blocks[l+1][c]
+	lvl.blocks[l+1][c] = lvl.blocks[l+1][c+1]
+	lvl.blocks[l+1][c+1] = lvl.blocks[l][c+1]
+	lvl.blocks[l][c+1] = b
 }

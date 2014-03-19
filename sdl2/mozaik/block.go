@@ -43,5 +43,5 @@ func (s *Switch) ChangeState(state State) {
 }
 
 func (s *Switch) String() string {
-	return fmt.Sprintf("sw{line:%d, col:%d}",s.line,s.col)
+	return fmt.Sprintf("sw{line:%d, col:%d}", s.line, s.col)
 }
