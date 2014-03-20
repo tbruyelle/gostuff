@@ -18,6 +18,16 @@ type Level struct {
 	rotating *Switch
 }
 
+func (l *Level) Copy() Level {
+	lvl := new(Level)
+	lvl.blocks = make([][]*Block, len(l.blocks))
+	lvl.switches = make([]*Switch, len(l.switches))
+	copy(lvl.blocks, l.blocks)
+	copy(lvl.switches, l.switches)
+	lvl.winSignature = l.winSignature
+	return *lvl
+}
+
 // Win returns true if player has win
 func (l *Level) Win() bool {
 	return l.winSignature == l.blockSignature()

@@ -21,6 +21,13 @@ func TestFindPaths(t *testing.T) {
 	paths := FindPaths(lvl)
 
 	fmt.Printf("PATHS %+v\n", paths)
+	l := lvl.Copy()
+	fmt.Println(lvl.blocks[0][2], lvl.blocks[1][2])
+	fmt.Println(l.blocks[0][2], l.blocks[1][2])
+	lvl.RotateSwitch(lvl.switches[1])
+	fmt.Println(lvl.blocks[0][2], lvl.blocks[1][2])
+	fmt.Println(l.blocks[0][2], l.blocks[1][2])
+
 }
 
 func TestDetermineNearestSwicthes_Level1(t *testing.T) {

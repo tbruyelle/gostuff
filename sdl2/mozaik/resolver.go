@@ -15,11 +15,14 @@ type Node struct {
 	depth  int
 	parent *Node
 	childs []*Node
+	// lvl represents a copy of the level
+	// at the current node of the tree
+	lvl Level
 }
 
 func (n *Node) String() string {
 	//return fmt.Sprintf("s%d, d=%d, childs=%+v", n.s, n.depth, n.childs)
-	return fmt.Sprintf("s%d, d=%d, parent=[%+v]", n.s, n.depth, n.parent)
+	return fmt.Sprintf("s%d, d=%d, parent=[%+v] win=%t", n.s, n.depth, n.parent, n.lvl.Win())
 }
 
 var nearSw map[int][]int
@@ -29,33 +32,33 @@ func FindPaths(lvl Level) []*Node {
 	paths := make([]*Node, len(lvl.switches))
 	for i := range lvl.switches {
 		fmt.Printf("find path starting switch %d\n", i)
-		n := &Node{s: i, depth: 1}
+		n := &Node{s: i, depth: 1, lvl: lvl.Copy()}
 		paths[i] = n
-		check(lvl, n)
+		check(n)
 		//fmt.Printf("switch %d path=%+v\n", i, n)
 	}
 	return paths
 }
 
-func check(lvl Level, n *Node) {
+func check(n *Node) {
 	if n.depth > MaxDepth {
 		return
 	}
-	if lvl.Win() {
+	if n.lvl.Win() {
 		fmt.Printf("WIN %+v\n", n)
 		return
 	}
 	depth := n.depth + 1
-	lvl.RotateSwitch(lvl.switches[n.s])
+	n.lvl.RotateSwitch(n.lvl.switches[n.s])
 	if !n.hasRotatedMoreThanThrice() {
-		n.childs = append(n.childs, &Node{s: n.s, depth: depth, parent: n})
+		n.childs = append(n.childs, &Node{s: n.s, depth: depth, parent: n, lvl: n.lvl.Copy()})
 	}
 	for _, ns := range nearSw[n.s] {
-		n.childs = append(n.childs, &Node{s: ns, depth: depth, parent: n})
+		n.childs = append(n.childs, &Node{s: ns, depth: depth, parent: n, lvl: n.lvl.Copy()})
 	}
 	//fmt.Printf("Check %d childs depth=%d\n", len(n.childs), n.depth)
 	for _, c := range n.childs {
-		check(lvl, c)
+		check(c)
 	}
 }
 
