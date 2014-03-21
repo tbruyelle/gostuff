@@ -21,11 +21,26 @@ type Level struct {
 func (l *Level) Copy() Level {
 	lvl := new(Level)
 	lvl.blocks = make([][]*Block, len(l.blocks))
+	for i := range l.blocks {
+		lvl.blocks[i] = make([]*Block, len(l.blocks[i]))
+		copy(lvl.blocks[i], l.blocks[i])
+	}
 	lvl.switches = make([]*Switch, len(l.switches))
-	copy(lvl.blocks, l.blocks)
 	copy(lvl.switches, l.switches)
 	lvl.winSignature = l.winSignature
 	return *lvl
+}
+
+// IsPlain returns true if all the blocks of the switch
+// have the same color
+func (l *Level) IsPlain(sw int) bool {
+	x, y := l.switches[sw].line, l.switches[sw].col
+	b1 := l.blocks[x][y]
+	b2 := l.blocks[x+1][y]
+	b3 := l.blocks[x][y+1]
+	b4 := l.blocks[x+1][y+1]
+
+	return b1.Color==b2.Color&&b2.Color==b3.Color&&b3.Color==b4.Color
 }
 
 // Win returns true if player has win

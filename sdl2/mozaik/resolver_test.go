@@ -15,19 +15,28 @@ import (
 //	assert.Equal(t, res, []int{1, 1, 0, 0, 2, 2})
 //}
 
-func TestFindPaths(t *testing.T) {
+func TestFindPaths_Level1(t *testing.T) {
 	lvl := LoadLevel(1)
 
-	paths := FindPaths(lvl)
+	paths := FindShortestPaths(lvl)
 
-	fmt.Printf("PATHS %+v\n", paths)
-	l := lvl.Copy()
-	fmt.Println(lvl.blocks[0][2], lvl.blocks[1][2])
-	fmt.Println(l.blocks[0][2], l.blocks[1][2])
-	lvl.RotateSwitch(lvl.switches[1])
-	fmt.Println(lvl.blocks[0][2], lvl.blocks[1][2])
-	fmt.Println(l.blocks[0][2], l.blocks[1][2])
+	fmt.Printf("%+v\n", paths)
+}
 
+func TestFindPaths_Level2(t *testing.T) {
+	lvl := LoadLevel(2)
+
+	paths := FindShortestPaths(lvl)
+
+	fmt.Printf("%+v\n", paths)
+}
+
+func TestFindPaths_Level3(t *testing.T) {
+	lvl := LoadLevel(3)
+
+	paths := FindShortestPaths(lvl)
+
+	fmt.Printf("%+v\n", paths)
 }
 
 func TestDetermineNearestSwicthes_Level1(t *testing.T) {

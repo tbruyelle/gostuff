@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"math"
+	"strconv"
 )
 
 const (
-	MaxDepth = 30
+	MaxDepth = 15
 )
 
 type Node struct {
@@ -22,34 +23,67 @@ type Node struct {
 
 func (n *Node) String() string {
 	//return fmt.Sprintf("s%d, d=%d, childs=%+v", n.s, n.depth, n.childs)
-	return fmt.Sprintf("s%d, d=%d, parent=[%+v] win=%t", n.s, n.depth, n.parent, n.lvl.Win())
+	//return fmt.Sprintf("s%d, d=%d, parent=[%+v] win=%t", n.s, n.depth, n.parent, n.lvl.Win())
+	depth := n.depth
+	var s string
+	for n.parent != nil {
+		s = strconv.Itoa(n.s) + s
+		n = n.parent
+	}
+	s = strconv.Itoa(n.s) + s
+	return fmt.Sprintf("d=%d, sws=%s", depth, s)
 }
 
 var nearSw map[int][]int
 
+func FindShortestPaths(lvl Level) []*Node {
+	ns := FindPaths(lvl)
+	fmt.Printf("Found %d path\n", len(ns))
+	shortest := MaxDepth
+	for _, n := range ns {
+		if n.depth < shortest {
+			shortest = n.depth
+		}
+	}
+	fmt.Println("Shortest is", shortest)
+	// keep only the shortest
+	var shortestPaths []*Node
+	for _, n := range ns {
+		if n.depth == shortest {
+			shortestPaths = append(shortestPaths, n)
+		}
+	}
+	return shortestPaths
+
+}
+
 func FindPaths(lvl Level) []*Node {
 	nearSw = DetermineNearSwitches(lvl)
-	paths := make([]*Node, len(lvl.switches))
+	var paths []*Node
 	for i := range lvl.switches {
-		fmt.Printf("find path starting switch %d\n", i)
+		fmt.Printf("find path starting switch %d %t\n", i, lvl.IsPlain(i))
 		n := &Node{s: i, depth: 1, lvl: lvl.Copy()}
-		paths[i] = n
-		check(n)
+		check(n, &paths)
 		//fmt.Printf("switch %d path=%+v\n", i, n)
 	}
 	return paths
 }
 
-func check(n *Node) {
+func check(n *Node, paths *[]*Node) {
+	if n.lvl.IsPlain(n.s) {
+		// the switch is plain no need to play with it
+		return
+	}
 	if n.depth > MaxDepth {
 		return
 	}
+	n.lvl.RotateSwitch(n.lvl.switches[n.s])
 	if n.lvl.Win() {
-		fmt.Printf("WIN %+v\n", n)
+		//fmt.Printf("WIN %+v\n", n)
+		*paths = append(*paths, n)
 		return
 	}
 	depth := n.depth + 1
-	n.lvl.RotateSwitch(n.lvl.switches[n.s])
 	if !n.hasRotatedMoreThanThrice() {
 		n.childs = append(n.childs, &Node{s: n.s, depth: depth, parent: n, lvl: n.lvl.Copy()})
 	}
@@ -58,7 +92,7 @@ func check(n *Node) {
 	}
 	//fmt.Printf("Check %d childs depth=%d\n", len(n.childs), n.depth)
 	for _, c := range n.childs {
-		check(c)
+		check(c, paths)
 	}
 }
 
