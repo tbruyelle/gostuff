@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MaxDepth = 15
+	MaxDepth = 18
 )
 
 type Node struct {
@@ -99,6 +99,58 @@ func check(n *Node, paths *[]*Node) {
 	//fmt.Printf("Check %d childs depth=%d\n", len(n.childs), n.depth)
 	for _, c := range n.childs {
 		check(c, paths)
+	}
+}
+
+func FindPathAsync(lvl Level) *Node {
+	quit := make(chan bool)
+	nodes := make(chan *Node)
+	for i := range lvl.switches {
+		fmt.Printf("find path starting switch %d %t\n", i, lvl.IsPlain(i))
+		n := &Node{s: i, depth: 1, lvl: lvl.Copy()}
+		if n.lvl.IsPlain(n.s) {
+			continue
+		}
+		go checkAsync(n, nodes, quit)
+		//fmt.Printf("switch %d path=%+v\n", i, n)
+	}
+	n := <-nodes
+	close(quit)
+	return n
+}
+
+func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
+	select {
+	case <-quit:
+		return
+	default:
+		fmt.Printf("check %+v\n", n)
+		if n.depth > MaxDepth {
+			return
+		}
+		n.lvl.RotateSwitch(n.lvl.switches[n.s])
+		if n.lvl.Win() {
+			//fmt.Printf("WIN %+v\n", n)
+			nodes <- n
+			return
+		}
+		// Add childs
+		//fmt.Printf("n%d %t %t %s\n", n.s, n.lvl.IsPlain(n.s), n.hasRotatedTwice(), n.lvl.blockSignature())
+		for i := range n.lvl.switches {
+			if n.s == i {
+				// For current child, add only if not plain
+				// and has not rotated twice successively
+				if !n.lvl.IsPlain(n.s) && !n.hasRotatedTwice() {
+					n.addChild(n.s)
+				}
+			} else {
+				n.addChild(i)
+			}
+		}
+		//fmt.Printf("Check %d childs depth=%d\n", len(n.childs), n.depth)
+		for _, c := range n.childs {
+			go checkAsync(c, nodes, quit)
+		}
 	}
 }
 

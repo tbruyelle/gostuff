@@ -9,25 +9,28 @@ import (
 func TestFindPaths_Level1(t *testing.T) {
 	lvl := LoadLevel(1)
 
-	paths := FindShortestPaths(lvl)
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
 
-	fmt.Printf("%+v\n", paths)
+	fmt.Printf("test result %+v\n", n)
 }
 
 func TestFindPaths_Level2(t *testing.T) {
 	lvl := LoadLevel(2)
 
-	paths := FindShortestPaths(lvl)
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
 
-	fmt.Printf("%+v\n", paths)
+	fmt.Printf("test result %+v\n", n)
 }
 
 func TestFindPaths_Level3(t *testing.T) {
 	lvl := LoadLevel(3)
 
-	paths := FindShortestPaths(lvl)
+	//paths := FindShortestPaths(lvl)
+	n:=FindPathAsync(lvl)
 
-	fmt.Printf("%+v\n", paths)
+	fmt.Printf("test result %+v\n", n)
 }
 
 func TestDetermineNearestSwicthes_Level1(t *testing.T) {
