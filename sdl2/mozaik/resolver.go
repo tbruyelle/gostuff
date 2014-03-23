@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MaxDepth = 18
+	MaxDepth      = 18
 )
 
 type Node struct {
@@ -102,7 +102,12 @@ func check(n *Node, paths *[]*Node) {
 	}
 }
 
+var origHowFar int
+
 func FindPathAsync(lvl Level) *Node {
+	origHowFar = lvl.HowFar()
+	fmt.Printf("orig howfar=%d\n", origHowFar)
+
 	quit := make(chan bool)
 	nodes := make(chan *Node)
 	for i := range lvl.switches {
@@ -124,11 +129,16 @@ func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
 	case <-quit:
 		return
 	default:
-		fmt.Printf("check %+v\n", n)
+		howfar := n.lvl.HowFar()
+		fmt.Printf("check %+v %d\n", n, howfar)
 		if n.depth > MaxDepth {
 			return
 		}
 		n.lvl.RotateSwitch(n.lvl.switches[n.s])
+		//if n.lvl.HowFar() >= howfar {
+		//	//fmt.Println("too far")
+		//	return
+		//}
 		if n.lvl.Win() {
 			//fmt.Printf("WIN %+v\n", n)
 			nodes <- n

@@ -5,6 +5,24 @@ import (
 	"testing"
 )
 
+func TestHowFar(t *testing.T) {
+	lvl := LoadLevel(1)
+
+	howfar := lvl.HowFar()
+
+	assert.Equal(t, 8, howfar)
+}
+
+func TestHowFarRotated(t *testing.T) {
+	lvl := LoadLevel(1)
+
+	lvl.RotateSwitch(lvl.switches[1])
+	lvl.RotateSwitch(lvl.switches[1])
+	howfar := lvl.HowFar()
+
+	assert.Equal(t, 4, howfar)
+}
+
 func TestIsPlain(t *testing.T) {
 	lvl := LoadLevel(1)
 

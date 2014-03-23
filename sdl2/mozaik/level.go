@@ -40,12 +40,23 @@ func (l *Level) IsPlain(sw int) bool {
 	b3 := l.blocks[x][y+1]
 	b4 := l.blocks[x+1][y+1]
 
-	return b1.Color==b2.Color&&b2.Color==b3.Color&&b3.Color==b4.Color
+	return b1.Color == b2.Color && b2.Color == b3.Color && b3.Color == b4.Color
 }
 
 // Win returns true if player has win
 func (l *Level) Win() bool {
 	return l.winSignature == l.blockSignature()
+}
+
+func (l *Level) HowFar() int {
+	howfar := 0
+	signature := l.blockSignature()
+	for i := range l.winSignature {
+			if l.winSignature[i] != signature[i] {
+				howfar++
+			}
+	}
+	return howfar
 }
 
 // UndoLastMove cancels the last player move
