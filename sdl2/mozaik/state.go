@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"math"
+)
+
 type State interface {
 	Enter(g *Game, sw *Switch)
 	Exit(g *Game, sw *Switch)
@@ -46,6 +51,12 @@ const (
 	rotatePerTick = rotateDegree / rotateTicks
 	zTick         = 3
 )
+
+func smoothstep(step float64, goal int) (r float64) {
+	x := float64(step) / float64(goal)
+	defer func() { fmt.Println("smooth", x, r) }()
+	return 3*math.Pow(x, 2) - 2*math.Pow(x, 3)
+}
 
 func (s *RotateState) Enter(g *Game, sw *Switch) {
 	g.level.rotating = sw
