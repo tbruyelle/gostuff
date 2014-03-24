@@ -22,7 +22,7 @@ type Block struct {
 type Switch struct {
 	state     State
 	line, col int
-	X, Y      int
+	X, Y, Z      int
 	rotate    int
 }
 

@@ -42,12 +42,15 @@ func NewRotateState() State {
 const (
 	rotateTicks   = 15
 	rotateDegree  = 90
+	halfRotate    = rotateDegree / 2
 	rotatePerTick = rotateDegree / rotateTicks
+	zTick         = 3
 )
 
 func (s *RotateState) Enter(g *Game, sw *Switch) {
 	g.level.rotating = sw
 	sw.rotate = 0
+	sw.Z = 0
 }
 
 func (s *RotateState) Exit(g *Game, sw *Switch) {
@@ -56,8 +59,16 @@ func (s *RotateState) Exit(g *Game, sw *Switch) {
 }
 
 func (s *RotateState) Update(g *Game, sw *Switch) {
+	// Update the rotation
 	sw.rotate += rotatePerTick
+	// Update the depth
+	if sw.rotate > halfRotate {
+		sw.Z -= zTick
+	} else {
+		sw.Z += zTick
+	}
 	if sw.rotate >= rotateDegree {
+		// End of rotation
 		sw.ChangeState(NewIdleState())
 	}
 }

@@ -244,15 +244,16 @@ func renderRotatingSwitch(s *Switch) {
 	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
 	gl.Rotatef(float32(s.rotate), 0, 0, 1)
 
+	blockSize := BlockSize - s.Z
 	var b *Block
 	// render block top left
 	b = g.level.blocks[s.line][s.col]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
-	gl.Vertex2i(-BlockSize, -BlockSize)
-	gl.Vertex2i(0, -BlockSize)
+	gl.Vertex2i(-blockSize, -blockSize)
+	gl.Vertex2i(0, -blockSize)
 	gl.Vertex2i(0, 0)
-	gl.Vertex2i(-BlockSize, 0)
+	gl.Vertex2i(-blockSize, 0)
 	gl.End()
 	b.Rendered = true
 
@@ -260,9 +261,9 @@ func renderRotatingSwitch(s *Switch) {
 	b = g.level.blocks[s.line][s.col+1]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
-	gl.Vertex2i(0, -BlockSize)
-	gl.Vertex2i(BlockSize, -BlockSize)
-	gl.Vertex2i(BlockSize, 0)
+	gl.Vertex2i(0, -blockSize)
+	gl.Vertex2i(blockSize, -blockSize)
+	gl.Vertex2i(blockSize, 0)
 	gl.Vertex2i(0, 0)
 	gl.End()
 	b.Rendered = true
@@ -272,9 +273,9 @@ func renderRotatingSwitch(s *Switch) {
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
 	gl.Vertex2i(0, 0)
-	gl.Vertex2i(BlockSize, 0)
-	gl.Vertex2i(BlockSize, BlockSize)
-	gl.Vertex2i(0, BlockSize)
+	gl.Vertex2i(blockSize, 0)
+	gl.Vertex2i(blockSize, blockSize)
+	gl.Vertex2i(0, blockSize)
 	gl.End()
 	b.Rendered = true
 
@@ -282,10 +283,10 @@ func renderRotatingSwitch(s *Switch) {
 	b = g.level.blocks[s.line+1][s.col]
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
-	gl.Vertex2i(-BlockSize, 0)
+	gl.Vertex2i(-blockSize, 0)
 	gl.Vertex2i(0, 0)
-	gl.Vertex2i(0, BlockSize)
-	gl.Vertex2i(-BlockSize, BlockSize)
+	gl.Vertex2i(0, blockSize)
+	gl.Vertex2i(-blockSize, blockSize)
 	gl.End()
 	b.Rendered = true
 }
