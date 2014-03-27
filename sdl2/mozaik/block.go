@@ -24,6 +24,7 @@ type Switch struct {
 	line, col int
 	X, Y, Z      int
 	rotate    int
+	name string
 }
 
 func (s *Switch) Rotate() {

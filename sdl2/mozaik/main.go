@@ -69,7 +69,6 @@ func main() {
 	// Ensure thread context
 	window.MakeContextCurrent()
 
-	// TODO WHat fort ?
 	//glfw.SwapInterval(1)
 
 	window.SetKeyCallback(keyCb)
@@ -80,7 +79,7 @@ func main() {
 	// useless in 2D
 	gl.Disable(gl.DEPTH_TEST)
 
-	for i := int32(64); i < 72; i++ {
+	for i := int32(32); i < 72; i++ {
 		font := loadFonts(i)
 		defer font.Release()
 		fonts = append(fonts, font)
@@ -173,13 +172,13 @@ func renderLoop(g *Game) {
 		case <-mainTicker.C:
 			g.Update()
 			do(func() {
-				renderThings(g)
+				render(g)
 			})
 		}
 	}
 }
 
-func renderThings(g *Game) {
+func render(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	// reinit blocks as not renderered
@@ -214,7 +213,6 @@ func renderThings(g *Game) {
 	}
 
 	// render the switches
-	// TODO can we use z to make them upper?
 	for _, s := range g.level.switches {
 		renderSwitch(s)
 	}
@@ -295,20 +293,22 @@ func renderSwitch(s *Switch) {
 	gl.LoadIdentity()
 	// TODO constant
 	v := SwitchSize / 2
-
-	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
-	// render the switch
+	x, y := float32(s.X+v), float32(s.Y+v)
+	gl.Translatef(x, y, 0)
+	// Render the switch
 	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Color3f(1.0, 1.0, 1.0)
 	vv := float64(v)
 	for a := float64(0); a < 360; a += 5 {
 		gl.Vertex2d(math.Sin(a)*vv, math.Cos(a)*vv)
 	}
-	//gl.Vertex2i(-v, v)
-	//gl.Vertex2i(v, v)
-	//gl.Vertex2i(v, -v)
-	//gl.Vertex2i(-v, -v)
 	gl.End()
+
+	// Write the switch name
+	gl.LoadIdentity()
+	w, h := fonts[0].Metrics(s.name)
+	gl.Color3f(0, 0, 0)
+	fonts[0].Printf(x-float32(w)/2, y-float32(h)/2+2, s.name)
 }
 
 func setColor(color ColorDef) {
@@ -323,14 +323,13 @@ func setColor(color ColorDef) {
 		gl.Color3ub(102, 204, 0)
 	case Pink:
 		gl.Color3ub(255, 104, 255)
-
 	}
 }
 
 func renderDashboard() {
 	gl.LoadIdentity()
 	setColor(Blue)
-	fonts[0].Printf(float32(XMin), float32(WindowHeight-DashboardHeight),
+	fonts[32].Printf(float32(XMin), float32(WindowHeight-DashboardHeight),
 		"Level %d", g.currentLevel)
 	gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight), 0)
 	line := 0
