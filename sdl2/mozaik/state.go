@@ -67,6 +67,8 @@ func (s *RotateState) Enter(g *Game, sw *Switch) {
 func (s *RotateState) Exit(g *Game, sw *Switch) {
 	g.level.RotateSwitch(sw)
 	g.level.rotating = nil
+	sw.rotate=0
+	sw.Z = 0
 }
 
 func (s *RotateState) Update(g *Game, sw *Switch) {

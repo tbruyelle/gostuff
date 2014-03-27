@@ -181,7 +181,7 @@ func renderLoop(g *Game) {
 func render(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	// reinit blocks as not renderered
+	// Reinit blocks as not renderered
 	for i := 0; i < len(g.level.blocks); i++ {
 		for j := 0; j < len(g.level.blocks[i]); j++ {
 			if g.level.blocks[i][j] != nil {
@@ -190,25 +190,14 @@ func render(g *Game) {
 		}
 	}
 
-	// render first the rotating switch if there's one
+	// Render first the rotating switch if there's one
 	if g.level.rotating != nil {
-		renderRotatingSwitch(g.level.rotating)
+		renderSwitchBlocks(g.level.rotating)
 	}
-
-	for i := 0; i < len(g.level.blocks); i++ {
-		gl.LoadIdentity()
-		gl.Translatef(float32(XMin), float32(YMin+BlockSize*i), 0)
-		for j := 0; j < len(g.level.blocks[i]); j++ {
-			if g.level.blocks[i][j] != nil && !g.level.blocks[i][j].Rendered {
-				gl.Begin(gl.QUADS)
-				setColor(g.level.blocks[i][j].Color)
-				gl.Vertex2i(0, 0)
-				gl.Vertex2i(BlockSize, 0)
-				gl.Vertex2i(BlockSize, BlockSize)
-				gl.Vertex2i(0, BlockSize)
-				gl.End()
-			}
-			gl.Translatef(float32(BlockSize), 0, 0)
+	// Render the remaining switches
+	for _, s := range g.level.switches {
+		if s != g.level.rotating {
+			renderSwitchBlocks(s)
 		}
 	}
 
@@ -234,57 +223,52 @@ func render(g *Game) {
 	window.SwapBuffers()
 }
 
-func renderRotatingSwitch(s *Switch) {
-	gl.LoadIdentity()
+func renderSwitchBlocks(s *Switch) {
 	// TODO constant
 	v := SwitchSize / 2
+	x, y := float32(s.X+v), float32(s.Y+v)
+	gl.LoadIdentity()
+	gl.Translatef(x, y, 0)
+	if s.rotate > 0 {
+		gl.Rotatef(float32(s.rotate), 0,0, 1)
+	}
+	bsf := float32(BlockSize - s.Z)
 
-	gl.Translatef(float32(s.X+v), float32(s.Y+v), 0)
-	gl.Rotatef(float32(s.rotate), 0, 0, 1)
-
-	blockSize := BlockSize - s.Z
 	var b *Block
-	// render block top left
+	// Render block top left
 	b = g.level.blocks[s.line][s.col]
-	gl.Begin(gl.QUADS)
-	setColor(b.Color)
-	gl.Vertex2i(-blockSize, -blockSize)
-	gl.Vertex2i(0, -blockSize)
-	gl.Vertex2i(0, 0)
-	gl.Vertex2i(-blockSize, 0)
-	gl.End()
-	b.Rendered = true
+	if !b.Rendered {
+		renderBlock(b, -bsf, -bsf)
+	}
 
-	// render block top right
+	// Render block top right
 	b = g.level.blocks[s.line][s.col+1]
-	gl.Begin(gl.QUADS)
-	setColor(b.Color)
-	gl.Vertex2i(0, -blockSize)
-	gl.Vertex2i(blockSize, -blockSize)
-	gl.Vertex2i(blockSize, 0)
-	gl.Vertex2i(0, 0)
-	gl.End()
-	b.Rendered = true
+	if !b.Rendered {
+		renderBlock(b, bsf, -bsf)
+	}
 
-	// render block bottom right
+	// Render block bottom right
 	b = g.level.blocks[s.line+1][s.col+1]
-	gl.Begin(gl.QUADS)
-	setColor(b.Color)
-	gl.Vertex2i(0, 0)
-	gl.Vertex2i(blockSize, 0)
-	gl.Vertex2i(blockSize, blockSize)
-	gl.Vertex2i(0, blockSize)
-	gl.End()
-	b.Rendered = true
+	if !b.Rendered {
+		renderBlock(b, bsf, bsf)
+	}
 
 	// render block bottom left
 	b = g.level.blocks[s.line+1][s.col]
+	if !b.Rendered {
+		renderBlock(b, -bsf, bsf)
+	}
+}
+
+// renderBlock renders a blocks asserting the
+// origin is placed on its top left
+func renderBlock(b *Block, w, h float32) {
 	gl.Begin(gl.QUADS)
 	setColor(b.Color)
-	gl.Vertex2i(-blockSize, 0)
-	gl.Vertex2i(0, 0)
-	gl.Vertex2i(0, blockSize)
-	gl.Vertex2i(-blockSize, blockSize)
+	gl.Vertex2f(0, 0)
+	gl.Vertex2f(0, h)
+	gl.Vertex2f(w, h)
+	gl.Vertex2f(w, 0)
 	gl.End()
 	b.Rendered = true
 }
