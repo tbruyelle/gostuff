@@ -194,3 +194,13 @@ func (lvl *Level) RotateSwitch(s *Switch) {
 	lvl.blocks[l+1][c+1] = lvl.blocks[l][c+1]
 	lvl.blocks[l][c+1] = b
 }
+
+func (lvl *Level) RotateSwitchInverse(s *Switch) {
+	// Swap bocks according to the -90d rotation
+	l, c := s.line, s.col
+	b := lvl.blocks[l][c]
+	lvl.blocks[l][c] = lvl.blocks[l][c+1]
+	lvl.blocks[l][c+1] = lvl.blocks[l+1][c+1]
+	lvl.blocks[l+1][c+1] = lvl.blocks[l+1][c]
+	lvl.blocks[l+1][c] = b
+}

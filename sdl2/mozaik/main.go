@@ -234,7 +234,7 @@ func renderSwitchBlocks(s *Switch) {
 	x, y := float32(s.X+v), float32(s.Y+v)
 	gl.LoadIdentity()
 	gl.Translatef(x, y, 0)
-	if s.rotate > 0 {
+	if s.rotate != 0 {
 		gl.Rotatef(float32(s.rotate), 0, 0, 1)
 	}
 	bsf := float32(BlockSize - s.Z)

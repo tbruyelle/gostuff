@@ -67,7 +67,7 @@ func (s *RotateState) Enter(g *Game, sw *Switch) {
 func (s *RotateState) Exit(g *Game, sw *Switch) {
 	g.level.RotateSwitch(sw)
 	g.level.rotating = nil
-	sw.rotate=0
+	sw.rotate = 0
 	sw.Z = 0
 }
 
@@ -104,20 +104,20 @@ func NewRotateStateReverse() State {
 }
 
 func (s *RotateStateReverse) Exit(g *Game, sw *Switch) {
-	// Swap bocks according to the -90d rotation
-	l, c := sw.line, sw.col
-	//fmt.Println("Reverse swap from", l, c)
-	b := g.level.blocks[l][c]
-	g.level.blocks[l][c] = g.level.blocks[l][c+1]
-	g.level.blocks[l][c+1] = g.level.blocks[l+1][c+1]
-	g.level.blocks[l+1][c+1] = g.level.blocks[l+1][c]
-	g.level.blocks[l+1][c] = b
-
+	g.level.RotateSwitchInverse(sw)
+	sw.rotate = 0
+	sw.Z = 0
 	g.level.rotating = nil
 }
 
 func (s *RotateStateReverse) Update(g *Game, sw *Switch) {
 	sw.rotate -= rotatePerTick
+	// Update the depth
+	if sw.rotate < -halfRotate {
+		sw.Z -= zTick
+	} else {
+		sw.Z += zTick
+	}
 	if sw.rotate <= -rotateDegree {
 		sw.ChangeState(NewIdleState())
 	}
