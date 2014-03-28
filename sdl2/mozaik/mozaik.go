@@ -16,10 +16,11 @@ const (
 type Game struct {
 	currentLevel int
 	level        Level
+	listen       bool
 }
 
 func NewGame() *Game {
-	return &Game{currentLevel: 1}
+	return &Game{currentLevel: 1, listen: true}
 }
 
 func (g *Game) Start() {
@@ -31,7 +32,9 @@ func (g *Game) Stop() {
 }
 
 func (g *Game) Click(x, y int) {
-	g.level.PressSwitch(x, y)
+	if g.listen {
+		g.level.PressSwitch(x, y)
+	}
 }
 
 func (g *Game) Update() {
@@ -46,16 +49,23 @@ func (g *Game) Continue() {
 	}
 }
 func (g *Game) Warp() {
-	// Next level
-	g.currentLevel++
-	g.level = LoadLevel(g.currentLevel)
+	if g.listen {
+		// Next level
+		g.currentLevel++
+		g.level = LoadLevel(g.currentLevel)
+	}
 }
 
 func (g *Game) UndoLastMove() {
-	g.level.UndoLastMove()
+	if g.listen {
+		g.level.UndoLastMove()
+	}
 }
 
 func (g *Game) Reset() {
-	g.Stop()
-	g.Start()
+	sw := g.level.PopLastRotated()
+	if sw != nil {
+	g.listen = false
+		sw.ChangeState(NewResetState())
+	}
 }

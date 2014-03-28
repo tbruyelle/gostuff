@@ -119,6 +119,29 @@ func (s *RotateStateReverse) Update(g *Game, sw *Switch) {
 		sw.Z += zTick
 	}
 	if sw.rotate <= -rotateDegree {
+		fmt.Println("exiting", sw.name)
 		sw.ChangeState(NewIdleState())
+	}
+}
+
+// ResetState cancels all moves
+type ResetState struct {
+	RotateStateReverse
+}
+
+func NewResetState() State {
+	return &ResetState{}
+}
+
+func (s *ResetState) Exit(g *Game, sw *Switch) {
+	g.level.RotateSwitchInverse(sw)
+	sw.rotate = 0
+	sw.Z = 0
+	g.level.rotating = nil
+	last := g.level.PopLastRotated()
+	if last != nil {
+		last.ChangeState(NewResetState())
+	} else {
+		g.listen = true
 	}
 }

@@ -61,12 +61,23 @@ func (l *Level) HowFar() int {
 
 // UndoLastMove cancels the last player move
 func (l *Level) UndoLastMove() {
-	if l.rotating != nil || len(l.rotated) == 0 {
-		return
+	if l.rotating != nil {
+		return 
+	}
+	sw := l.PopLastRotated()
+	if sw != nil {
+		sw.ChangeState(NewRotateStateReverse())
+	}
+}
+
+func (l *Level) PopLastRotated() *Switch {
+	if len(l.rotated) == 0 {
+		return nil
 	}
 	i := len(l.rotated) - 1
-	l.switches[l.rotated[i]].ChangeState(NewRotateStateReverse())
+	res := l.rotated[i]
 	l.rotated = l.rotated[:i]
+	return l.switches[res]
 }
 
 // addSwitch appends a new switch at the bottom right
