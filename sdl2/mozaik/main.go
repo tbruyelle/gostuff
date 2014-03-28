@@ -12,7 +12,11 @@ import (
 	"time"
 )
 
-const FRAME_RATE = time.Second / 40
+const (
+	FRAME_RATE          = time.Second / 40
+	BlockRadius         = 10
+	BlockCornerSegments = 6
+)
 
 // Arrange that main.main runs on main thread.
 func init() {
@@ -230,7 +234,7 @@ func renderSwitchBlocks(s *Switch) {
 	gl.LoadIdentity()
 	gl.Translatef(x, y, 0)
 	if s.rotate > 0 {
-		gl.Rotatef(float32(s.rotate), 0,0, 1)
+		gl.Rotatef(float32(s.rotate), 0, 0, 1)
 	}
 	bsf := float32(BlockSize - s.Z)
 
@@ -260,17 +264,80 @@ func renderSwitchBlocks(s *Switch) {
 	}
 }
 
-// renderBlock renders a blocks asserting the
-// origin is placed on its top left
 func renderBlock(b *Block, w, h float32) {
-	gl.Begin(gl.QUADS)
+	var wbr, hbr float32
+	if w > 0 {
+		wbr = BlockRadius
+	} else {
+		wbr = -BlockRadius
+	}
+	if h > 0 {
+		hbr = BlockRadius
+	} else {
+		hbr = -BlockRadius
+	}
 	setColor(b.Color)
-	gl.Vertex2f(0, 0)
-	gl.Vertex2f(0, h)
-	gl.Vertex2f(w, h)
-	gl.Vertex2f(w, 0)
+	gl.Begin(gl.QUADS)
+	// Render inner square
+	gl.Vertex2f(wbr, hbr)
+	gl.Vertex2f(wbr, h-hbr)
+	gl.Vertex2f(w-wbr, h-hbr)
+	gl.Vertex2f(w-wbr, hbr)
+	// Render top square
+	gl.Vertex2f(wbr, h-hbr)
+	gl.Vertex2f(wbr, h)
+	gl.Vertex2f(w-wbr, h)
+	gl.Vertex2f(w-wbr, h-hbr)
+	// Render bottom square
+	gl.Vertex2f(wbr, hbr)
+	gl.Vertex2f(wbr, 0)
+	gl.Vertex2f(w-wbr, 0)
+	gl.Vertex2f(w-wbr, hbr)
+	// Render left square
+	gl.Vertex2f(w-wbr, hbr)
+	gl.Vertex2f(w, hbr)
+	gl.Vertex2f(w, h-hbr)
+	gl.Vertex2f(w-wbr, h-hbr)
+	// Render right square
+	gl.Vertex2f(wbr, hbr)
+	gl.Vertex2f(0, hbr)
+	gl.Vertex2f(0, h-hbr)
+	gl.Vertex2f(wbr, h-hbr)
 	gl.End()
+	// Render bottom right corner
+	ww, hh := float64(w-wbr), float64(h-hbr)
+	renderCorner(ww, hh, 0)
+	// Render bottom left corner
+	ww, hh = float64(wbr), float64(h-hbr)
+	renderCorner(ww, hh, 1)
+	// Render top left corner
+	// Not visible because hide by the switch
+	ww, hh = float64(wbr), float64(hbr)
+	renderCorner(ww, hh, 2)
+	// Render top right corner
+	ww, hh = float64(w-wbr), float64(hbr)
+	renderCorner(ww, hh, 3)
+
 	b.Rendered = true
+}
+
+func renderCorner(ww, hh, start float64) {
+	gl.Begin(gl.TRIANGLE_FAN)
+	gl.Vertex2d(ww, hh)
+	max := BlockCornerSegments * (start + 1)
+	for i := start * BlockCornerSegments; i <= max; i++ {
+		a := math.Pi / 2 * i / BlockCornerSegments
+		x := math.Cos(a) * BlockRadius
+		if ww < 0 {
+			x = -x
+		}
+		y := math.Sin(a) * BlockRadius
+		if hh < 0 {
+			y = -y
+		}
+		gl.Vertex2d(ww+x, hh+y)
+	}
+	gl.End()
 }
 
 func renderSwitch(s *Switch) {
@@ -280,10 +347,12 @@ func renderSwitch(s *Switch) {
 	x, y := float32(s.X+v), float32(s.Y+v)
 	gl.Translatef(x, y, 0)
 	// Render the switch
-	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Color3f(1.0, 1.0, 1.0)
+	gl.Begin(gl.TRIANGLE_FAN)
+	gl.Vertex2d(0, 0)
 	vv := float64(v)
-	for a := float64(0); a < 360; a += 5 {
+	for i := float64(0); i <= 20; i++ {
+		a := 2 * math.Pi * i / 20
 		gl.Vertex2d(math.Sin(a)*vv, math.Cos(a)*vv)
 	}
 	gl.End()
