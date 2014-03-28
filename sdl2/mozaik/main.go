@@ -16,6 +16,7 @@ const (
 	FRAME_RATE          = time.Second / 40
 	BlockRadius         = 10
 	BlockCornerSegments = 6
+	BlockPadding        = 1
 )
 
 // Arrange that main.main runs on main thread.
@@ -242,30 +243,43 @@ func renderSwitchBlocks(s *Switch) {
 	// Render block top left
 	b = g.level.blocks[s.line][s.col]
 	if !b.Rendered {
+		gl.PushMatrix()
+		gl.Translatef(-BlockPadding, -BlockPadding, 0)
 		renderBlock(b, -bsf, -bsf)
+		gl.PopMatrix()
 	}
 
 	// Render block top right
 	b = g.level.blocks[s.line][s.col+1]
 	if !b.Rendered {
+		gl.PushMatrix()
+		gl.Translatef(BlockPadding, -BlockPadding, 0)
 		renderBlock(b, bsf, -bsf)
+		gl.PopMatrix()
 	}
 
 	// Render block bottom right
 	b = g.level.blocks[s.line+1][s.col+1]
 	if !b.Rendered {
+		gl.PushMatrix()
+		gl.Translatef(BlockPadding, BlockPadding, 0)
 		renderBlock(b, bsf, bsf)
+		gl.PopMatrix()
 	}
 
 	// render block bottom left
 	b = g.level.blocks[s.line+1][s.col]
 	if !b.Rendered {
+		gl.PushMatrix()
+		gl.Translatef(-BlockPadding, BlockPadding, 0)
 		renderBlock(b, -bsf, bsf)
+		gl.PopMatrix()
 	}
 }
 
 func renderBlock(b *Block, w, h float32) {
 	var wbr, hbr float32
+
 	if w > 0 {
 		wbr = BlockRadius
 	} else {
@@ -317,6 +331,7 @@ func renderBlock(b *Block, w, h float32) {
 	// Render top right corner
 	ww, hh = float64(w-wbr), float64(hbr)
 	renderCorner(ww, hh, 3)
+	gl.PopMatrix()
 
 	b.Rendered = true
 }

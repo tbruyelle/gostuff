@@ -75,9 +75,9 @@ func (l *Level) addSwitch(line, col int) {
 
 	s := &Switch{
 		line: line, col: col,
-		X:    XMin + col*BlockSize + BlockSize - SwitchSize/2,
-		Y:    YMin + line*BlockSize + BlockSize - SwitchSize/2,
-		name: strconv.Itoa(len(l.switches)+1),
+		X:    XMin + (col+1)*BlockSize + col*BlockPadding*2 - SwitchSize/2,
+		Y:    YMin + (line+1)*BlockSize + line*BlockPadding*2 - SwitchSize/2,
+		name: strconv.Itoa(len(l.switches) + 1),
 	}
 	s.ChangeState(NewIdleState())
 	l.switches = append(l.switches, s)
