@@ -12,6 +12,8 @@ const (
 	Blue
 	Green
 	Pink
+	Orange
+	LightBlue
 )
 
 type Block struct {
@@ -22,9 +24,9 @@ type Block struct {
 type Switch struct {
 	state     State
 	line, col int
-	X, Y, Z      int
+	X, Y, Z   int
 	rotate    int
-	name string
+	name      string
 }
 
 func (s *Switch) Rotate() {

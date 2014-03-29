@@ -16,6 +16,8 @@ const (
 	FRAME_RATE          = time.Second / 40
 	BlockCornerSegments = 6
 	BlockPadding        = 1
+	SwitchSegments      = 20
+	BgSegments          = 24
 )
 
 // Arrange that main.main runs on main thread.
@@ -49,11 +51,12 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 }
 
 var (
-	window  *glfw.Window
-	err     error
-	g       *Game
-	fonts   []*gltext.Font
-	fontInd int
+	window       *glfw.Window
+	err          error
+	g            *Game
+	fonts        []*gltext.Font
+	fontInd      int
+	windowRadius float64
 )
 
 func main() {
@@ -79,7 +82,7 @@ func main() {
 	window.SetMouseButtonCallback(mouseCb)
 
 	gl.Init()
-	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
+	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	// useless in 2D
 	gl.Disable(gl.DEPTH_TEST)
 
@@ -88,6 +91,9 @@ func main() {
 		defer font.Release()
 		fonts = append(fonts, font)
 	}
+
+	// Compute window radius
+	windowRadius = math.Sqrt(math.Pow(WindowHeight, 2) + math.Pow(WindowWidth, 2))
 
 	// Use window coordinates
 	gl.MatrixMode(gl.PROJECTION)
@@ -213,6 +219,9 @@ func renderLoop(g *Game) {
 func render(g *Game) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
+	// Background
+	renderBackground()
+
 	// Reinit blocks as not renderered
 	for i := 0; i < len(g.level.blocks); i++ {
 		for j := 0; j < len(g.level.blocks[i]); j++ {
@@ -250,8 +259,6 @@ func render(g *Game) {
 		fonts[fontInd].Printf(float32(WindowWidth/2)-100, float32(WindowHeight/2), "GAGNE !!")
 	}
 
-	// TODO What for?
-	//gl.Flush()
 	window.SwapBuffers()
 }
 
@@ -386,8 +393,8 @@ func renderSwitch(s *Switch) {
 	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Vertex2d(0, 0)
 	vv := float64(v)
-	for i := float64(0); i <= 20; i++ {
-		a := 2 * math.Pi * i / 20
+	for i := float64(0); i <= SwitchSegments; i++ {
+		a := 2 * math.Pi * i / SwitchSegments
 		gl.Vertex2d(math.Sin(a)*vv, math.Cos(a)*vv)
 	}
 	gl.End()
@@ -402,15 +409,19 @@ func renderSwitch(s *Switch) {
 func setColor(color ColorDef) {
 	switch color {
 	case Red:
-		gl.Color3ub(255, 51, 51)
+		gl.Color3ub(239, 14, 84)
 	case Yellow:
-		gl.Color3ub(255, 215, 0)
+		gl.Color3ub(255, 218, 58)
 	case Blue:
 		gl.Color3ub(100, 149, 237)
 	case Green:
-		gl.Color3ub(102, 204, 0)
+		gl.Color3ub(88, 164, 0)
 	case Pink:
-		gl.Color3ub(255, 104, 255)
+		gl.Color3ub(255, 178, 255)
+	case Orange:
+		gl.Color3ub(243, 122, 17)
+	case LightBlue:
+		gl.Color3ub(98, 222, 255)
 	}
 }
 
@@ -433,4 +444,25 @@ func renderDashboard() {
 		}
 		gl.Translated(SignatureBlockSize+BlockPadding, 0, 0)
 	}
+}
+
+var bgRotate = float32(0)
+
+func renderBackground() {
+	gl.LoadIdentity()
+	gl.PushMatrix()
+	gl.Translatef(WindowWidth/2, WindowHeight/2, 0)
+	bgRotate += 1
+	gl.Rotatef(bgRotate, 0, 0, 1)
+	gl.Begin(gl.TRIANGLES)
+	gl.Color3ub(255, 218, 58)
+	for i := float64(0); i <= BgSegments; i++ {
+		if math.Mod(i, 2) == 0 {
+			gl.Vertex2i(0, 0)
+		}
+		a := 2 * math.Pi * i / BgSegments
+		gl.Vertex2d(math.Sin(a)*windowRadius, math.Cos(a)*windowRadius)
+	}
+	gl.End()
+	gl.PopMatrix()
 }
