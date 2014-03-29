@@ -144,7 +144,32 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 		case glfw.KeySpace:
 			g.Continue()
 
+		case glfw.Key1:
+			keySwitch(0)
+		case glfw.Key2:
+			keySwitch(1)
+		case glfw.Key3:
+			keySwitch(2)
+		case glfw.Key4:
+			keySwitch(3)
+		case glfw.Key5:
+			keySwitch(4)
+		case glfw.Key6:
+			keySwitch(5)
+		case glfw.Key7:
+			keySwitch(6)
+		case glfw.Key8:
+			keySwitch(7)
+		case glfw.Key9:
+			keySwitch(9)
+
 		}
+	}
+}
+
+func keySwitch(key int) {
+	if g.Listen() && key < len(g.level.switches) {
+		g.level.TriggerSwitch(key)
 	}
 }
 
@@ -241,59 +266,56 @@ func renderSwitchBlocks(s *Switch) {
 		gl.Rotatef(float32(s.rotate), 0, 0, 1)
 	}
 	bsf := float32(BlockSize - s.Z)
+	padding := float32(BlockPadding)
 
 	var b *Block
 	// Render block top left
 	b = g.level.blocks[s.line][s.col]
 	if !b.Rendered {
 		gl.PushMatrix()
-		gl.Translatef(-BlockPadding, -BlockPadding, 0)
-		renderBlock(b, -bsf, -bsf)
+		gl.Translatef(-bsf-padding, -bsf-padding, 0)
+		renderBlock(b.Color, bsf, bsf)
 		gl.PopMatrix()
+		b.Rendered = true
 	}
 
 	// Render block top right
 	b = g.level.blocks[s.line][s.col+1]
 	if !b.Rendered {
 		gl.PushMatrix()
-		gl.Translatef(BlockPadding, -BlockPadding, 0)
-		renderBlock(b, bsf, -bsf)
+		gl.Translatef(padding, -bsf-padding, 0)
+		renderBlock(b.Color, bsf, bsf)
 		gl.PopMatrix()
+		b.Rendered = true
 	}
 
 	// Render block bottom right
 	b = g.level.blocks[s.line+1][s.col+1]
 	if !b.Rendered {
 		gl.PushMatrix()
-		gl.Translatef(BlockPadding, BlockPadding, 0)
-		renderBlock(b, bsf, bsf)
+		gl.Translatef(padding, padding, 0)
+		renderBlock(b.Color, bsf, bsf)
 		gl.PopMatrix()
+		b.Rendered = true
 	}
 
 	// render block bottom left
 	b = g.level.blocks[s.line+1][s.col]
 	if !b.Rendered {
 		gl.PushMatrix()
-		gl.Translatef(-BlockPadding, BlockPadding, 0)
-		renderBlock(b, -bsf, bsf)
+		gl.Translatef(-bsf-padding, padding, 0)
+		renderBlock(b.Color, bsf, bsf)
 		gl.PopMatrix()
+		b.Rendered = true
 	}
 }
 
-func renderBlock(b *Block, w, h float32) {
+func renderBlock(color ColorDef, w, h float32) {
 	var wbr, hbr float32
 
-	if w > 0 {
-		wbr = BlockRadius
-	} else {
-		wbr = -BlockRadius
-	}
-	if h > 0 {
-		hbr = BlockRadius
-	} else {
-		hbr = -BlockRadius
-	}
-	setColor(b.Color)
+	wbr = BlockRadius
+	hbr = BlockRadius
+	setColor(color)
 	gl.Begin(gl.QUADS)
 	// Render inner square
 	gl.Vertex2f(wbr, hbr)
@@ -335,8 +357,6 @@ func renderBlock(b *Block, w, h float32) {
 	ww, hh = float64(w-wbr), float64(hbr)
 	renderCorner(ww, hh, 3)
 	gl.PopMatrix()
-
-	b.Rendered = true
 }
 
 func renderCorner(ww, hh, start float64) {
@@ -346,13 +366,7 @@ func renderCorner(ww, hh, start float64) {
 	for i := start * BlockCornerSegments; i <= max; i++ {
 		a := math.Pi / 2 * i / BlockCornerSegments
 		x := math.Cos(a) * BlockRadius
-		if ww < 0 {
-			x = -x
-		}
 		y := math.Sin(a) * BlockRadius
-		if hh < 0 {
-			y = -y
-		}
 		gl.Vertex2d(ww+x, hh+y)
 	}
 	gl.End()

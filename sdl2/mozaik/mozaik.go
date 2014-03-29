@@ -37,6 +37,10 @@ func (g *Game) Click(x, y int) {
 	}
 }
 
+func (g *Game) Listen() bool {
+	return g.listen && g.level.rotating == nil
+}
+
 func (g *Game) Update() {
 	for _, s := range g.level.switches {
 		s.state.Update(g, s)
