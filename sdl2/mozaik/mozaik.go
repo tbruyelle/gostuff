@@ -1,16 +1,18 @@
 package main
 
 const (
-	WindowWidth        = 800
-	WindowHeight       = 800
-	BlockSize          = 128
-	SwitchSize         = 48
-	DashboardHeight    = 128
-	XMin               = 32
-	YMin               = 32
-	XMax               = WindowHeight - 32
-	YMax               = WindowWidth - 32 - DashboardHeight
-	SignatureBlockSize = 32
+	WindowWidth          = 800
+	WindowHeight         = 800
+	BlockSize            = 128
+	BlockRadius          = 10
+	SwitchSize           = 48
+	DashboardHeight      = 128
+	XMin                 = 32
+	YMin                 = 32
+	XMax                 = WindowHeight - 32
+	YMax                 = WindowWidth - 32 - DashboardHeight
+	SignatureBlockSize   = 32
+	SignatureBlockRadius = 6
 )
 
 type Game struct {

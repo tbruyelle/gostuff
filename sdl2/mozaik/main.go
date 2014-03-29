@@ -14,7 +14,6 @@ import (
 
 const (
 	FRAME_RATE          = time.Second / 40
-	BlockRadius         = 10
 	BlockCornerSegments = 6
 	BlockPadding        = 1
 )
@@ -274,7 +273,7 @@ func renderSwitchBlocks(s *Switch) {
 	if !b.Rendered {
 		gl.PushMatrix()
 		gl.Translatef(-bsf-padding, -bsf-padding, 0)
-		renderBlock(b.Color, bsf, bsf)
+		renderBlock(b, bsf)
 		gl.PopMatrix()
 		b.Rendered = true
 	}
@@ -284,7 +283,7 @@ func renderSwitchBlocks(s *Switch) {
 	if !b.Rendered {
 		gl.PushMatrix()
 		gl.Translatef(padding, -bsf-padding, 0)
-		renderBlock(b.Color, bsf, bsf)
+		renderBlock(b, bsf)
 		gl.PopMatrix()
 		b.Rendered = true
 	}
@@ -294,7 +293,7 @@ func renderSwitchBlocks(s *Switch) {
 	if !b.Rendered {
 		gl.PushMatrix()
 		gl.Translatef(padding, padding, 0)
-		renderBlock(b.Color, bsf, bsf)
+		renderBlock(b, bsf)
 		gl.PopMatrix()
 		b.Rendered = true
 	}
@@ -304,69 +303,73 @@ func renderSwitchBlocks(s *Switch) {
 	if !b.Rendered {
 		gl.PushMatrix()
 		gl.Translatef(-bsf-padding, padding, 0)
-		renderBlock(b.Color, bsf, bsf)
+		renderBlock(b, bsf)
 		gl.PopMatrix()
 		b.Rendered = true
 	}
 }
 
-func renderBlock(color ColorDef, w, h float32) {
-	var wbr, hbr float32
+func renderBlock(b *Block, s float32) {
+	renderBlock_(b.Color, s, s, BlockRadius)
+}
 
-	wbr = BlockRadius
-	hbr = BlockRadius
+func renderBlockSignature(color ColorDef) {
+	renderBlock_(color, SignatureBlockSize, SignatureBlockSize, SignatureBlockRadius)
+}
+
+func renderBlock_(color ColorDef, w, h, radius float32) {
 	setColor(color)
 	gl.Begin(gl.QUADS)
 	// Render inner square
-	gl.Vertex2f(wbr, hbr)
-	gl.Vertex2f(wbr, h-hbr)
-	gl.Vertex2f(w-wbr, h-hbr)
-	gl.Vertex2f(w-wbr, hbr)
+	gl.Vertex2f(radius, radius)
+	gl.Vertex2f(radius, h-radius)
+	gl.Vertex2f(w-radius, h-radius)
+	gl.Vertex2f(w-radius, radius)
 	// Render top square
-	gl.Vertex2f(wbr, h-hbr)
-	gl.Vertex2f(wbr, h)
-	gl.Vertex2f(w-wbr, h)
-	gl.Vertex2f(w-wbr, h-hbr)
+	gl.Vertex2f(radius, h-radius)
+	gl.Vertex2f(radius, h)
+	gl.Vertex2f(w-radius, h)
+	gl.Vertex2f(w-radius, h-radius)
 	// Render bottom square
-	gl.Vertex2f(wbr, hbr)
-	gl.Vertex2f(wbr, 0)
-	gl.Vertex2f(w-wbr, 0)
-	gl.Vertex2f(w-wbr, hbr)
+	gl.Vertex2f(radius, radius)
+	gl.Vertex2f(radius, 0)
+	gl.Vertex2f(w-radius, 0)
+	gl.Vertex2f(w-radius, radius)
 	// Render left square
-	gl.Vertex2f(w-wbr, hbr)
-	gl.Vertex2f(w, hbr)
-	gl.Vertex2f(w, h-hbr)
-	gl.Vertex2f(w-wbr, h-hbr)
+	gl.Vertex2f(w-radius, radius)
+	gl.Vertex2f(w, radius)
+	gl.Vertex2f(w, h-radius)
+	gl.Vertex2f(w-radius, h-radius)
 	// Render right square
-	gl.Vertex2f(wbr, hbr)
-	gl.Vertex2f(0, hbr)
-	gl.Vertex2f(0, h-hbr)
-	gl.Vertex2f(wbr, h-hbr)
+	gl.Vertex2f(radius, radius)
+	gl.Vertex2f(0, radius)
+	gl.Vertex2f(0, h-radius)
+	gl.Vertex2f(radius, h-radius)
 	gl.End()
 	// Render bottom right corner
-	ww, hh := float64(w-wbr), float64(h-hbr)
-	renderCorner(ww, hh, 0)
+	ww, hh := float64(w-radius), float64(h-radius)
+	renderCorner(ww, hh, 0, radius)
 	// Render bottom left corner
-	ww, hh = float64(wbr), float64(h-hbr)
-	renderCorner(ww, hh, 1)
+	ww, hh = float64(radius), float64(h-radius)
+	renderCorner(ww, hh, 1, radius)
 	// Render top left corner
 	// Not visible because hide by the switch
-	ww, hh = float64(wbr), float64(hbr)
-	renderCorner(ww, hh, 2)
+	ww, hh = float64(radius), float64(radius)
+	renderCorner(ww, hh, 2, radius)
 	// Render top right corner
-	ww, hh = float64(w-wbr), float64(hbr)
-	renderCorner(ww, hh, 3)
+	ww, hh = float64(w-radius), float64(radius)
+	renderCorner(ww, hh, 3, radius)
 	gl.PopMatrix()
 }
 
-func renderCorner(ww, hh, start float64) {
+func renderCorner(ww, hh, start float64, radius float32) {
 	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Vertex2d(ww, hh)
 	max := BlockCornerSegments * (start + 1)
 	for i := start * BlockCornerSegments; i <= max; i++ {
 		a := math.Pi / 2 * i / BlockCornerSegments
-		x := math.Cos(a) * BlockRadius
-		y := math.Sin(a) * BlockRadius
+		x := math.Cos(a) * float64(radius)
+		y := math.Sin(a) * float64(radius)
 		gl.Vertex2d(ww+x, hh+y)
 	}
 	gl.End()
@@ -426,13 +429,7 @@ func renderDashboard() {
 			continue
 		}
 		if c != '-' {
-			gl.Begin(gl.QUADS)
-			setColor(atoc(string(c)))
-			gl.Vertex2i(0, 0)
-			gl.Vertex2i(SignatureBlockSize, 0)
-			gl.Vertex2i(SignatureBlockSize, SignatureBlockSize)
-			gl.Vertex2i(0, SignatureBlockSize)
-			gl.End()
+			renderBlockSignature(atoc(string(c)))
 		}
 		gl.Translated(SignatureBlockSize, 0, 0)
 	}
