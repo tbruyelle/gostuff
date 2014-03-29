@@ -425,12 +425,12 @@ func renderDashboard() {
 		if c == '\n' {
 			line++
 			gl.LoadIdentity()
-			gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight+SignatureBlockSize*line), 0)
+			gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight+SignatureBlockSize*line+BlockPadding), 0)
 			continue
 		}
 		if c != '-' {
 			renderBlockSignature(atoc(string(c)))
 		}
-		gl.Translated(SignatureBlockSize, 0, 0)
+		gl.Translated(SignatureBlockSize+BlockPadding, 0, 0)
 	}
 }
