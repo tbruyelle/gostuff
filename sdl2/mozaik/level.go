@@ -62,7 +62,7 @@ func (l *Level) HowFar() int {
 // UndoLastMove cancels the last player move
 func (l *Level) UndoLastMove() {
 	if l.rotating != nil {
-		return 
+		return
 	}
 	sw := l.PopLastRotated()
 	if sw != nil {

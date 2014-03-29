@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"reflect"
 )
 
 type State interface {
@@ -16,23 +17,27 @@ type IdleState struct {
 }
 
 func NewIdleState() State {
-	return &IdleState{}
+	return IdleState{}
 }
 
-func (s *IdleState) Enter(g *Game, sw *Switch) {
+func (s IdleState) Enter(g *Game, sw *Switch) {
 }
 
-func (s *IdleState) Exit(g *Game, sw *Switch) {}
+func (s IdleState) Exit(g *Game, sw *Switch) {}
 
-func (s *IdleState) Update(g *Game, sw *Switch) {
+func (s IdleState) Update(g *Game, sw *Switch) {
 }
 
-func (s *IdleState) AllowChange(state State) bool {
+func (s IdleState) AllowChange(state State) bool {
 	switch state.(type) {
-	case *IdleState:
+	case IdleState:
 		return false
 	}
 	return true
+}
+
+func StateName(s State) string {
+	return reflect.TypeOf(s).String()
 }
 
 // RotateState performs a 90d rotation
@@ -41,7 +46,7 @@ type RotateState struct {
 }
 
 func NewRotateState() State {
-	return &RotateState{}
+	return RotateState{}
 }
 
 const (
@@ -58,20 +63,20 @@ func smoothstep(step float64, goal int) (r float64) {
 	return 3*math.Pow(x, 2) - 2*math.Pow(x, 3)
 }
 
-func (s *RotateState) Enter(g *Game, sw *Switch) {
+func (s RotateState) Enter(g *Game, sw *Switch) {
 	g.level.rotating = sw
 	sw.rotate = 0
 	sw.Z = 0
 }
 
-func (s *RotateState) Exit(g *Game, sw *Switch) {
+func (s RotateState) Exit(g *Game, sw *Switch) {
 	g.level.RotateSwitch(sw)
 	g.level.rotating = nil
 	sw.rotate = 0
 	sw.Z = 0
 }
 
-func (s *RotateState) Update(g *Game, sw *Switch) {
+func (s RotateState) Update(g *Game, sw *Switch) {
 	// Update the rotation
 	sw.rotate += rotatePerTick
 	// Update the depth
@@ -86,9 +91,9 @@ func (s *RotateState) Update(g *Game, sw *Switch) {
 	}
 }
 
-func (s *RotateState) AllowChange(state State) bool {
+func (s RotateState) AllowChange(state State) bool {
 	switch state.(type) {
-	case *RotateState:
+	case RotateState:
 		return false
 	}
 	return true
@@ -100,17 +105,17 @@ type RotateStateReverse struct {
 }
 
 func NewRotateStateReverse() State {
-	return &RotateStateReverse{}
+	return RotateStateReverse{}
 }
 
-func (s *RotateStateReverse) Exit(g *Game, sw *Switch) {
+func (s RotateStateReverse) Exit(g *Game, sw *Switch) {
 	g.level.RotateSwitchInverse(sw)
 	sw.rotate = 0
 	sw.Z = 0
 	g.level.rotating = nil
 }
 
-func (s *RotateStateReverse) Update(g *Game, sw *Switch) {
+func (s RotateStateReverse) Update(g *Game, sw *Switch) {
 	sw.rotate -= rotatePerTick
 	// Update the depth
 	if sw.rotate < -halfRotate {
@@ -120,7 +125,9 @@ func (s *RotateStateReverse) Update(g *Game, sw *Switch) {
 	}
 	if sw.rotate <= -rotateDegree {
 		fmt.Println("exiting", sw.name)
+		fmt.Println("exiting2", StateName(sw.state))
 		sw.ChangeState(NewIdleState())
+		fmt.Println("exiting3", StateName(sw.state))
 	}
 }
 
@@ -130,18 +137,28 @@ type ResetState struct {
 }
 
 func NewResetState() State {
-	return &ResetState{}
+	return ResetState{}
 }
 
-func (s *ResetState) Exit(g *Game, sw *Switch) {
-	g.level.RotateSwitchInverse(sw)
-	sw.rotate = 0
-	sw.Z = 0
-	g.level.rotating = nil
-	last := g.level.PopLastRotated()
-	if last != nil {
-		last.ChangeState(NewResetState())
+func (s ResetState) Update(g *Game, sw *Switch) {
+	sw.rotate -= rotatePerTick
+	// Update the depth
+	if sw.rotate < -halfRotate {
+		sw.Z -= zTick
 	} else {
-		g.listen = true
+		sw.Z += zTick
+	}
+	if sw.rotate <= -rotateDegree {
+		// Process next switch
+		last := g.level.PopLastRotated()
+		if last != nil {
+			last.ChangeState(NewResetState())
+			if last != sw {
+				sw.ChangeState(NewIdleState())
+			}
+		} else {
+			g.listen = true
+			sw.ChangeState(NewIdleState())
+		}
 	}
 }

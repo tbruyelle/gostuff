@@ -134,12 +134,16 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 
 		case glfw.KeyR:
 			g.Reset()
+
 		case glfw.KeyW:
 			g.Warp()
+
 		case glfw.KeyC:
 			g.UndoLastMove()
+
 		case glfw.KeySpace:
 			g.Continue()
+
 		}
 	}
 }

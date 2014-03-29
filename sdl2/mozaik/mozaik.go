@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 const (
 	WindowWidth        = 800
 	WindowHeight       = 800
@@ -39,6 +43,9 @@ func (g *Game) Click(x, y int) {
 
 func (g *Game) Update() {
 	for _, s := range g.level.switches {
+		if StateName(s.state) != "main.IdleState" {
+			fmt.Println("state", s.name, StateName(s.state))
+		}
 		s.state.Update(g, s)
 	}
 }
@@ -65,7 +72,7 @@ func (g *Game) UndoLastMove() {
 func (g *Game) Reset() {
 	sw := g.level.PopLastRotated()
 	if sw != nil {
-	g.listen = false
+		g.listen = false
 		sw.ChangeState(NewResetState())
 	}
 }
