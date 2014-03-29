@@ -129,7 +129,9 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 	if action == glfw.Press {
 		switch key {
 		case glfw.KeyEscape:
-			close(mainfunc)
+			g.Stop()
+			os.Exit(0)
+
 		case glfw.KeyR:
 			g.Reset()
 		case glfw.KeyW:
@@ -154,7 +156,6 @@ func mouseCb(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod gl
 }
 
 func eventLoop(g *Game) {
-	defer close(mainfunc)
 	eventTicker := time.NewTicker(time.Millisecond * 10)
 
 	for {
@@ -168,8 +169,6 @@ func eventLoop(g *Game) {
 }
 
 func renderLoop(g *Game) {
-	defer close(mainfunc)
-
 	mainTicker := time.NewTicker(FRAME_RATE)
 
 	for {
