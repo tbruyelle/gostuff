@@ -13,6 +13,8 @@ const (
 	YMax                 = WindowWidth - 32 - DashboardHeight
 	SignatureBlockSize   = 32
 	SignatureBlockRadius = 6
+	LineWidth            = 2
+	SignatureLineWidth   = 1
 )
 
 type Game struct {

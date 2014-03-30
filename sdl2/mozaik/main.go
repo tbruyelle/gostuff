@@ -67,6 +67,9 @@ func main() {
 	}
 	defer glfw.Terminate()
 
+	// antialiasing
+	//glfw.WindowHint(glfw.Samples, 4)
+
 	window, err = glfw.CreateWindow(WindowWidth, WindowHeight, "Mozaik", nil, nil)
 	if err != nil {
 		panic(err)
@@ -75,7 +78,6 @@ func main() {
 
 	// Ensure thread context
 	window.MakeContextCurrent()
-
 	//glfw.SwapInterval(1)
 
 	window.SetKeyCallback(keyCb)
@@ -85,6 +87,10 @@ func main() {
 	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	// useless in 2D
 	gl.Disable(gl.DEPTH_TEST)
+	// antialiasing
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.Enable(gl.LINE_SMOOTH)
 
 	for i := int32(32); i < 72; i++ {
 		font := loadFonts(i)
@@ -317,14 +323,14 @@ func renderSwitchBlocks(s *Switch) {
 }
 
 func renderBlock(b *Block, s float32) {
-	renderBlock_(b.Color, s, s, BlockRadius)
+	renderBlock_(b.Color, s, s, BlockRadius, LineWidth)
 }
 
 func renderBlockSignature(color ColorDef) {
-	renderBlock_(color, SignatureBlockSize, SignatureBlockSize, SignatureBlockRadius)
+	renderBlock_(color, SignatureBlockSize, SignatureBlockSize, SignatureBlockRadius, SignatureLineWidth)
 }
 
-func renderBlock_(color ColorDef, w, h, radius float32) {
+func renderBlock_(color ColorDef, w, h, radius, lineWidth float32) {
 	setColor(color)
 	gl.Begin(gl.QUADS)
 	// Render inner square
@@ -355,24 +361,46 @@ func renderBlock_(color ColorDef, w, h, radius float32) {
 	gl.End()
 	// Render bottom right corner
 	ww, hh := float64(w-radius), float64(h-radius)
-	renderCorner(ww, hh, 0, radius)
+	renderCorner(color, ww, hh, 0, radius, lineWidth)
 	// Render bottom left corner
 	ww, hh = float64(radius), float64(h-radius)
-	renderCorner(ww, hh, 1, radius)
+	renderCorner(color, ww, hh, 1, radius, lineWidth)
 	// Render top left corner
-	// Not visible because hide by the switch
 	ww, hh = float64(radius), float64(radius)
-	renderCorner(ww, hh, 2, radius)
+	renderCorner(color, ww, hh, 2, radius, lineWidth)
 	// Render top right corner
 	ww, hh = float64(w-radius), float64(radius)
-	renderCorner(ww, hh, 3, radius)
+	renderCorner(color, ww, hh, 3, radius, lineWidth)
+
+	if lineWidth != 0 {
+		// Render the shape
+		gl.LineWidth(lineWidth)
+		gl.Color3i(0, 0, 0)
+		gl.Begin(gl.LINES)
+
+		gl.Vertex2f(radius, 0)
+		gl.Vertex2f(w-radius, 0)
+
+		gl.Vertex2f(0, radius)
+		gl.Vertex2f(0, h-radius)
+
+		gl.Vertex2f(w, radius)
+		gl.Vertex2f(w, h-radius)
+
+		gl.Vertex2f(radius, h)
+		gl.Vertex2f(w-radius, h)
+
+		gl.End()
+	}
 	gl.PopMatrix()
 }
 
-func renderCorner(ww, hh, start float64, radius float32) {
+func renderCorner(color ColorDef, ww, hh, start float64, radius, lineWidth float32) {
+	setColor(color)
+	max := BlockCornerSegments * (start + 1)
+	// Render the corner
 	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Vertex2d(ww, hh)
-	max := BlockCornerSegments * (start + 1)
 	for i := start * BlockCornerSegments; i <= max; i++ {
 		a := math.Pi / 2 * i / BlockCornerSegments
 		x := math.Cos(a) * float64(radius)
@@ -380,6 +408,20 @@ func renderCorner(ww, hh, start float64, radius float32) {
 		gl.Vertex2d(ww+x, hh+y)
 	}
 	gl.End()
+
+	if lineWidth != 0 {
+		// Render the shape
+		gl.LineWidth(lineWidth)
+		gl.Color3i(0, 0, 0)
+		gl.Begin(gl.LINE_STRIP)
+		for i := start * BlockCornerSegments; i <= max; i++ {
+			a := math.Pi / 2 * i / BlockCornerSegments
+			x := math.Cos(a) * float64(radius)
+			y := math.Sin(a) * float64(radius)
+			gl.Vertex2d(ww+x, hh+y)
+		}
+		gl.End()
+	}
 }
 
 func renderSwitch(s *Switch) {
@@ -389,7 +431,7 @@ func renderSwitch(s *Switch) {
 	x, y := float32(s.X+v), float32(s.Y+v)
 	gl.Translatef(x, y, 0)
 	// Render the switch
-	gl.Color3f(1.0, 1.0, 1.0)
+	gl.Color3f(1, 1, 1)
 	gl.Begin(gl.TRIANGLE_FAN)
 	gl.Vertex2d(0, 0)
 	vv := float64(v)
@@ -399,11 +441,23 @@ func renderSwitch(s *Switch) {
 	}
 	gl.End()
 
+	if LineWidth != 0 {
+		// Render the shape
+		gl.Color3i(0, 0, 0)
+		gl.LineWidth(LineWidth)
+		gl.Begin(gl.LINE_LOOP)
+		for i := float64(0); i <= SwitchSegments; i++ {
+			a := 2 * math.Pi * i / SwitchSegments
+			gl.Vertex2d(math.Sin(a)*vv, math.Cos(a)*vv)
+		}
+		gl.End()
+	}
+
 	// Write the switch name
 	gl.LoadIdentity()
-	w, h := fonts[0].Metrics(s.name)
-	gl.Color3f(0, 0, 0)
-	fonts[0].Printf(x-float32(w)/2, y-float32(h)/2+2, s.name)
+	w, h := fonts[6].Metrics(s.name)
+	gl.Color3i(0, 0, 0)
+	fonts[6].Printf(x-float32(w)/2, y-float32(h)/2+2, s.name)
 }
 
 func setColor(color ColorDef) {
