@@ -1,8 +1,8 @@
 package main
 
 const (
-	WindowWidth          = 800
-	WindowHeight         = 800
+	WindowWidth          = 576
+	WindowHeight         = 704
 	BlockSize            = 128
 	BlockRadius          = 10
 	SwitchSize           = 48
