@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MaxDepth      = 18
+	MaxDepth = 25
 )
 
 type Node struct {
@@ -21,14 +21,17 @@ type Node struct {
 	lvl Level
 }
 
+var signs map[string]bool
+
 func (n *Node) String() string {
 	//return fmt.Sprintf("s%d, d=%d, childs=%+v", n.s, n.depth, n.childs)
 	//return fmt.Sprintf("s%d, d=%d, parent=[%+v] win=%t", n.s, n.depth, n.parent, n.lvl.Win())
 	depth := n.depth
-	return fmt.Sprintf("d=%d, sws=%s", depth, n.signature())
+	return fmt.Sprintf("d=%d, sws=%s", depth, n.road())
 }
 
-func (n *Node) signature() string {
+// Returns the switch combination used so far
+func (n *Node) road() string {
 	var s string
 	for n.parent != nil {
 		s = strconv.Itoa(n.s) + s
@@ -83,6 +86,7 @@ func check(n *Node, paths *[]*Node) {
 		*paths = append(*paths, n)
 		return
 	}
+
 	// Add childs
 	//fmt.Printf("n%d %t %t %s\n", n.s, n.lvl.IsPlain(n.s), n.hasRotatedTwice(), n.lvl.blockSignature())
 	for i := range n.lvl.switches {
@@ -108,6 +112,7 @@ func FindPathAsync(lvl Level) *Node {
 	origHowFar = lvl.HowFar()
 	fmt.Printf("orig howfar=%d\n", origHowFar)
 
+	signs = make(map[string]bool)
 	quit := make(chan bool)
 	nodes := make(chan *Node)
 	for i := range lvl.switches {
@@ -129,8 +134,8 @@ func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
 	case <-quit:
 		return
 	default:
-		howfar := n.lvl.HowFar()
-		fmt.Printf("check %+v %d\n", n, howfar)
+		//howfar := n.lvl.HowFar()
+		//fmt.Printf("check \n%+v%d\n", n.lvl.blockSignature(), howfar)
 		if n.depth > MaxDepth {
 			return
 		}
@@ -144,6 +149,16 @@ func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
 			nodes <- n
 			return
 		}
+
+		// Check if the new signature has already been reached
+		sign := n.lvl.blockSignature()
+		if signs[sign] {
+			// Signature already reached, skip
+			//fmt.Println("already reached")
+			return
+		}
+		signs[sign] = true
+
 		// Add childs
 		//fmt.Printf("n%d %t %t %s\n", n.s, n.lvl.IsPlain(n.s), n.hasRotatedTwice(), n.lvl.blockSignature())
 		for i := range n.lvl.switches {

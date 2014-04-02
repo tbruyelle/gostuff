@@ -76,6 +76,7 @@ func main() {
 	}
 	defer window.Destroy()
 
+
 	// Ensure thread context
 	window.MakeContextCurrent()
 	//glfw.SwapInterval(1)

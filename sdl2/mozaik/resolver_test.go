@@ -28,7 +28,43 @@ func TestFindPaths_Level3(t *testing.T) {
 	lvl := LoadLevel(3)
 
 	//paths := FindShortestPaths(lvl)
-	n:=FindPathAsync(lvl)
+	n := FindPathAsync(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestFindPaths_Level4(t *testing.T) {
+	lvl := LoadLevel(4)
+
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestFindPaths_Level5(t *testing.T) {
+	lvl := LoadLevel(5)
+
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestFindPaths_Level6(t *testing.T) {
+	lvl := LoadLevel(6)
+
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestFindPaths_Level7(t *testing.T) {
+	lvl := LoadLevel(7)
+
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
 
 	fmt.Printf("test result %+v\n", n)
 }
