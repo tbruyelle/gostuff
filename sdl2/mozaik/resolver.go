@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"math"
-	"strconv"
 )
 
 const (
-	MaxDepth = 25
+	MaxDepth = 12
 )
 
 type Node struct {
@@ -34,10 +33,10 @@ func (n *Node) String() string {
 func (n *Node) road() string {
 	var s string
 	for n.parent != nil {
-		s = strconv.Itoa(n.s) + s
+		s = n.lvl.switches[n.s].name + s
 		n = n.parent
 	}
-	s = strconv.Itoa(n.s) + s
+	s = n.lvl.switches[n.s].name + s
 	return s
 }
 

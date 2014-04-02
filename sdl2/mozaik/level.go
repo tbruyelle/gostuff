@@ -88,11 +88,44 @@ func (l *Level) addSwitch(line, col int) {
 		line: line, col: col,
 		X:    XMin + (col+1)*BlockSize + col*BlockPadding*2 - SwitchSize/2,
 		Y:    YMin + (line+1)*BlockSize + line*BlockPadding*2 - SwitchSize/2,
-		name: strconv.Itoa(len(l.switches) + 1),
+		name: determineName(line, col),
 	}
 	s.ChangeState(NewIdleState())
 	l.switches = append(l.switches, s)
 	//fmt.Println("Switch added", s.X, s.Y)
+}
+
+func determineName(line, col int) string {
+	switch line {
+	case 0:
+		switch col {
+		case 0:
+			return "7"
+		case 1:
+			return "8"
+		case 2:
+			return "9"
+		}
+	case 1:
+		switch col {
+		case 0:
+			return "4"
+		case 1:
+			return "5"
+		case 2:
+			return "6"
+		}
+	case 2:
+		switch col {
+		case 0:
+			return "1"
+		case 1:
+			return "2"
+		case 2:
+			return "3"
+		}
+	}
+	return "x"
 }
 
 // PressSwitch tries to find a swicth from the coordinates
@@ -106,10 +139,18 @@ func (l *Level) PressSwitch(x, y int) {
 	}
 }
 
-func (l *Level) TriggerSwitch(i int) {
-	l.switches[i].Rotate()
-	l.rotated = append(l.rotated, i)
+func (l *Level) TriggerSwitchName(name string) {
+	for i := 0; i < len(l.switches); i++ {
+		if l.switches[i].name == name {
+			l.TriggerSwitch(i)
+			return
+		}
+	}
 }
+func (l *Level) TriggerSwitch(i int) {
+			l.switches[i].Rotate()
+			l.rotated = append(l.rotated, i)
+		}
 
 func (l *Level) findSwitch(x, y int) (int, *Switch) {
 	for i, s := range l.switches {

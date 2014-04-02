@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestFindPaths_Level1(t *testing.T) {
+func BenchmarkFindPaths_Level1(t *testing.B) {
 	lvl := LoadLevel(1)
 
 	//paths := FindShortestPaths(lvl)
@@ -15,7 +15,7 @@ func TestFindPaths_Level1(t *testing.T) {
 	fmt.Printf("test result %+v\n", n)
 }
 
-func TestFindPaths_Level2(t *testing.T) {
+func BenchmarkFindPaths_Level2(t *testing.B) {
 	lvl := LoadLevel(2)
 
 	//paths := FindShortestPaths(lvl)
@@ -24,7 +24,7 @@ func TestFindPaths_Level2(t *testing.T) {
 	fmt.Printf("test result %+v\n", n)
 }
 
-func TestFindPaths_Level3(t *testing.T) {
+func BenchmarkFindPaths_Level3(t *testing.B) {
 	lvl := LoadLevel(3)
 
 	//paths := FindShortestPaths(lvl)
@@ -33,7 +33,7 @@ func TestFindPaths_Level3(t *testing.T) {
 	fmt.Printf("test result %+v\n", n)
 }
 
-func TestFindPaths_Level4(t *testing.T) {
+func BenchmarkFindPaths_Level4(t *testing.B) {
 	lvl := LoadLevel(4)
 
 	//paths := FindShortestPaths(lvl)
@@ -42,7 +42,7 @@ func TestFindPaths_Level4(t *testing.T) {
 	fmt.Printf("test result %+v\n", n)
 }
 
-func TestFindPaths_Level5(t *testing.T) {
+func BenchmarkFindPaths_Level5(t *testing.B) {
 	lvl := LoadLevel(5)
 
 	//paths := FindShortestPaths(lvl)
@@ -51,7 +51,7 @@ func TestFindPaths_Level5(t *testing.T) {
 	fmt.Printf("test result %+v\n", n)
 }
 
-func TestFindPaths_Level6(t *testing.T) {
+func BenchmarkFindPaths_Level6(t *testing.B) {
 	lvl := LoadLevel(6)
 
 	//paths := FindShortestPaths(lvl)
@@ -60,8 +60,17 @@ func TestFindPaths_Level6(t *testing.T) {
 	fmt.Printf("test result %+v\n", n)
 }
 
-func TestFindPaths_Level7(t *testing.T) {
+func BenchmarkFindPaths_Level7(t *testing.B) {
 	lvl := LoadLevel(7)
+
+	//paths := FindShortestPaths(lvl)
+	n := FindPathAsync(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func BenchmarkFindPaths_Level8(t *testing.B) {
+	lvl := LoadLevel(8)
 
 	//paths := FindShortestPaths(lvl)
 	n := FindPathAsync(lvl)

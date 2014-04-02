@@ -76,7 +76,6 @@ func main() {
 	}
 	defer window.Destroy()
 
-
 	// Ensure thread context
 	window.MakeContextCurrent()
 	//glfw.SwapInterval(1)
@@ -157,31 +156,31 @@ func keyCb(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 			g.Continue()
 
 		case glfw.Key1:
-			keySwitch(0)
+			keySwitch("1")
 		case glfw.Key2:
-			keySwitch(1)
+			keySwitch("2")
 		case glfw.Key3:
-			keySwitch(2)
+			keySwitch("3")
 		case glfw.Key4:
-			keySwitch(3)
+			keySwitch("4")
 		case glfw.Key5:
-			keySwitch(4)
+			keySwitch("5")
 		case glfw.Key6:
-			keySwitch(5)
+			keySwitch("6")
 		case glfw.Key7:
-			keySwitch(6)
+			keySwitch("7")
 		case glfw.Key8:
-			keySwitch(7)
+			keySwitch("8")
 		case glfw.Key9:
-			keySwitch(9)
+			keySwitch("9")
 
 		}
 	}
 }
 
-func keySwitch(key int) {
-	if g.Listen() && key < len(g.level.switches) {
-		g.level.TriggerSwitch(key)
+func keySwitch(name string) {
+	if g.Listen() {
+		g.level.TriggerSwitchName(name)
 	}
 }
 
