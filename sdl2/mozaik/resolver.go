@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MaxDepth = 12
+	MaxDepth = 30
 )
 
 type Node struct {
@@ -150,6 +150,7 @@ func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
 		//howfar := n.lvl.HowFar()
 		//fmt.Printf("check \n%+v%d\n", n.lvl.blockSignature(), howfar)
 		if n.depth > MaxDepth {
+			fmt.Println("max depth reached")
 			return
 		}
 		n.lvl.RotateSwitch(n.lvl.switches[n.s])
