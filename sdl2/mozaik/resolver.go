@@ -129,17 +129,17 @@ func FindPathAsync(lvl Level) *Node {
 	quit := make(chan bool)
 	nodes := make(chan *Node)
 	for i := range lvl.switches {
-		fmt.Printf("find path starting switch %d %t\n", i, lvl.IsPlain(i))
-		n := &Node{s: i, depth: 1, lvl: lvl.Copy()}
-		if n.lvl.IsPlain(n.s) {
+		if lvl.IsPlain(i) {
 			continue
 		}
+		fmt.Printf("find path switch %d\n", i)
+		n := &Node{s: i, depth: 1, lvl: lvl.Copy()}
 		go checkAsync(n, nodes, quit)
 		//fmt.Printf("switch %d path=%+v\n", i, n)
 	}
-	n := <-nodes
+	win := <-nodes
 	close(quit)
-	return n
+	return win
 }
 
 func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
@@ -165,7 +165,7 @@ func checkAsync(n *Node, nodes chan *Node, quit chan bool) {
 
 		// Check if the new signature has already been reached
 		sign := n.lvl.blockSignature()
-		if hasSign(sign){
+		if hasSign(sign) {
 			// Signature already reached, skip
 			//fmt.Println("already reached")
 			return
