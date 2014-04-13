@@ -61,7 +61,7 @@ func main() {
 	renderer.SetDrawColor(255, 255, 255, 255)
 	renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
 
-	tilesetFile := os.Getenv("GOPATH") + "/src/github.com/tbruyelle/gostuff/sdl2/candy/assets/tileset.bmp"
+	tilesetFile := os.Getenv("GOPATH") + "/src/github.com/tbruyelle/gostuff/games/candy/assets/tileset.bmp"
 	tilesetSurface := sdl.LoadBMP(tilesetFile)
 	if tilesetSurface == nil {
 		fmt.Fprintf(os.Stderr, "Failed to load bitmap %s", tilesetFile)
