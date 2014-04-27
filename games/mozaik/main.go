@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	FRAME_RATE          = time.Second / 40
+	FRAME_RATE          = time.Second / 25
 	BlockCornerSegments = 6
 	BlockPadding        = 1
 	SwitchSegments      = 20
@@ -50,6 +50,10 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 	fmt.Printf("%v: %v\n", err, desc)
 }
 
+type World struct {
+	background *Model
+}
+
 var (
 	window       *glfw.Window
 	err          error
@@ -57,6 +61,7 @@ var (
 	fonts        []*gltext.Font
 	fontInd      int
 	windowRadius float64
+	w            = &World{}
 )
 
 func main() {
@@ -69,6 +74,10 @@ func main() {
 
 	// antialiasing
 	//glfw.WindowHint(glfw.Samples, 4)
+	glfw.WindowHint(glfw.ContextVersionMajor, 3)
+	glfw.WindowHint(glfw.ContextVersionMinor, 3)
+	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
 
 	window, err = glfw.CreateWindow(WindowWidth, WindowHeight, "Mozaik", nil, nil)
 	if err != nil {
@@ -84,7 +93,6 @@ func main() {
 	window.SetMouseButtonCallback(mouseCb)
 
 	gl.Init()
-	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	// useless in 2D
 	gl.Disable(gl.DEPTH_TEST)
 	// antialiasing
@@ -92,21 +100,23 @@ func main() {
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.LINE_SMOOTH)
 
-	for i := int32(32); i < 72; i++ {
-		font := loadFonts(i)
-		defer font.Release()
-		fonts = append(fonts, font)
-	}
+	//for i := int32(32); i < 72; i++ {
+	//	font := loadFonts(i)
+	//	defer font.Release()
+	//	fonts = append(fonts, font)
+	//}
 
 	// Compute window radius
 	windowRadius = math.Sqrt(math.Pow(WindowHeight, 2) + math.Pow(WindowWidth, 2))
 
 	// Use window coordinates
-	gl.MatrixMode(gl.PROJECTION)
-	gl.LoadIdentity()
-	gl.Ortho(0, WindowWidth, WindowHeight, 0, 0, 1)
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
+	//gl.MatrixMode(gl.PROJECTION)
+	//gl.LoadIdentity()
+	//gl.Ortho(0, WindowWidth, WindowHeight, 0, 0, 1)
+	//gl.MatrixMode(gl.MODELVIEW)
+	//gl.LoadIdentity()
+
+	w.background = NewBackground()
 
 	g = NewGame()
 
@@ -216,10 +226,17 @@ func renderLoop(g *Game) {
 		case <-mainTicker.C:
 			g.Update()
 			do(func() {
-				render(g)
+				draw()
+				//render(g)
 			})
 		}
 	}
+}
+
+func draw() {
+	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
+	gl.Clear(gl.COLOR_BUFFER_BIT)
+	w.background.Draw()
 }
 
 func render(g *Game) {
