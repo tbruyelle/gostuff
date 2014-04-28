@@ -121,7 +121,7 @@ func main() {
 	g.Start()
 	w.background = NewBackground()
 	for _, sw := range g.level.switches {
-		w.switches = append(w.switches, NewSwitchModel(sw))
+		w.switches = append(w.switches, NewSwitchModel(sw, &g.level))
 	}
 
 	go eventLoop(g)
@@ -131,6 +131,14 @@ func main() {
 }
 
 func draw() {
+	// Reinit blocks as not renderered
+	for i := 0; i < len(g.level.blocks); i++ {
+		for j := 0; j < len(g.level.blocks[i]); j++ {
+			if g.level.blocks[i][j] != nil {
+				g.level.blocks[i][j].Rendered = false
+			}
+		}
+	}
 	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	w.background.Draw()
