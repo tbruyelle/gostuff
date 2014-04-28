@@ -45,10 +45,6 @@ func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 
 	t.vao = gl.GenVertexArray()
 	t.vao.Bind()
-
-	gl.Enable(gl.CULL_FACE)
-	gl.CullFace(gl.BACK)
-	gl.FrontFace(gl.CW)
 }
 
 func (t *Model) Destroy() {
