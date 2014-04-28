@@ -10,7 +10,6 @@ uniform mat4 modelView;
 
 void main() {
 	theColor = color;
-	//gl_Position = (position+ totalOffset) * perpectiveMatrix;
-	gl_Position = position*modelView;
+	gl_Position = projectionView * modelView * position;
 }
 

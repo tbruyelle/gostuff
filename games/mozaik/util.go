@@ -24,7 +24,7 @@ var (
 	RedColor   = Color{1.0, 0.0, 0.0, 1.0}
 	GreenColor = Color{0.0, 1.0, 0.0, 1.0}
 	BlueColor  = Color{0.0, 0.0, 1.0, 1.0}
-	BgColor    = Color{1.0, 0.85, 0.23,1.0}
+	BgColor    = Color{1.0, 0.85, 0.23, 1.0}
 )
 
 type Coords struct{ X, Y, Z, W float32 }

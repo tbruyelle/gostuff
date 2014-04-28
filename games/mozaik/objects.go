@@ -40,6 +40,7 @@ func (t *Background) Draw() {
 	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
 
 	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
+	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
 
 	gl.DrawArrays(gl.TRIANGLES, 0, len(t.vertices))
 

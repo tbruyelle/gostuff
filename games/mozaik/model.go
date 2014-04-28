@@ -14,23 +14,24 @@ type Model struct {
 	colLoc                                  gl.AttribLocation
 	vao                                     gl.VertexArray
 	uniformModelView, uniformProjectionView gl.UniformLocation
-	modelView                               mathgl.Mat4f
+	modelView, projectionView               mathgl.Mat4f
 }
 
 func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 	t.vertices = vertices
 	t.sizeVertices = len(t.vertices) * sizeVertex
 
+	// Shaders
 	vshader := loadShader(gl.VERTEX_SHADER, vshaderf)
 	fshader := loadShader(gl.FRAGMENT_SHADER, fshaderf)
 	t.prg = NewProgram(vshader, fshader)
 	t.posLoc = gl.AttribLocation(0)
 	t.colLoc = gl.AttribLocation(1)
-	t.uniformProjectionView = t.prg.GetUniformLocation("perpectiveMatrix")
+	t.uniformProjectionView = t.prg.GetUniformLocation("projectionView")
 	t.uniformModelView = t.prg.GetUniformLocation("modelView")
 
 	// the projection matrix
-	// t.projectionView=? need ortho projecttion here, is this default ?
+	t.projectionView = mathgl.Ident4f()
 
 	// the model view
 	t.modelView = mathgl.Ident4f()
