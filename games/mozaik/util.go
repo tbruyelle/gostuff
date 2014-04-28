@@ -21,6 +21,7 @@ func NewVertex(X, Y, Z float32, color Color) Vertex {
 }
 
 var (
+	WhiteColor = Color{1.0, 1.0, 1.0, 1.0}
 	RedColor   = Color{1.0, 0.0, 0.0, 1.0}
 	GreenColor = Color{0.0, 1.0, 0.0, 1.0}
 	BlueColor  = Color{0.0, 0.0, 1.0, 1.0}

@@ -52,6 +52,7 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 
 type World struct {
 	background *Background
+	switches   []*SwitchModel
 }
 
 var (
@@ -116,15 +117,27 @@ func main() {
 	//gl.MatrixMode(gl.MODELVIEW)
 	//gl.LoadIdentity()
 
-	w.background = NewBackground()
-
 	g = NewGame()
-
 	g.Start()
+	w.background = NewBackground()
+	for _, sw := range g.level.switches {
+		w.switches = append(w.switches, NewSwitchModel(sw))
+	}
+
 	go eventLoop(g)
 	go renderLoop(g)
 	Main()
 	g.Stop()
+}
+
+func draw() {
+	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
+	gl.Clear(gl.COLOR_BUFFER_BIT)
+	w.background.Draw()
+	for _, swm := range w.switches {
+		swm.Draw()
+	}
+	window.SwapBuffers()
 }
 
 // Load the font
@@ -231,13 +244,6 @@ func renderLoop(g *Game) {
 			})
 		}
 	}
-}
-
-func draw() {
-	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
-	gl.Clear(gl.COLOR_BUFFER_BIT)
-	w.background.Draw()
-	window.SwapBuffers()
 }
 
 func render(g *Game) {
