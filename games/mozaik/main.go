@@ -51,7 +51,7 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 }
 
 type World struct {
-	background *Model
+	background *Background
 }
 
 var (

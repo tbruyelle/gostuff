@@ -1,15 +1,16 @@
 #version 330
 
-layout(location = 0) in vec4 vert;
+layout(location=0) in vec4 position;
+layout(location=1) in vec4 color;
 
-//uniform mat4 projection;
-//uniform mat4 view;
-//uniform mat4 model;
+smooth out vec4 theColor;
 
-void main()
-{
-    //gl_Position = projection * view * model * vert;
-    gl_Position = vert;
+uniform mat4 projectionView;
+uniform mat4 modelView;
+
+void main() {
+	theColor = color;
+	//gl_Position = (position+ totalOffset) * perpectiveMatrix;
+	gl_Position = position*modelView;
 }
-
 

@@ -1,10 +1,18 @@
 package main
 
 import (
+	"github.com/go-gl/gl"
+	"github.com/remogatto/mathgl"
 	"math"
 )
 
-func NewBackground() *Model {
+type Background struct {
+	Model
+	angle float32
+}
+
+func NewBackground() *Background {
+	model := &Background{}
 	vs := []Vertex{}
 
 	for i := float64(0); i <= BgSegments; i++ {
@@ -14,70 +22,28 @@ func NewBackground() *Model {
 		a := 2 * math.Pi * i / BgSegments
 		vs = append(vs, NewVertex(float32(math.Sin(a)*windowRadius), float32(math.Cos(a)*windowRadius), 0, BgColor))
 	}
-	m := NewModel(vs, "shaders/rotate.vert", "shaders/colorv.frag")
-	return m
+	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
+	return model
 }
 
-func NewCube2() *Model {
-	return NewModel(readVertexFile("data/cube"), "shaders/rorateCube.vert", "shaders/cube.frag")
-}
+func (t *Background) Draw() {
+	t.angle += 0.05
+	t.modelView = mathgl.HomogRotate3D(t.angle, [3]float32{0, 0, 1})
 
-func NewTriangle() *Model {
-	return NewModel([]Vertex{
-		NewVertex(0.0, 0.5, 0.0, RedColor),
-		NewVertex(0.5, -0.366, 0.0, GreenColor),
-		NewVertex(-0.5, -0.366, 0.0, BlueColor),
-	}, "shaders/rotateOffset.vert", "shaders/offset.frag")
-}
+	t.prg.Use()
 
-func NewCube() *Model {
-	return NewModel([]Vertex{
-		NewVertex(0.25, 0.25, 0.75, RedColor),
-		NewVertex(0.25, -0.25, 0.75, RedColor),
-		NewVertex(-0.25, 0.25, 0.75, RedColor),
+	t.buffer.Bind(gl.ARRAY_BUFFER)
 
-		NewVertex(0.25, -0.25, 0.75, RedColor),
-		NewVertex(-0.25, -0.25, 0.75, RedColor),
-		NewVertex(-0.25, 0.25, 0.75, RedColor),
+	t.posLoc.EnableArray()
+	t.posLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(0))
+	t.colLoc.EnableArray()
+	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
 
-		NewVertex(0.25, 0.25, -0.75, GreenColor),
-		NewVertex(-0.25, 0.25, -0.75, GreenColor),
-		NewVertex(0.25, -0.25, -0.75, GreenColor),
+	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
 
-		NewVertex(0.25, -0.25, -0.75, GreenColor),
-		NewVertex(-0.25, 0.25, -0.75, GreenColor),
-		NewVertex(-0.25, -0.25, -0.75, GreenColor),
+	gl.DrawArrays(gl.TRIANGLES, 0, len(t.vertices))
 
-		NewVertex(-0.25, 0.25, 0.75, BlueColor),
-		NewVertex(-0.25, -0.25, 0.75, BlueColor),
-		NewVertex(-0.25, -0.25, -0.75, BlueColor),
-
-		NewVertex(-0.25, 0.25, 0.75, BlueColor),
-		NewVertex(-0.25, -0.25, -0.75, BlueColor),
-		NewVertex(-0.25, 0.25, -0.75, BlueColor),
-
-		NewVertex(0.25, 0.25, 0.75, RedColor),
-		NewVertex(0.25, -0.25, -0.75, RedColor),
-		NewVertex(0.25, -0.25, 0.75, RedColor),
-
-		NewVertex(0.25, 0.25, 0.75, RedColor),
-		NewVertex(0.25, 0.25, -0.75, RedColor),
-		NewVertex(0.25, -0.25, -0.75, RedColor),
-
-		NewVertex(0.25, 0.25, -0.75, RedColor),
-		NewVertex(0.25, 0.25, 0.75, RedColor),
-		NewVertex(-0.25, 0.25, 0.75, RedColor),
-
-		NewVertex(0.25, 0.25, -0.75, RedColor),
-		NewVertex(-0.25, 0.25, 0.75, RedColor),
-		NewVertex(-0.25, 0.25, -0.75, RedColor),
-
-		NewVertex(0.25, -0.25, -0.75, RedColor),
-		NewVertex(-0.25, -0.25, 0.75, RedColor),
-		NewVertex(0.25, -0.25, 0.75, RedColor),
-
-		NewVertex(0.25, -0.25, -0.75, RedColor),
-		NewVertex(-0.25, -0.25, -0.75, RedColor),
-		NewVertex(-0.25, -0.25, 0.75, RedColor),
-	}, "shaders/cube.vert", "shaders/cube.frag")
+	t.posLoc.DisableArray()
+	t.buffer.Unbind(gl.ARRAY_BUFFER)
+	gl.ProgramUnuse()
 }
