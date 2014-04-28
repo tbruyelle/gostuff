@@ -92,7 +92,8 @@ func renderLoopFunc(control *renderLoopControl) loop.LoopFunc {
 				gl.Init()
 				gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 
-				w.background = NewBackground()
+				//w.background = NewBackground()
+				w.background = NewTriangle()
 
 			// At each tick render a frame and swap buffers.
 			case <-ticker.C:

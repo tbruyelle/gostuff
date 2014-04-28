@@ -5,7 +5,8 @@ layout(location=1) in vec4 color;
 
 smooth out vec4 theColor;
 
-uniform mat4 perpectiveMatrix;
+uniform mat4 projectionView;
+uniform mat4 modelView;
 uniform float loopDuration;
 uniform float time;
 
@@ -20,6 +21,7 @@ void main() {
 			0.0f,
 			0.0f);
 
-	gl_Position = (position+ totalOffset) * perpectiveMatrix;
+	//gl_Position = (position+ totalOffset) * perpectiveMatrix;
+	gl_Position = position*modelView;
 }
 

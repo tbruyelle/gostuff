@@ -14,7 +14,7 @@ func NewBackground() *Model {
 		a := 2 * math.Pi * i / BgSegments
 		vs = append(vs, NewVertex(float32(math.Sin(a)*windowRadius), float32(math.Cos(a)*windowRadius), 0, BgColor))
 	}
-	m := NewModel(vs, "shaders/basic.vert", "shaders/basic.frag")
+	m := NewModel(vs, "shaders/rotate.vert", "shaders/colorv.frag")
 	return m
 }
 

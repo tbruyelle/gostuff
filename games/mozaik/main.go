@@ -94,11 +94,11 @@ func main() {
 
 	gl.Init()
 	// useless in 2D
-	gl.Disable(gl.DEPTH_TEST)
+	//gl.Disable(gl.DEPTH_TEST)
 	// antialiasing
-	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	gl.Enable(gl.LINE_SMOOTH)
+	//gl.Enable(gl.BLEND)
+	//gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	//gl.Enable(gl.LINE_SMOOTH)
 
 	//for i := int32(32); i < 72; i++ {
 	//	font := loadFonts(i)
@@ -237,6 +237,7 @@ func draw() {
 	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	w.background.Draw()
+	window.SwapBuffers()
 }
 
 func render(g *Game) {
