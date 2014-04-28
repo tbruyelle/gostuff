@@ -65,10 +65,21 @@ func (w *World) initScene() {
 	w.model = NewCube2()
 }
 
+var vertices = []float32{-0.5, -0.5, 0.0, 0.5, 0.5, -0.5}
+
 func (w *World) drawScene() {
-	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
+	//gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-	w.model.Draw()
+
+	loc := gl.AttribLocation(0)
+	loc.AttribPointer(2, gl.FLOAT, false, 0, vertices)
+	loc.EnableArray()
+
+	gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+	loc.DisableArray()
+
+	//	w.model.Draw()
 }
 
 func (w *World) destroyScene() {
