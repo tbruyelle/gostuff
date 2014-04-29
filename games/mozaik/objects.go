@@ -16,8 +16,8 @@ func NewBlockModel(bl *Block) *BlockModel {
 	vs := []Vertex{
 		NewVertex(0, 0, 0, BlueColor),
 		NewVertex(0, BlockSize, 0, BlueColor),
-		NewVertex(BlockSize, BlockSize, 0, BlueColor),
 		NewVertex(BlockSize, 0, 0, BlueColor),
+		NewVertex(BlockSize, BlockSize, 0, BlueColor),
 	}
 	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
 	return model
@@ -36,7 +36,7 @@ func (t *BlockModel) Draw() {
 	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
 	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
 
-	gl.DrawArrays(gl.QUADS, 0, len(t.vertices))
+	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, len(t.vertices))
 
 	t.posLoc.DisableArray()
 	t.colLoc.DisableArray()

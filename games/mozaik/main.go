@@ -139,6 +139,7 @@ func draw() {
 			}
 		}
 	}
+
 	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	w.background.Draw()
