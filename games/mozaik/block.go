@@ -25,7 +25,7 @@ type Switch struct {
 	state     State
 	line, col int
 	X, Y, Z   int
-	rotate    int
+	rotate    float32
 	name      string
 }
 

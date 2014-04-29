@@ -52,7 +52,7 @@ func NewRotateState() State {
 const (
 	rotateTicks         = 12
 	rotateRevertTicks   = 6
-	rotateDegree        = 90
+	rotateDegree        = math.Pi/2
 	halfRotate          = rotateDegree / 2
 	rotatePerTick       = rotateDegree / rotateTicks
 	rotateRevertPerTick = rotateDegree / rotateRevertTicks

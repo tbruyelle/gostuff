@@ -93,8 +93,7 @@ func (t *SwitchModel) Draw() {
 
 	modelViewBackup := t.modelView
 	if t.sw.rotate != 0 {
-		rad := math.Pi * float32(t.sw.rotate) / 180
-		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(rad, [3]float32{0, 0, 1}))
+		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(t.sw.rotate, [3]float32{0, 0, 1}))
 	}
 
 	// Draw the blocks
