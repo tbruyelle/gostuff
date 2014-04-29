@@ -15,6 +15,7 @@ type Model struct {
 	vao                                     gl.VertexArray
 	uniformModelView, uniformProjectionView gl.UniformLocation
 	modelView, projectionView               mathgl.Mat4f
+	vshader, fshader                        gl.Shader
 }
 
 func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
@@ -22,9 +23,9 @@ func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 	t.sizeVertices = len(t.vertices) * sizeVertex
 
 	// Shaders
-	vshader := loadShader(gl.VERTEX_SHADER, vshaderf)
-	fshader := loadShader(gl.FRAGMENT_SHADER, fshaderf)
-	t.prg = NewProgram(vshader, fshader)
+	t.vshader = loadShader(gl.VERTEX_SHADER, vshaderf)
+	t.fshader = loadShader(gl.FRAGMENT_SHADER, fshaderf)
+	t.prg = NewProgram(t.vshader, t.fshader)
 	t.posLoc = gl.AttribLocation(0)
 	t.colLoc = gl.AttribLocation(1)
 	t.uniformProjectionView = t.prg.GetUniformLocation("projectionView")
@@ -61,4 +62,7 @@ func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 func (t *Model) Destroy() {
 	t.buffer.Delete()
 	t.vao.Delete()
+	t.vshader.Delete()
+	t.fshader.Delete()
+	t.prg.Delete()
 }
