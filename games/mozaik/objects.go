@@ -172,7 +172,11 @@ func NewBackground() *Background {
 }
 
 func (t *Background) Draw() {
-	t.angle += 0.03
+	if t.angle > math.Pi {
+		t.angle = t.angle - math.Pi
+	} else {
+		t.angle += 0.03
+	}
 	modelViewBackup := t.modelView
 	t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(-t.angle, [3]float32{0, 0, 1}))
 
