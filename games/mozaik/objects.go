@@ -83,13 +83,20 @@ func NewSwitchModel(sw *Switch, lvl *Level) *SwitchModel {
 	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
 
 	v := SwitchSize / 2
-	model.projectionView = mathgl.Ortho2D(0, WindowWidth, WindowHeight, 0).Mul4(mathgl.Translate3D(float32(sw.X+v), float32(sw.Y+v), 0))
+	model.modelView = mathgl.Ortho2D(0, WindowWidth, WindowHeight, 0).Mul4(mathgl.Translate3D(float32(sw.X+v), float32(sw.Y+v), 0))
 
 	return model
 }
 
 // TODO the switch number
 func (t *SwitchModel) Draw() {
+
+	modelViewBackup := t.modelView
+	if t.sw.rotate != 0 {
+		rad := math.Pi * float32(t.sw.rotate) / 180
+		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(rad, [3]float32{0, 0, 1}))
+	}
+
 	// Draw the blocks
 	var b *Block
 	s := t.sw
@@ -97,22 +104,22 @@ func (t *SwitchModel) Draw() {
 	// top left block
 	b = t.lvl.blocks[s.line][s.col]
 	if !b.Rendered {
-		drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0)))
+		drawBlock(b, t.modelView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0)))
 	}
 	// top right block
 	b = t.lvl.blocks[s.line][s.col+1]
 	if !b.Rendered {
-		drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(0, -bsf, 0)))
+		drawBlock(b, t.modelView.Mul4(mathgl.Translate3D(0, -bsf, 0)))
 	}
 	// bottom right block
 	b = t.lvl.blocks[s.line+1][s.col+1]
 	if !b.Rendered {
-		drawBlock(b, t.projectionView)
+		drawBlock(b, t.modelView)
 	}
 	// bottom left block
 	b = t.lvl.blocks[s.line+1][s.col]
 	if !b.Rendered {
-		drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, 0, 0)))
+		drawBlock(b, t.modelView.Mul4(mathgl.Translate3D(-bsf, 0, 0)))
 	}
 
 	// Draw the switch
@@ -134,11 +141,13 @@ func (t *SwitchModel) Draw() {
 	t.colLoc.DisableArray()
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
 	gl.ProgramUnuse()
+
+	t.modelView = modelViewBackup
 }
 
-func drawBlock(b *Block, projectionView mathgl.Mat4f) {
+func drawBlock(b *Block, modelView mathgl.Mat4f) {
 	bl := NewBlockModel(b)
-	bl.projectionView = projectionView
+	bl.modelView = modelView
 	bl.Draw()
 	b.Rendered = true
 }

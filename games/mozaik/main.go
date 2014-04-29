@@ -140,9 +140,19 @@ func draw() {
 		}
 	}
 
+	// Draw
 	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	w.background.Draw()
+	if g.level.rotating != nil {
+		// Start draw the rotating switch
+		for _, swm := range w.switches {
+			if swm.sw == g.level.rotating {
+				swm.Draw()
+			}
+		}
+	}
+	// Draw the remaining switches
 	for _, swm := range w.switches {
 		swm.Draw()
 	}
