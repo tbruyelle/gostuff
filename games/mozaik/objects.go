@@ -10,14 +10,35 @@ type BlockModel struct {
 	Model
 }
 
-func NewBlockModel(bl *Block) *BlockModel {
+func getBlockColor(b *Block) Color {
+	switch b.Color {
+	case Red:
+		return RedColor
+	case Blue:
+		return BlueColor
+	case LightBlue:
+		return LightBlueColor
+	case Orange:
+		return OrangeColor
+	case Green:
+		return GreenColor
+	case Pink:
+		return PinkColor
+	case Yellow:
+		return YellowColor
+	}
+	return WhiteColor
+}
+
+func NewBlockModel(b *Block) *BlockModel {
 	model := &BlockModel{}
 
+	c := getBlockColor(b)
 	vs := []Vertex{
-		NewVertex(0, 0, 0, BlueColor),
-		NewVertex(0, BlockSize, 0, BlueColor),
-		NewVertex(BlockSize, 0, 0, BlueColor),
-		NewVertex(BlockSize, BlockSize, 0, BlueColor),
+		NewVertex(0, 0, 0, c),
+		NewVertex(0, BlockSize, 0, c),
+		NewVertex(BlockSize, 0, 0, c),
+		NewVertex(BlockSize, BlockSize, 0, c),
 	}
 	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
 	return model
@@ -75,24 +96,24 @@ func (t *SwitchModel) Draw() {
 	bsf := float32(BlockSize - s.Z)
 	// top left block
 	b = t.lvl.blocks[s.line][s.col]
-	if !b.Rendered{
-	drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0)))
-}
+	if !b.Rendered {
+		drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0)))
+	}
 	// top right block
 	b = t.lvl.blocks[s.line][s.col+1]
-	if !b.Rendered{
-	drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(0, -bsf, 0)))
-}
+	if !b.Rendered {
+		drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(0, -bsf, 0)))
+	}
 	// bottom right block
 	b = t.lvl.blocks[s.line+1][s.col+1]
-	if !b.Rendered{
-	drawBlock(b, t.projectionView)
-}
+	if !b.Rendered {
+		drawBlock(b, t.projectionView)
+	}
 	// bottom left block
 	b = t.lvl.blocks[s.line+1][s.col]
-	if !b.Rendered{
-	drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, 0, 0)))
-}
+	if !b.Rendered {
+		drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, 0, 0)))
+	}
 
 	// Draw the switch
 	t.prg.Use()
@@ -116,10 +137,10 @@ func (t *SwitchModel) Draw() {
 }
 
 func drawBlock(b *Block, projectionView mathgl.Mat4f) {
-		bl := NewBlockModel(b)
-		bl.projectionView = projectionView
-		bl.Draw()
-		b.Rendered = true
+	bl := NewBlockModel(b)
+	bl.projectionView = projectionView
+	bl.Draw()
+	b.Rendered = true
 }
 
 type Background struct {

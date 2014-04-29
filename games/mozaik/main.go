@@ -95,7 +95,7 @@ func main() {
 
 	gl.Init()
 	// useless in 2D
-	//gl.Disable(gl.DEPTH_TEST)
+	gl.Disable(gl.DEPTH_TEST)
 	// antialiasing
 	//gl.Enable(gl.BLEND)
 	//gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)

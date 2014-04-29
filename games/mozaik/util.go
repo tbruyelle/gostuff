@@ -21,11 +21,15 @@ func NewVertex(X, Y, Z float32, color Color) Vertex {
 }
 
 var (
-	WhiteColor = Color{1.0, 1.0, 1.0, 1.0}
-	RedColor   = Color{1.0, 0.0, 0.0, 1.0}
-	GreenColor = Color{0.0, 1.0, 0.0, 1.0}
-	BlueColor  = Color{0.0, 0.0, 1.0, 1.0}
-	BgColor    = Color{1.0, 0.85, 0.23, 1.0}
+	WhiteColor     = Color{1, 1, 1, 1}
+	RedColor       = Color{0.93, 0.05, 0.33, 1}
+	GreenColor     = Color{0.34, 0.64, 0, 1}
+	BlueColor      = Color{0.39, 0.58, 0.93, 1}
+	YellowColor    = Color{1, 0.85, 0.23, 1}
+	PinkColor      = Color{1, 0.70, 1, 1}
+	OrangeColor    = Color{0.95, 0.48, 0.07, 1}
+	LightBlueColor = Color{0.38, 0.87, 1, 1}
+	BgColor        = Color{1.0, 0.85, 0.23, 1.0}
 )
 
 type Coords struct{ X, Y, Z, W float32 }
