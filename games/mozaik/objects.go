@@ -75,36 +75,24 @@ func (t *SwitchModel) Draw() {
 	bsf := float32(BlockSize - s.Z)
 	// top left block
 	b = t.lvl.blocks[s.line][s.col]
-	if !b.Rendered {
-		bl := NewBlockModel(b)
-		bl.projectionView = t.projectionView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0))
-		bl.Draw()
-		b.Rendered = true
-	}
+	if !b.Rendered{
+	drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0)))
+}
 	// top right block
 	b = t.lvl.blocks[s.line][s.col+1]
-	if !b.Rendered {
-		bl := NewBlockModel(b)
-		bl.projectionView = t.projectionView.Mul4(mathgl.Translate3D(0, -bsf, 0))
-		bl.Draw()
-		b.Rendered = true
-	}
+	if !b.Rendered{
+	drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(0, -bsf, 0)))
+}
 	// bottom right block
 	b = t.lvl.blocks[s.line+1][s.col+1]
-	if !b.Rendered {
-		bl := NewBlockModel(b)
-		bl.projectionView = t.projectionView
-		bl.Draw()
-		b.Rendered = true
-	}
+	if !b.Rendered{
+	drawBlock(b, t.projectionView)
+}
 	// bottom left block
 	b = t.lvl.blocks[s.line+1][s.col]
-	if !b.Rendered {
-		bl := NewBlockModel(b)
-		bl.projectionView = t.projectionView.Mul4(mathgl.Translate3D(-bsf, 0, 0))
-		bl.Draw()
-		b.Rendered = true
-	}
+	if !b.Rendered{
+	drawBlock(b, t.projectionView.Mul4(mathgl.Translate3D(-bsf, 0, 0)))
+}
 
 	// Draw the switch
 	t.prg.Use()
@@ -125,6 +113,13 @@ func (t *SwitchModel) Draw() {
 	t.colLoc.DisableArray()
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
 	gl.ProgramUnuse()
+}
+
+func drawBlock(b *Block, projectionView mathgl.Mat4f) {
+		bl := NewBlockModel(b)
+		bl.projectionView = projectionView
+		bl.Draw()
+		b.Rendered = true
 }
 
 type Background struct {
