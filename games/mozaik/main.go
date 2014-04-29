@@ -88,7 +88,7 @@ func main() {
 
 	// Ensure thread context
 	window.MakeContextCurrent()
-	//glfw.SwapInterval(1)
+	glfw.SwapInterval(1)
 
 	window.SetKeyCallback(keyCb)
 	window.SetMouseButtonCallback(mouseCb)

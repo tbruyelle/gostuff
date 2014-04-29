@@ -47,21 +47,15 @@ func NewBlockModel(b *Block) *BlockModel {
 func (t *BlockModel) Draw() {
 	t.prg.Use()
 
-	t.buffer.Bind(gl.ARRAY_BUFFER)
-
-	t.posLoc.EnableArray()
-	t.posLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(0))
-	t.colLoc.EnableArray()
-	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
+	t.vao.Bind()
 
 	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
 	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
 
 	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, len(t.vertices))
 
-	t.posLoc.DisableArray()
-	t.colLoc.DisableArray()
-	t.buffer.Unbind(gl.ARRAY_BUFFER)
+	(gl.VertexArray(0)).Bind()
+
 	gl.ProgramUnuse()
 }
 
@@ -124,21 +118,14 @@ func (t *SwitchModel) Draw() {
 	// Draw the switch
 	t.prg.Use()
 
-	t.buffer.Bind(gl.ARRAY_BUFFER)
-
-	t.posLoc.EnableArray()
-	t.posLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(0))
-	t.colLoc.EnableArray()
-	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
+	t.vao.Bind()
 
 	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
 	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
 
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, len(t.vertices))
 
-	t.posLoc.DisableArray()
-	t.colLoc.DisableArray()
-	t.buffer.Unbind(gl.ARRAY_BUFFER)
+	(gl.VertexArray(0)).Bind()
 	gl.ProgramUnuse()
 
 	t.modelView = modelViewBackup
@@ -182,21 +169,14 @@ func (t *Background) Draw() {
 
 	t.prg.Use()
 
-	t.buffer.Bind(gl.ARRAY_BUFFER)
-
-	t.posLoc.EnableArray()
-	t.posLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(0))
-	t.colLoc.EnableArray()
-	t.colLoc.AttribPointer(4, gl.FLOAT, false, sizeVertex, uintptr(sizeCoords))
+	t.vao.Bind()
 
 	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
 	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
 
 	gl.DrawArrays(gl.TRIANGLES, 0, len(t.vertices))
 
-	t.posLoc.DisableArray()
-	t.colLoc.DisableArray()
-	t.buffer.Unbind(gl.ARRAY_BUFFER)
+	(gl.VertexArray(0)).Bind()
 	gl.ProgramUnuse()
 
 	t.modelView = modelViewBackup
