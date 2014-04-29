@@ -173,7 +173,8 @@ func NewBackground() *Background {
 
 func (t *Background) Draw() {
 	t.angle += 0.03
-	t.modelView = mathgl.HomogRotate3D(-t.angle, [3]float32{0, 0, 1})
+	modelViewBackup := t.modelView
+	t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(-t.angle, [3]float32{0, 0, 1}))
 
 	t.prg.Use()
 
@@ -193,4 +194,6 @@ func (t *Background) Draw() {
 	t.colLoc.DisableArray()
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
 	gl.ProgramUnuse()
+
+	t.modelView = modelViewBackup
 }
