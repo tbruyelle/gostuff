@@ -49,8 +49,7 @@ func (t *BlockModel) Draw() {
 
 	t.vao.Bind()
 
-	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
-	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
+	t.sendMVP()
 
 	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, len(t.vertices))
 
@@ -119,8 +118,7 @@ func (t *SwitchModel) Draw() {
 
 	t.vao.Bind()
 
-	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
-	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
+	t.sendMVP()
 
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, len(t.vertices))
 
@@ -170,8 +168,8 @@ func (t *Background) Draw() {
 
 	t.vao.Bind()
 
-	t.uniformModelView.UniformMatrix4f(false, (*[16]float32)(&t.modelView))
-	t.uniformProjectionView.UniformMatrix4f(false, (*[16]float32)(&t.projectionView))
+	t.sendMVP()
+
 
 	gl.DrawArrays(gl.TRIANGLES, 0, len(t.vertices))
 

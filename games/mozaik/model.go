@@ -6,16 +6,16 @@ import (
 )
 
 type Model struct {
-	buffer                                  gl.Buffer
-	vertices                                []Vertex
-	sizeVertices                            int
-	prg                                     gl.Program
-	posLoc                                  gl.AttribLocation
-	colLoc                                  gl.AttribLocation
-	vao                                     gl.VertexArray
-	uniformModelView, uniformProjectionView gl.UniformLocation
-	modelView, projectionView               mathgl.Mat4f
-	vshader, fshader                        gl.Shader
+	buffer                gl.Buffer
+	vertices              []Vertex
+	sizeVertices          int
+	prg                   gl.Program
+	posLoc                gl.AttribLocation
+	colLoc                gl.AttribLocation
+	vao                   gl.VertexArray
+	uniformMVP            gl.UniformLocation
+	modelView, projection mathgl.Mat4f
+	vshader, fshader      gl.Shader
 }
 
 func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
@@ -28,11 +28,10 @@ func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 	t.prg = NewProgram(t.vshader, t.fshader)
 	t.posLoc = gl.AttribLocation(0)
 	t.colLoc = gl.AttribLocation(1)
-	t.uniformProjectionView = t.prg.GetUniformLocation("projectionView")
-	t.uniformModelView = t.prg.GetUniformLocation("modelView")
+	t.uniformMVP = t.prg.GetUniformLocation("modelViewProjection")
 
 	// the projection matrix
-	t.projectionView = mathgl.Ident4f()
+	t.projection = mathgl.Ident4f()
 
 	// the model view
 	t.modelView = mathgl.Ident4f()
@@ -65,4 +64,9 @@ func (t *Model) Destroy() {
 	t.vshader.Delete()
 	t.fshader.Delete()
 	t.prg.Delete()
+}
+
+func (t *Model) sendMVP() {
+	mvp := t.modelView.Mul4(t.projection)
+	t.uniformMVP.UniformMatrix4f(false, (*[16]float32)(&mvp))
 }
