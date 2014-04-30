@@ -109,25 +109,27 @@ func main() {
 
 	// Compute window radius
 	windowRadius = math.Sqrt(math.Pow(WindowHeight, 2) + math.Pow(WindowWidth, 2))
-
-	// Use window coordinates
-	//gl.MatrixMode(gl.PROJECTION)
-	//gl.LoadIdentity()
-	//gl.Ortho(0, WindowWidth, WindowHeight, 0, 0, 1)
-	//gl.MatrixMode(gl.MODELVIEW)
-	//gl.LoadIdentity()
+	w.background = NewBackground()
 
 	g = NewGame()
 	g.Start()
-	w.background = NewBackground()
-	for _, sw := range g.level.switches {
-		w.switches = append(w.switches, NewSwitchModel(sw, &g.level))
-	}
-
+	w.Reset()
 	go eventLoop(g)
 	go renderLoop(g)
 	Main()
 	g.Stop()
+}
+
+func (w *World) Reset() {
+	if len(w.switches) > 0 {
+		for _, s := range w.switches {
+			s.Destroy()
+		}
+	}
+	w.switches = nil
+	for _, sw := range g.level.switches {
+		w.switches = append(w.switches, NewSwitchModel(sw, &g.level))
+	}
 }
 
 func draw() {

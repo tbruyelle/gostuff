@@ -56,11 +56,13 @@ func (g *Game) Continue() {
 		g.Warp()
 	}
 }
+
 func (g *Game) Warp() {
 	if g.listen {
 		// Next level
 		g.currentLevel++
 		g.level = LoadLevel(g.currentLevel)
+		w.Reset()
 	}
 }
 

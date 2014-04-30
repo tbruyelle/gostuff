@@ -7,7 +7,8 @@ import (
 )
 
 type BlockModel struct {
-	Model
+	ModelBase
+	block *Block
 }
 
 func getBlockColor(b *Block) Color {
@@ -31,7 +32,7 @@ func getBlockColor(b *Block) Color {
 }
 
 func NewBlockModel(b *Block) *BlockModel {
-	model := &BlockModel{}
+	model := &BlockModel{block: b}
 
 	c := getBlockColor(b)
 	vs := []Vertex{
@@ -40,25 +41,19 @@ func NewBlockModel(b *Block) *BlockModel {
 		NewVertex(BlockSize, 0, 0, c),
 		NewVertex(BlockSize, BlockSize, 0, c),
 	}
-	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
+	model.Init(gl.TRIANGLE_STRIP, vs, "shaders/basic.vert", "shaders/basic.frag")
 	return model
 }
 
 func (t *BlockModel) Draw() {
-	t.prg.Use()
-
-	t.vao.Bind()
-
-	t.sendMVP()
-
-	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, len(t.vertices))
-
-	t.vao.Unbind()
-	t.prg.Unuse()
+	if !t.block.Rendered {
+		t.ModelBase.Draw()
+		t.block.Rendered = true
+	}
 }
 
 type SwitchModel struct {
-	Model
+	ModelBase
 	sw  *Switch
 	lvl *Level
 }
@@ -72,10 +67,27 @@ func NewSwitchModel(sw *Switch, lvl *Level) *SwitchModel {
 		a := 2 * math.Pi * i / SwitchSegments
 		vs = append(vs, NewVertex(float32(math.Sin(a)*vv), float32(math.Cos(a)*vv), 0, WhiteColor))
 	}
-	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
+	model.Init(gl.TRIANGLE_FAN, vs, "shaders/basic.vert", "shaders/basic.frag")
 
 	v := SwitchSize / 2
 	model.modelView = mathgl.Ortho2D(0, WindowWidth, WindowHeight, 0).Mul4(mathgl.Translate3D(float32(sw.X+v), float32(sw.Y+v), 0))
+
+	// Create the blocks
+	var b *Block
+	s := model.sw
+	bsf := float32(BlockSize - s.Z)
+	// top left block
+	b = model.lvl.blocks[s.line][s.col]
+	model.addBlock(b, mathgl.Translate3D(-bsf, -bsf, 0))
+	// top right block
+	b = model.lvl.blocks[s.line][s.col+1]
+	model.addBlock(b, mathgl.Translate3D(0, -bsf, 0))
+	// bottom right block
+	b = model.lvl.blocks[s.line+1][s.col+1]
+	model.addBlock(b, mathgl.Ident4f())
+	// bottom left block
+	b = model.lvl.blocks[s.line+1][s.col]
+	model.addBlock(b, mathgl.Translate3D(-bsf, 0, 0))
 
 	return model
 }
@@ -87,56 +99,26 @@ func (t *SwitchModel) Draw() {
 	if t.sw.rotate != 0 {
 		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(t.sw.rotate, [3]float32{0, 0, 1}))
 	}
-
-	// Draw the blocks
-	var b *Block
-	s := t.sw
-	bsf := float32(BlockSize - s.Z)
-	// top left block
-	b = t.lvl.blocks[s.line][s.col]
-	if !b.Rendered {
-		drawBlock(b, t.modelView.Mul4(mathgl.Translate3D(-bsf, -bsf, 0)))
-	}
-	// top right block
-	b = t.lvl.blocks[s.line][s.col+1]
-	if !b.Rendered {
-		drawBlock(b, t.modelView.Mul4(mathgl.Translate3D(0, -bsf, 0)))
-	}
-	// bottom right block
-	b = t.lvl.blocks[s.line+1][s.col+1]
-	if !b.Rendered {
-		drawBlock(b, t.modelView)
-	}
-	// bottom left block
-	b = t.lvl.blocks[s.line+1][s.col]
-	if !b.Rendered {
-		drawBlock(b, t.modelView.Mul4(mathgl.Translate3D(-bsf, 0, 0)))
+	// Draw the childs
+	for _, child := range t.childs {
+		child.pushModelView(t.modelView)
+		child.Draw()
+		child.popModelView()
 	}
 
-	// Draw the switch
-	t.prg.Use()
-
-	t.vao.Bind()
-
-	t.sendMVP()
-
-	gl.DrawArrays(gl.TRIANGLE_FAN, 0, len(t.vertices))
-
-	t.vao.Unbind()
-	t.prg.Unuse()
+	t.ModelBase.Draw()
 
 	t.modelView = modelViewBackup
 }
 
-func drawBlock(b *Block, modelView mathgl.Mat4f) {
+func (t *SwitchModel) addBlock(b *Block, modelView mathgl.Mat4f) {
 	bl := NewBlockModel(b)
 	bl.modelView = modelView
-	bl.Draw()
-	b.Rendered = true
+	t.childs = append(t.childs, bl)
 }
 
 type Background struct {
-	Model
+	ModelBase
 	angle float32
 }
 
@@ -151,7 +133,7 @@ func NewBackground() *Background {
 		a := 2 * math.Pi * i / BgSegments
 		vs = append(vs, NewVertex(float32(math.Sin(a)*windowRadius), float32(math.Cos(a)*windowRadius), 0, BgColor))
 	}
-	model.Init(vs, "shaders/basic.vert", "shaders/basic.frag")
+	model.Init(gl.TRIANGLES, vs, "shaders/basic.vert", "shaders/basic.frag")
 	return model
 }
 
@@ -164,17 +146,7 @@ func (t *Background) Draw() {
 	modelViewBackup := t.modelView
 	t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(-t.angle, [3]float32{0, 0, 1}))
 
-	t.prg.Use()
-
-	t.vao.Bind()
-
-	t.sendMVP()
-
-
-	gl.DrawArrays(gl.TRIANGLES, 0, len(t.vertices))
-
-	t.vao.Unbind()
-	t.prg.Unuse()
+	t.ModelBase.Draw()
 
 	t.modelView = modelViewBackup
 }

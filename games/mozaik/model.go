@@ -5,7 +5,15 @@ import (
 	"github.com/remogatto/mathgl"
 )
 
-type Model struct {
+type Model interface {
+	Draw()
+	Destroy()
+	pushModelView(modelView mathgl.Mat4f)
+	popModelView()
+}
+
+type ModelBase struct {
+	mode                  gl.GLenum
 	buffer                gl.Buffer
 	vertices              []Vertex
 	sizeVertices          int
@@ -15,10 +23,22 @@ type Model struct {
 	vao                   gl.VertexArray
 	uniformMVP            gl.UniformLocation
 	modelView, projection mathgl.Mat4f
+	modelViewBackup       mathgl.Mat4f
 	vshader, fshader      gl.Shader
+	childs                []Model
 }
 
-func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
+func (t *ModelBase) pushModelView(modelView mathgl.Mat4f) {
+	t.modelViewBackup = t.modelView
+	t.modelView = modelView.Mul4(t.modelView)
+}
+
+func (t *ModelBase) popModelView() {
+	t.modelView = t.modelViewBackup
+}
+
+func (t *ModelBase) Init(mode gl.GLenum, vertices []Vertex, vshaderf, fshaderf string) {
+	t.mode = mode
 	t.vertices = vertices
 	t.sizeVertices = len(t.vertices) * sizeVertex
 
@@ -58,15 +78,27 @@ func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 	t.vao.Unbind()
 }
 
-func (t *Model) Destroy() {
+func (t *ModelBase) Draw() {
+	t.prg.Use()
+
+	t.vao.Bind()
+
+	mvp := t.modelView.Mul4(t.projection)
+	t.uniformMVP.UniformMatrix4f(false, (*[16]float32)(&mvp))
+
+	gl.DrawArrays(t.mode, 0, len(t.vertices))
+
+	t.vao.Unbind()
+	t.prg.Unuse()
+}
+
+func (t *ModelBase) Destroy() {
+	for _, child := range t.childs {
+		child.Destroy()
+	}
 	t.buffer.Delete()
 	t.vao.Delete()
 	t.vshader.Delete()
 	t.fshader.Delete()
 	t.prg.Delete()
-}
-
-func (t *Model) sendMVP() {
-	mvp := t.modelView.Mul4(t.projection)
-	t.uniformMVP.UniformMatrix4f(false, (*[16]float32)(&mvp))
 }
