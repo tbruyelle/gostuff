@@ -56,7 +56,7 @@ func (t *Model) Init(vertices []Vertex, vshaderf, fshaderf string) {
 	t.colLoc.EnableArray()
 
 	t.buffer.Unbind(gl.ARRAY_BUFFER)
-	(gl.VertexArray(0)).Bind()
+	t.vao.Unbind()
 }
 
 func (t *Model) Destroy() {

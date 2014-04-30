@@ -54,9 +54,8 @@ func (t *BlockModel) Draw() {
 
 	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, len(t.vertices))
 
-	(gl.VertexArray(0)).Bind()
-
-	gl.ProgramUnuse()
+	t.vao.Unbind()
+	t.prg.Unuse()
 }
 
 type SwitchModel struct {
@@ -125,8 +124,8 @@ func (t *SwitchModel) Draw() {
 
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, len(t.vertices))
 
-	(gl.VertexArray(0)).Bind()
-	gl.ProgramUnuse()
+	t.vao.Unbind()
+	t.prg.Unuse()
 
 	t.modelView = modelViewBackup
 }
@@ -176,8 +175,8 @@ func (t *Background) Draw() {
 
 	gl.DrawArrays(gl.TRIANGLES, 0, len(t.vertices))
 
-	(gl.VertexArray(0)).Bind()
-	gl.ProgramUnuse()
+	t.vao.Unbind()
+	t.prg.Unuse()
 
 	t.modelView = modelViewBackup
 }
