@@ -45,13 +45,6 @@ func NewBlockModel(b *Block) *BlockModel {
 	return model
 }
 
-func (t *BlockModel) Draw() {
-	if !t.block.Rendered {
-		t.ModelBase.Draw()
-		t.block.Rendered = true
-	}
-}
-
 type SwitchModel struct {
 	ModelBase
 	sw *Switch
@@ -99,9 +92,12 @@ func (t *SwitchModel) Draw() {
 }
 
 func (t *SwitchModel) drawBlock(b *Block, modelView mathgl.Mat4f) {
-	bm := g.world.blocks[b]
-	bm.modelView = t.modelView.Mul4(modelView)
-	bm.Draw()
+	if !b.Rendered {
+		b.Rendered = true
+		bm := g.world.blocks[b]
+		bm.modelView = t.modelView.Mul4(modelView)
+		bm.Draw()
+	}
 }
 
 type Background struct {
