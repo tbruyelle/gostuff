@@ -61,7 +61,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	return &Game{currentLevel: 2, listen: true, world: &World{}}
+	return &Game{currentLevel: 1, listen: true, world: &World{}}
 }
 
 func (g *Game) Start() {
