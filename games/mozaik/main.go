@@ -50,11 +50,6 @@ func errorCallback(err glfw.ErrorCode, desc string) {
 	fmt.Printf("%v: %v\n", err, desc)
 }
 
-type World struct {
-	background *Background
-	switches   []*SwitchModel
-}
-
 var (
 	window       *glfw.Window
 	err          error
@@ -62,7 +57,6 @@ var (
 	fonts        []*gltext.Font
 	fontInd      int
 	windowRadius float64
-	w            = &World{}
 )
 
 func main() {
@@ -109,30 +103,20 @@ func main() {
 
 	// Compute window radius
 	windowRadius = math.Sqrt(math.Pow(WindowHeight, 2) + math.Pow(WindowWidth, 2))
-	w.background = NewBackground()
 
 	g = NewGame()
 	g.Start()
-	w.Reset()
 	go eventLoop(g)
 	go renderLoop(g)
 	Main()
 	g.Stop()
 }
 
-func (w *World) Reset() {
-	if len(w.switches) > 0 {
-		for _, s := range w.switches {
-			s.Destroy()
-		}
-	}
-	w.switches = nil
-	for _, sw := range g.level.switches {
-		w.switches = append(w.switches, NewSwitchModel(sw, &g.level))
-	}
-}
-
 func draw() {
+	if g.world.needReset {
+		g.world.Reset()
+	}
+
 	// Reinit blocks as not renderered
 	for i := 0; i < len(g.level.blocks); i++ {
 		for j := 0; j < len(g.level.blocks[i]); j++ {
@@ -145,6 +129,7 @@ func draw() {
 	// Draw
 	gl.ClearColor(0.9, 0.85, 0.46, 0.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
+	w := g.world
 	w.background.Draw()
 	if g.level.rotating != nil {
 		// Start draw the rotating switch

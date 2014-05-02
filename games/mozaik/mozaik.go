@@ -17,19 +17,40 @@ const (
 	SignatureLineWidth   = 1
 )
 
+type World struct {
+	needReset  bool
+	background *Background
+	switches   []*SwitchModel
+}
+
+func (w *World) Reset() {
+	w.needReset = false
+	if len(w.switches) > 0 {
+		for _, s := range w.switches {
+			s.Destroy()
+		}
+	}
+	w.switches = nil
+	for _, sw := range g.level.switches {
+		w.switches = append(w.switches, NewSwitchModel(sw, &g.level))
+	}
+}
+
 type Game struct {
 	currentLevel int
 	level        Level
 	listen       bool
+	world        *World
 }
 
 func NewGame() *Game {
-	return &Game{currentLevel: 1, listen: true}
+	return &Game{currentLevel: 2, listen: true, world: &World{needReset: true}}
 }
 
 func (g *Game) Start() {
 	// Load first level
 	g.level = LoadLevel(g.currentLevel)
+	g.world.background = NewBackground()
 }
 
 func (g *Game) Stop() {
@@ -62,7 +83,7 @@ func (g *Game) Warp() {
 		// Next level
 		g.currentLevel++
 		g.level = LoadLevel(g.currentLevel)
-		w.Reset()
+		g.world.needReset = true
 	}
 }
 

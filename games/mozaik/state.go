@@ -52,7 +52,7 @@ func NewRotateState() State {
 const (
 	rotateTicks         = 12
 	rotateRevertTicks   = 6
-	rotateDegree        = math.Pi/2
+	rotateDegree        = math.Pi / 2
 	halfRotate          = rotateDegree / 2
 	rotatePerTick       = rotateDegree / rotateTicks
 	rotateRevertPerTick = rotateDegree / rotateRevertTicks
@@ -76,6 +76,7 @@ func (s RotateState) Exit(g *Game, sw *Switch) {
 	g.level.rotating = nil
 	sw.rotate = 0
 	sw.Z = 0
+	g.world.needReset = true
 }
 
 func (s RotateState) Update(g *Game, sw *Switch) {
@@ -115,6 +116,7 @@ func (s RotateStateReverse) Exit(g *Game, sw *Switch) {
 	sw.rotate = 0
 	sw.Z = 0
 	g.level.rotating = nil
+	g.world.needReset = true
 }
 
 func (s RotateStateReverse) Update(g *Game, sw *Switch) {
