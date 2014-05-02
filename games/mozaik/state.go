@@ -56,7 +56,7 @@ const (
 	halfRotate          = rotateDegree / 2
 	rotatePerTick       = rotateDegree / rotateTicks
 	rotateRevertPerTick = rotateDegree / rotateRevertTicks
-	scaleTick           = 0.1
+	scaleMin            = 0.9
 )
 
 func smoothstep(step float64, goal int) (r float64) {
@@ -68,25 +68,21 @@ func smoothstep(step float64, goal int) (r float64) {
 func (s RotateState) Enter(g *Game, sw *Switch) {
 	g.level.rotating = sw
 	sw.rotate = 0
-	sw.scale = 0
+	sw.scale = 1
 }
 
 func (s RotateState) Exit(g *Game, sw *Switch) {
 	g.level.RotateSwitch(sw)
 	g.level.rotating = nil
 	sw.rotate = 0
-	sw.scale = 0
+	sw.scale = 1
 }
 
 func (s RotateState) Update(g *Game, sw *Switch) {
 	// Update the rotation
 	sw.rotate += rotatePerTick
 	// Update the depth
-	if sw.rotate > halfRotate {
-		sw.scale += scaleTick
-	} else {
-		sw.scale -= scaleTick
-	}
+	sw.scale = sw.rotate * scaleMin / halfRotate
 	if sw.rotate >= rotateDegree {
 		// End of rotation
 		sw.ChangeState(NewIdleState())
@@ -113,18 +109,14 @@ func NewRotateStateReverse() State {
 func (s RotateStateReverse) Exit(g *Game, sw *Switch) {
 	g.level.RotateSwitchInverse(sw)
 	sw.rotate = 0
-	sw.scale = 0
+	sw.scale = 1
 	g.level.rotating = nil
 }
 
 func (s RotateStateReverse) Update(g *Game, sw *Switch) {
 	sw.rotate -= rotateRevertPerTick
 	// Update the depth
-	if sw.rotate < -halfRotate {
-		sw.scale -= scaleTick
-	} else {
-		sw.scale += scaleTick
-	}
+	sw.scale = sw.rotate * scaleMin / halfRotate
 	if sw.rotate <= -rotateDegree {
 		sw.ChangeState(NewIdleState())
 	}
@@ -142,11 +134,7 @@ func NewResetState() State {
 func (s ResetState) Update(g *Game, sw *Switch) {
 	sw.rotate -= rotateRevertPerTick
 	// Update the depth
-	if sw.rotate < -halfRotate {
-		sw.scale -= scaleTick
-	} else {
-		sw.scale += scaleTick
-	}
+	sw.scale = sw.rotate * scaleMin / halfRotate
 	if sw.rotate <= -rotateDegree {
 		// Process next switch
 		last := g.level.PopLastRotated()

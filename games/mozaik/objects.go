@@ -80,17 +80,17 @@ func (t *SwitchModel) Draw() {
 	if s.rotate != 0 {
 		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(t.sw.rotate, [3]float32{0, 0, 1}))
 	}
-	//scale := mathgl.Scale3D(s.scale, s.scale, 0)
+	scale := mathgl.Scale3D(s.scale, s.scale, 0)
 
 	// Draw the associated blocks
 	// top left block
-	t.drawBlock(g.level.blocks[s.line][s.col], topLeftModelView)
+	t.drawBlock(g.level.blocks[s.line][s.col], scale.Mul4(topLeftModelView))
 	// top right block
-	t.drawBlock(g.level.blocks[s.line][s.col+1], topRightModelView)
+	t.drawBlock(g.level.blocks[s.line][s.col+1], scale.Mul4(topRightModelView))
 	// bottom right block
-	t.drawBlock(g.level.blocks[s.line+1][s.col+1], bottomRightModelView)
+	t.drawBlock(g.level.blocks[s.line+1][s.col+1], scale.Mul4(bottomRightModelView))
 	// bottom left block
-	t.drawBlock(g.level.blocks[s.line+1][s.col], bottomLeftModelView)
+	t.drawBlock(g.level.blocks[s.line+1][s.col], scale.Mul4(bottomLeftModelView))
 
 	t.ModelBase.Draw()
 
