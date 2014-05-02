@@ -66,25 +66,31 @@ func NewSwitchModel(sw *Switch) *SwitchModel {
 	return model
 }
 
+var (
+	topLeftModelView     = mathgl.Translate3D(-BlockSize, -BlockSize, 0)
+	topRightModelView    = mathgl.Translate3D(0, -BlockSize, 0)
+	bottomRightModelView = mathgl.Ident4f()
+	bottomLeftModelView  = mathgl.Translate3D(-BlockSize, 0, 0)
+)
+
 // TODO the switch number
 func (t *SwitchModel) Draw() {
-
 	modelViewBackup := t.modelView
-	if t.sw.rotate != 0 {
+	s := t.sw
+	if s.rotate != 0 {
 		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(t.sw.rotate, [3]float32{0, 0, 1}))
 	}
-	// Draw the associated blocks
-	s := t.sw
-	bsf := float32(BlockSize - s.Z)
-	// top left block
-	t.drawBlock(g.level.blocks[s.line][s.col], mathgl.Translate3D(-bsf, -bsf, 0))
+	//scale := mathgl.Scale3D(s.scale, s.scale, 0)
 
+	// Draw the associated blocks
+	// top left block
+	t.drawBlock(g.level.blocks[s.line][s.col], topLeftModelView)
 	// top right block
-	t.drawBlock(g.level.blocks[s.line][s.col+1], mathgl.Translate3D(0, -bsf, 0))
+	t.drawBlock(g.level.blocks[s.line][s.col+1], topRightModelView)
 	// bottom right block
-	t.drawBlock(g.level.blocks[s.line+1][s.col+1], mathgl.Ident4f())
+	t.drawBlock(g.level.blocks[s.line+1][s.col+1], bottomRightModelView)
 	// bottom left block
-	t.drawBlock(g.level.blocks[s.line+1][s.col], mathgl.Translate3D(-bsf, 0, 0))
+	t.drawBlock(g.level.blocks[s.line+1][s.col], bottomLeftModelView)
 
 	t.ModelBase.Draw()
 

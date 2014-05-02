@@ -24,7 +24,8 @@ type Block struct {
 type Switch struct {
 	state     State
 	line, col int
-	X, Y, Z   int
+	X, Y   int
+	scale float32
 	rotate    float32
 	name      string
 }
