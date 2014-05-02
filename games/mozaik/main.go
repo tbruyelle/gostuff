@@ -113,10 +113,6 @@ func main() {
 }
 
 func draw() {
-	if g.world.needReset {
-		g.world.Reset()
-	}
-
 	// Reinit blocks as not renderered
 	for i := 0; i < len(g.level.blocks); i++ {
 		for j := 0; j < len(g.level.blocks[i]); j++ {

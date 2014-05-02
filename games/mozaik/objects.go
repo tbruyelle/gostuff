@@ -54,12 +54,11 @@ func (t *BlockModel) Draw() {
 
 type SwitchModel struct {
 	ModelBase
-	sw  *Switch
-	lvl *Level
+	sw *Switch
 }
 
-func NewSwitchModel(sw *Switch, lvl *Level) *SwitchModel {
-	model := &SwitchModel{sw: sw, lvl: lvl}
+func NewSwitchModel(sw *Switch) *SwitchModel {
+	model := &SwitchModel{sw: sw}
 
 	vs := []Vertex{NewVertex(0, 0, 0, WhiteColor)}
 	vv := float64(SwitchSize / 2)
@@ -71,24 +70,6 @@ func NewSwitchModel(sw *Switch, lvl *Level) *SwitchModel {
 
 	v := SwitchSize / 2
 	model.modelView = mathgl.Ortho2D(0, WindowWidth, WindowHeight, 0).Mul4(mathgl.Translate3D(float32(sw.X+v), float32(sw.Y+v), 0))
-
-	// Create the blocks
-	var b *Block
-	s := model.sw
-	bsf := float32(BlockSize - s.Z)
-	// top left block
-	b = model.lvl.blocks[s.line][s.col]
-	model.addBlock(b, mathgl.Translate3D(-bsf, -bsf, 0))
-	// top right block
-	b = model.lvl.blocks[s.line][s.col+1]
-	model.addBlock(b, mathgl.Translate3D(0, -bsf, 0))
-	// bottom right block
-	b = model.lvl.blocks[s.line+1][s.col+1]
-	model.addBlock(b, mathgl.Ident4f())
-	// bottom left block
-	b = model.lvl.blocks[s.line+1][s.col]
-	model.addBlock(b, mathgl.Translate3D(-bsf, 0, 0))
-
 	return model
 }
 
@@ -99,22 +80,28 @@ func (t *SwitchModel) Draw() {
 	if t.sw.rotate != 0 {
 		t.modelView = t.modelView.Mul4(mathgl.HomogRotate3D(t.sw.rotate, [3]float32{0, 0, 1}))
 	}
-	// Draw the childs
-	for _, child := range t.childs {
-		child.pushModelView(t.modelView)
-		child.Draw()
-		child.popModelView()
-	}
+	// Draw the associated blocks
+	s := t.sw
+	bsf := float32(BlockSize - s.Z)
+	// top left block
+	t.drawBlock(g.level.blocks[s.line][s.col], mathgl.Translate3D(-bsf, -bsf, 0))
+
+	// top right block
+	t.drawBlock(g.level.blocks[s.line][s.col+1], mathgl.Translate3D(0, -bsf, 0))
+	// bottom right block
+	t.drawBlock(g.level.blocks[s.line+1][s.col+1], mathgl.Ident4f())
+	// bottom left block
+	t.drawBlock(g.level.blocks[s.line+1][s.col], mathgl.Translate3D(-bsf, 0, 0))
 
 	t.ModelBase.Draw()
 
 	t.modelView = modelViewBackup
 }
 
-func (t *SwitchModel) addBlock(b *Block, modelView mathgl.Mat4f) {
-	bl := NewBlockModel(b)
-	bl.modelView = modelView
-	t.childs = append(t.childs, bl)
+func (t *SwitchModel) drawBlock(b *Block, modelView mathgl.Mat4f) {
+	bm := g.world.blocks[b]
+	bm.modelView = t.modelView.Mul4(modelView)
+	bm.Draw()
 }
 
 type Background struct {

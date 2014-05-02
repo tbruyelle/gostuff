@@ -25,7 +25,6 @@ type ModelBase struct {
 	modelView, projection mathgl.Mat4f
 	modelViewBackup       mathgl.Mat4f
 	vshader, fshader      gl.Shader
-	childs                []Model
 }
 
 func (t *ModelBase) pushModelView(modelView mathgl.Mat4f) {
@@ -93,9 +92,6 @@ func (t *ModelBase) Draw() {
 }
 
 func (t *ModelBase) Destroy() {
-	for _, child := range t.childs {
-		child.Destroy()
-	}
 	t.buffer.Delete()
 	t.vao.Delete()
 	t.vshader.Delete()

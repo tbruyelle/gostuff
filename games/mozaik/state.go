@@ -76,7 +76,6 @@ func (s RotateState) Exit(g *Game, sw *Switch) {
 	g.level.rotating = nil
 	sw.rotate = 0
 	sw.Z = 0
-	g.world.needReset = true
 }
 
 func (s RotateState) Update(g *Game, sw *Switch) {
@@ -116,7 +115,6 @@ func (s RotateStateReverse) Exit(g *Game, sw *Switch) {
 	sw.rotate = 0
 	sw.Z = 0
 	g.level.rotating = nil
-	g.world.needReset = true
 }
 
 func (s RotateStateReverse) Update(g *Game, sw *Switch) {
