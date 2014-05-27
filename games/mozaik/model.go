@@ -8,8 +8,8 @@ import (
 type Model interface {
 	Draw()
 	Destroy()
-	pushModelView(modelView mathgl.Mat4f)
-	popModelView()
+	//pushModelView(modelView mathgl.Mat4f)
+	//popModelView()
 }
 
 type ModelBase struct {
@@ -27,14 +27,23 @@ type ModelBase struct {
 	vshader, fshader      gl.Shader
 }
 
-func (t *ModelBase) pushModelView(modelView mathgl.Mat4f) {
-	t.modelViewBackup = t.modelView
-	t.modelView = modelView.Mul4(t.modelView)
+type ModelGroup struct {
+	models                []*ModelBase
+	modelView, projection mathgl.Mat4f
 }
 
-func (t *ModelBase) popModelView() {
-	t.modelView = t.modelViewBackup
+func (t *ModelGroup) Add(m *ModelBase) {
+	t.models = append(t.models, m)
 }
+
+//func (t *ModelBase) pushModelView(modelView mathgl.Mat4f) {
+//	t.modelViewBackup = t.modelView
+//	t.modelView = modelView.Mul4(t.modelView)
+//}
+//
+//func (t *ModelBase) popModelView() {
+//	t.modelView = t.modelViewBackup
+//}
 
 func (t *ModelBase) Init(mode gl.GLenum, vertices []Vertex, vshaderf, fshaderf string) {
 	t.mode = mode
@@ -91,10 +100,23 @@ func (t *ModelBase) Draw() {
 	t.prg.Unuse()
 }
 
+func (t *ModelGroup) Draw() {
+	for _, m := range t.models {
+		m.modelView = t.modelView
+		m.Draw()
+	}
+}
+
 func (t *ModelBase) Destroy() {
 	t.buffer.Delete()
 	t.vao.Delete()
 	t.vshader.Delete()
 	t.fshader.Delete()
 	t.prg.Delete()
+}
+
+func (t *ModelGroup) Destroy() {
+	for _, m := range t.models {
+		m.Destroy()
+	}
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type BlockModel struct {
-	ModelBase
+	ModelGroup
 	block *Block
 }
 
@@ -41,7 +41,10 @@ func NewBlockModel(b *Block) *BlockModel {
 		NewVertex(BlockSize, 0, 0, c),
 		NewVertex(BlockSize, BlockSize, 0, c),
 	}
-	model.Init(gl.TRIANGLE_STRIP, vs, "shaders/basic.vert", "shaders/basic.frag")
+	sub:=&ModelBase{}
+	model.Add(sub)
+	sub.Init(gl.TRIANGLE_STRIP, vs, "shaders/basic.vert", "shaders/basic.frag")
+
 	return model
 }
 
