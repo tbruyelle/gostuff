@@ -15,7 +15,7 @@ import (
 const (
 	FRAME_RATE          = time.Second / 40
 	BlockCornerSegments = 6
-	BlockPadding        = 1
+	BlockPadding        = 0
 	SwitchSegments      = 20
 	BgSegments          = 24
 )
