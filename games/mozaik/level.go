@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/arbovm/levenshtein"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -49,14 +50,19 @@ func (l *Level) Win() bool {
 }
 
 func (l *Level) HowFar() int {
-	howfar := 0
 	signature := l.blockSignature()
-	for i := range l.winSignature {
-		if l.winSignature[i] != signature[i] {
-			howfar++
-		}
-	}
-	return howfar
+	return levenshtein.Distance(signature, l.winSignature)
+	//howfar := 0
+	//for i := range l.winSignature {
+	//	if l.winSignature[i] != signature[i] {
+	//		// find where is the color
+	//		for j:=range l.switches{
+
+	//		}
+	//		howfar++
+	//	}
+	//}
+	//return howfar
 }
 
 // UndoLastMove cancels the last player move
@@ -148,9 +154,9 @@ func (l *Level) TriggerSwitchName(name string) {
 	}
 }
 func (l *Level) TriggerSwitch(i int) {
-			l.switches[i].Rotate()
-			l.rotated = append(l.rotated, i)
-		}
+	l.switches[i].Rotate()
+	l.rotated = append(l.rotated, i)
+}
 
 func (l *Level) findSwitch(x, y int) (int, *Switch) {
 	for i, s := range l.switches {
