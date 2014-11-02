@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/arbovm/levenshtein"
 	"io/ioutil"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -11,7 +11,7 @@ import (
 type Level struct {
 	blocks       [][]*Block
 	switches     []*Switch
-	winSignature string
+	winSignature [][]ColorDef
 	// rotated represents the historics of rotations
 	rotated []int
 	// rotating represents a rotate which
@@ -46,23 +46,47 @@ func (l *Level) IsPlain(sw int) bool {
 
 // Win returns true if player has win
 func (l *Level) Win() bool {
-	return l.winSignature == l.blockSignature()
+	for i := range l.winSignature {
+		for j := range l.winSignature[i] {
+			if l.blocks[i][j] != nil && l.winSignature[i][j] != l.blocks[i][j].Color {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (l *Level) findManhattan(x, y int) int {
+	c := l.blocks[x][y].Color
+	maxM := 0
+	for i := range l.winSignature {
+		for j := range l.winSignature[i] {
+			if c == l.winSignature[i][j] {
+				m := manhattan(x, y, i, j)
+				if m > maxM {
+					maxM = m
+				}
+			}
+		}
+	}
+	return maxM
+}
+
+func manhattan(x1, y1, x2, y2 int) int {
+	return int(math.Abs(float64(x1)-float64(x2))) + int(math.Abs(float64(y1)-float64(y2)))
 }
 
 func (l *Level) HowFar() int {
-	signature := l.blockSignature()
-	return levenshtein.Distance(signature, l.winSignature)
-	//howfar := 0
-	//for i := range l.winSignature {
-	//	if l.winSignature[i] != signature[i] {
-	//		// find where is the color
-	//		for j:=range l.switches{
-
-	//		}
-	//		howfar++
-	//	}
-	//}
-	//return howfar
+	howfar := 0
+	for i := range l.blocks {
+		for j := range l.blocks[i] {
+			// FIXME populate always blocks in parse
+			if l.blocks[i][j] != nil && l.winSignature[i][j] != l.blocks[i][j].Color {
+				howfar += l.findManhattan(i, j)
+			}
+		}
+	}
+	return howfar
 }
 
 // UndoLastMove cancels the last player move
@@ -191,6 +215,9 @@ func atoi(s string) int {
 }
 
 func atoc(s string) ColorDef {
+	if s == "-" {
+		return Empty
+	}
 	return ColorDef(atoi(s))
 }
 
@@ -234,7 +261,11 @@ func ParseLevel(str string) Level {
 			l.addSwitch(atoi(tokens[0]), atoi(tokens[1]))
 		case 2:
 			//read win
-			l.winSignature += lines[i] + "\n"
+			wline := make([]ColorDef, len(lines[i]))
+			for j, c := range lines[i] {
+				wline[j] = atoc(string(c))
+			}
+			l.winSignature = append(l.winSignature, wline)
 		}
 	}
 	//fmt.Printf("Level loaded blocks=%d, swicthes=%d\n", len(l.blocks), len(l.switches))

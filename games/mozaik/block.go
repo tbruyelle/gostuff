@@ -14,6 +14,7 @@ const (
 	Pink
 	Orange
 	LightBlue
+	Empty ColorDef = -1
 )
 
 type Block struct {

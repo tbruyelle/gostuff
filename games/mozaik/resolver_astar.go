@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	MaxDepth = 30
+	MaxDepth = 50
 )
 
 var (
@@ -92,9 +92,6 @@ func Resolve(lvl Level) *Node {
 			return n
 		}
 		loop++
-		if loop > 5 {
-			break
-		}
 	}
 	return nil
 }
