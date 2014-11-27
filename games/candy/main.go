@@ -44,16 +44,17 @@ func do(f func()) {
 func main() {
 	_ = fmt.Sprint()
 	defer sdl.Quit()
+	var err error
 
-	window = sdl.CreateWindow("Candy Crush Saga", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_SHOWN)
-	if window == nil {
+	window, err = sdl.CreateWindow("Candy Crush Saga", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_SHOWN)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create window %s\n", sdl.GetError())
 		os.Exit(1)
 	}
 	defer window.Destroy()
 
-	renderer := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if renderer == nil {
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer %s\n", sdl.GetError())
 		os.Exit(1)
 	}
@@ -67,7 +68,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to load bitmap %s", tilesetFile)
 		os.Exit(1)
 	}
-	tileset = renderer.CreateTextureFromSurface(tilesetSurface)
+	tileset, err = renderer.CreateTextureFromSurface(tilesetSurface)
+	if err != nil {
+		panic(err)
+	}
 
 	game := NewGame()
 	defer game.Destroy()

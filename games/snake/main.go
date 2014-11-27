@@ -13,15 +13,15 @@ const FRAME_RATE = time.Second / 50
 func main() {
 	runtime.LockOSThread()
 
-	window := sdl.CreateWindow("snake", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, sdl.WINDOW_SHOWN)
-	if window == nil {
+	window, err := sdl.CreateWindow("snake", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, sdl.WINDOW_SHOWN)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create window %s\n", sdl.GetError())
 		os.Exit(1)
 	}
 	defer window.Destroy()
 
-	renderer := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if renderer == nil {
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer %s\n", sdl.GetError())
 		os.Exit(1)
 	}
