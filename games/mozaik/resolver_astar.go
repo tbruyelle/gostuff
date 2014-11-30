@@ -72,6 +72,13 @@ func (n *Node) road() string {
 }
 
 func Resolve(lvl Level) *Node {
+	//f, err := os.Create("resolver.prof")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//pprof.StartCPUProfile(f)
+	//defer pprof.StopCPUProfile()
+
 	ns := make(Nodes, 0)
 	heap.Init(&ns)
 
@@ -98,7 +105,7 @@ func Resolve(lvl Level) *Node {
 
 func process(ns *Nodes) *Node {
 	n := heap.Pop(ns).(*Node)
-	fmt.Println("Processing node", n)
+	//fmt.Println("Processing node", n)
 	if n.lvl.Win() {
 		return n
 	}
@@ -121,7 +128,7 @@ func process(ns *Nodes) *Node {
 		}
 		signs[sign] = true
 		heap.Push(ns, nn)
-		fmt.Println("Added node", nn)
+		//fmt.Println("Added node", nn)
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -192,18 +193,18 @@ func (l *Level) findSwitch(x, y int) (int, *Switch) {
 }
 
 func (l *Level) blockSignature() string {
-	var signature string
+	var signature bytes.Buffer
 	for i := 0; i < len(l.blocks); i++ {
 		for j := 0; j < len(l.blocks[i]); j++ {
 			if l.blocks[i][j] == nil {
-				signature += "-"
+				signature.WriteString("-")
 			} else {
-				signature += ctoa(l.blocks[i][j].Color)
+				signature.WriteString(ctoa(l.blocks[i][j].Color))
 			}
 		}
-		signature += "\n"
+		signature.WriteString("\n")
 	}
-	return signature
+	return signature.String()
 }
 
 func atoi(s string) int {
@@ -222,7 +223,7 @@ func atoc(s string) ColorDef {
 }
 
 func ctoa(c ColorDef) string {
-	return fmt.Sprintf("%d", c)
+	return strconv.Itoa(int(c))
 }
 
 // LoadLevel loads the level number in parameter
