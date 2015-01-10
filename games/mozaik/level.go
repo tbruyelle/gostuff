@@ -216,10 +216,24 @@ func atoi(s string) int {
 }
 
 func atoc(s string) ColorDef {
-	if s == "-" {
-		return Empty
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		switch s {
+		case "A":
+			return Cyan
+		case "B":
+			return LightPink
+		case "C":
+			return White
+		case "D":
+			return LightPurple
+		case "E":
+			return LightBrown
+		case "F":
+			return OtherWhite
+		}
 	}
-	return ColorDef(atoi(s))
+	return ColorDef(i)
 }
 
 func ctoa(c ColorDef) string {

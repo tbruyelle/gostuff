@@ -7,14 +7,23 @@ import (
 type ColorDef int
 
 const (
-	Red ColorDef = iota
-	Yellow
-	Blue
-	Green
-	Pink
-	Orange
-	LightBlue
-	Empty ColorDef = -1
+	Red         ColorDef = iota //0
+	Yellow                      //1
+	Blue                        //2
+	Green                       //3
+	Pink                        //4
+	Orange                      //5
+	LightBlue                   //6
+	Purple                      //7
+	Brown                       //8
+	LightGreen                  //9
+	Cyan                        //A
+	LightPink                   //B
+	White                       //C
+	LightPurple                 //D
+	LightBrown                  //E
+	OtherWhite                  //F
+	Empty       ColorDef = -1
 )
 
 type Block struct {

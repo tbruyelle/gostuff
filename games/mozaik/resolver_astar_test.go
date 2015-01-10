@@ -78,3 +78,59 @@ func TestPaths_Level8(t *testing.T) {
 
 	fmt.Printf("test result %+v\n", n)
 }
+
+func TestPaths_Level9(t *testing.T) {
+	lvl := LoadLevel(9)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestPaths_Level10(t *testing.T) {
+	lvl := LoadLevel(10)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestPaths_Level11(t *testing.T) {
+	lvl := LoadLevel(11)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestPaths_Level12(t *testing.T) {
+	lvl := LoadLevel(12)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestPaths_Level13(t *testing.T) {
+	lvl := LoadLevel(13)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestPaths_Level14(t *testing.T) {
+	lvl := LoadLevel(14)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
+
+func TestPaths_Level15(t *testing.T) {
+	lvl := LoadLevel(15)
+
+	n := Resolve(lvl)
+
+	fmt.Printf("test result %+v\n", n)
+}
