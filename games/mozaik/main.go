@@ -486,17 +486,17 @@ func renderDashboard() {
 		"Level %d", g.currentLevel)
 	gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight), 0)
 	line := 0
-	for _, c := range g.level.winSignature {
-		if c == '\n' {
-			line++
-			gl.LoadIdentity()
-			gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight+SignatureBlockSize*line+BlockPadding), 0)
-			continue
+	l := g.level
+	for i := range l.winSignature {
+		for j := range l.winSignature[i] {
+			if l.winSignature[i][j] != Empty {
+				renderBlockSignature(l.winSignature[i][j])
+			}
+			gl.Translated(SignatureBlockSize+BlockPadding, 0, 0)
 		}
-		if c != '-' {
-			renderBlockSignature(atoc(string(c)))
-		}
-		gl.Translated(SignatureBlockSize+BlockPadding, 0, 0)
+		line++
+		gl.LoadIdentity()
+		gl.Translatef(float32(XMin)+300, float32(WindowHeight-DashboardHeight+SignatureBlockSize*line+BlockPadding), 0)
 	}
 }
 

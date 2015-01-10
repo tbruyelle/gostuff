@@ -3,7 +3,14 @@ package main
 import (
 	"container/heap"
 	"fmt"
-	"sync"
+)
+
+const (
+	MaxDepth = 50
+)
+
+var (
+	signs map[string]bool
 )
 
 type Nodes []*Node
@@ -44,21 +51,6 @@ type Node struct {
 	priority int
 }
 
-var signs map[string]bool
-var mutex = new(sync.Mutex)
-
-func addSign(sign string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	signs[sign] = true
-}
-
-func hasSign(sign string) bool {
-	mutex.Lock()
-	defer mutex.Unlock()
-	return signs[sign]
-}
-
 func (n *Node) String() string {
 	//return fmt.Sprintf("s%d, d=%d, childs=%+v", n.s, n.depth, n.childs)
 	//return fmt.Sprintf("s%d, d=%d, parent=[%+v] win=%t", n.s, n.depth, n.parent, n.lvl.Win())
@@ -80,6 +72,13 @@ func (n *Node) road() string {
 }
 
 func Resolve(lvl Level) *Node {
+	//f, err := os.Create("resolver.prof")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//pprof.StartCPUProfile(f)
+	//defer pprof.StopCPUProfile()
+
 	ns := make(Nodes, 0)
 	heap.Init(&ns)
 
@@ -90,30 +89,30 @@ func Resolve(lvl Level) *Node {
 		priority: lvl.HowFar(),
 	}
 	heap.Push(&ns, init)
+	signs = make(map[string]bool)
+	signs[init.lvl.blockSignature()] = true
 
+	loop := 0
 	for {
 		n := process(&ns)
 		if n != nil {
 			return n
 		}
+		loop++
 	}
 	return nil
 }
 
 func process(ns *Nodes) *Node {
 	n := heap.Pop(ns).(*Node)
-	fmt.Println("Processing node", n)
+	//fmt.Println("Processing node", n)
 	if n.lvl.Win() {
 		return n
 	}
-	if n.depth > 50 {
+	if n.depth > MaxDepth {
 		return nil
 	}
 	for i, _ := range n.lvl.switches {
-		if n.lvl.IsPlain(i) {
-			// Ignore switch with plain color
-			continue
-		}
 		nn := &Node{
 			s:        i,
 			depth:    n.depth + 1,
@@ -122,8 +121,14 @@ func process(ns *Nodes) *Node {
 			priority: n.lvl.HowFar() + n.depth,
 		}
 		nn.lvl.RotateSwitch(n.lvl.switches[i])
+		sign := nn.lvl.blockSignature()
+		if _, ok := signs[sign]; ok {
+			// Already processed skip
+			continue
+		}
+		signs[sign] = true
 		heap.Push(ns, nn)
-		fmt.Println("Added node", nn)
+		//fmt.Println("Added node", nn)
 	}
 	return nil
 }
