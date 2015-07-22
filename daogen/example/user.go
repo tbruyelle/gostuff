@@ -25,12 +25,6 @@ func CreateUserTable(db *sqlx.DB) error {
 	return err
 }
 
-func FindUserById(db *sqlx.DB, ID int64) (*User, error) {
-	u := &User{}
-	err := db.Get(u, "select * from users where id=$1", ID)
-	return u, err
-}
-
 func main() {
 	// DB connect
 	dsn := "postgres://tbruyelle:toto@localhost:5432/daogen?sslmode=disable"

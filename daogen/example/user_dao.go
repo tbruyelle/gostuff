@@ -4,3 +4,9 @@ package main
 
 import "github.com/jmoiron/sqlx"
 import _ "github.com/lib/pq"
+
+func FindUserById(db *sqlx.DB, ID int64) (*User, error) {
+	u := &User{}
+	err := db.Get(u, "select * from users where id=$1", ID)
+	return u, err
+}

@@ -11,11 +11,13 @@ import (
 	"go/token"
 	_ "golang.org/x/tools/go/gcimporter"
 	"golang.org/x/tools/go/types"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 var (
@@ -165,6 +167,34 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 
 // generate produces the String method for the named type.
 func (g *Generator) generate(typeName string) {
+	// Find<Type>ById method
+	tmpl(&g.buf, findByIdTemplate, typeName)
+}
+
+var findByIdTemplate = `func Find{{.}}ById(db *sqlx.DB, ID int64) (*{{.}}, error) {
+	u := &{{.}}{}
+	err := db.Get(u, "select * from {{. | tableName}} where id=$1", ID)
+	return u, err
+}`
+
+func tmpl(w io.Writer, text string, data interface{}) {
+	t := template.New("top")
+	t.Funcs(template.FuncMap{
+		"trim": strings.TrimSpace,
+		"tableName": func(data interface{}) string {
+			switch data := data.(type) {
+			case string:
+				return strings.ToLower(data) + "s"
+			default:
+				return fmt.Sprint(data)
+			}
+		},
+	},
+	)
+	template.Must(t.Parse(text))
+	if err := t.Execute(w, data); err != nil {
+		panic(err)
+	}
 }
 
 // format returns the gofmt-ed contents of the Generator's buffer.
