@@ -167,14 +167,49 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 
 // generate produces the String method for the named type.
 func (g *Generator) generate(typeName string) {
-	// Find<Type>ById method
-	tmpl(&g.buf, findByIdTemplate, typeName)
+	data := g.genData(typeName)
+
+	// Find<Type>ById func
+	g.Printf("\n")
+	tmpl(&g.buf, findByIdTemplate, data)
+
+	// Create<Type>Table func
+	g.Printf("\n\n")
+	tmpl(&g.buf, createTableTemplate, data)
 }
 
-var findByIdTemplate = `func Find{{.}}ById(db *sqlx.DB, ID int64) (*{{.}}, error) {
-	u := &{{.}}{}
-	err := db.Get(u, "select * from {{. | tableName}} where id=$1", ID)
+func (g *Generator) genData(typeName string) Data {
+	data := Data{
+		Type:      typeName,
+		TableName: strings.ToLower(typeName) + "s",
+	}
+	return data
+}
+
+type Data struct {
+	Type      string
+	TableName string
+	Columns   []Column
+}
+
+type Column struct {
+	Name       string
+	Definition string
+}
+
+var findByIdTemplate = `func Find{{.Type}}ById(db *sqlx.DB, ID int64) (*{{.Type}}, error) {
+	u := &{{.Type}}{}
+	err := db.Get(u, "select * from {{.TableName}} where id=$1", ID)
 	return u, err
+}`
+
+var createTableTemplate = `func Create{{.Type}}Table(db *sqlx.DB) error {
+		sql := ` + "`" + `create table {{.Type | tableName}} (
+	id bigserial primary key,
+	{{range .Columns}}
+		{{.Name}} {{.Definition}}{{end}})` + "`" + `
+	_, err := db.Exec(sql)
+	return err
 }`
 
 func tmpl(w io.Writer, text string, data interface{}) {

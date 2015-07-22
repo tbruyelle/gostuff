@@ -1,29 +1,9 @@
 package main
 
-import (
-	"fmt"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	"os"
-)
-
-type User struct {
-	ID   int64
-	Name string
-}
-
-func (u *User) Insert(db *sqlx.DB) (int64, error) {
-	err := db.QueryRow(`INSERT INTO users (name) VALUES ( $1 ) RETURNING id`, u.Name).Scan(&u.ID)
-	return u.ID, err
-}
-
-func CreateUserTable(db *sqlx.DB) error {
-	sql := `create table users (
-	id bigserial primary key,
-	name text not null)`
-	_, err := db.Exec(sql)
-	return err
-}
+import "fmt"
+import "github.com/jmoiron/sqlx"
+import "github.com/tbruyelle/gostuff/daogen/example/model"
+import "os"
 
 func main() {
 	// DB connect
@@ -34,13 +14,13 @@ func main() {
 		os.Exit(2)
 	}
 	// Create the table
-	err = CreateUserTable(db)
+	err = model.CreateUserTable(db)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error create table:", err)
 	}
 
 	// Add a user
-	u := &User{Name: "Nathan"}
+	u := &model.User{Name: "Nathan"}
 	ID, err := u.Insert(db)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error insert", err)
@@ -48,7 +28,7 @@ func main() {
 	}
 
 	// Find that user
-	u, err = FindUserById(db, ID)
+	u, err = model.FindUserById(db, ID)
 	if err != nil {
 		fmt.Println(os.Stderr, "Error requesting", err)
 		os.Exit(2)
