@@ -13,8 +13,8 @@ func FindUserById(db *sqlx.DB, ID int64) (*User, error) {
 
 func CreateUserTable(db *sqlx.DB) error {
 	sql := `create table users (
-	id bigserial primary key,
-	)`
+		id bigserial primary key,
+		name TEXT NOT NULL)`
 	_, err := db.Exec(sql)
 	return err
 }

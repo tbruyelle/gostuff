@@ -82,6 +82,7 @@ type File struct {
 	file *ast.File // Parsed AST.
 	// These fields are reset for each type being generated.
 	typeName string // Name of the constant type.
+	data     *Data
 }
 
 // genDecl is used for the ast.Inspect
@@ -93,19 +94,42 @@ func (f *File) genDecl(n ast.Node) bool {
 
 	for _, spec := range decl.Specs {
 		tspec := spec.(*ast.TypeSpec) // Guaranteed to succeed as this is a TYPE
-		fmt.Println(tspec.Name.Name, f.typeName)
 		if tspec.Name.Name == f.typeName {
 			// Found the type
 			d := f.pkg.defs[tspec.Name]
 			strc := d.Type().Underlying().(*types.Struct)
-			for i := 0; i < strc.NumFields(); i++ {
-				field := strc.Field(i)
-				fmt.Printf("field %d : %s %#v\n", i, field.Name(), field.Type())
-			}
-
+			f.genData(strc)
 		}
 	}
 	return true
+}
+
+func (f *File) genData(strc *types.Struct) {
+	f.data = &Data{
+		Type:      f.typeName,
+		TableName: strings.ToLower(f.typeName) + "s",
+	}
+	for i := 0; i < strc.NumFields(); i++ {
+		field := strc.Field(i)
+		f.data.Columns = append(f.data.Columns, genColumn(field))
+	}
+}
+
+func genColumn(field *types.Var) Column {
+	c := Column{Name: strings.ToLower(field.Name())}
+	if c.Name == "id" {
+		c.Definition = "bigserial primary key"
+		return c
+	}
+	switch field.Type().String() {
+	case "string":
+		c.Definition = "TEXT NOT NULL"
+	case "sql.NullString":
+		c.Definition = "TEXT NULL"
+	case "int64", "int32", "int", "uint64", "uint32", "uint":
+		c.Definition = "INT NOT NULL"
+	}
+	return c
 }
 
 type Package struct {
@@ -193,12 +217,16 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 
 // generate produces the String method for the named type.
 func (g *Generator) generate(typeName string) {
+	var data *Data
 	for _, file := range g.pkg.files {
 		file.typeName = typeName
 		ast.Inspect(file.file, file.genDecl)
-	}
 
-	data := g.genData(typeName)
+		if file.data != nil {
+			data = file.data
+			break
+		}
+	}
 
 	// Find<Type>ById func
 	g.Printf("\n")
@@ -207,14 +235,6 @@ func (g *Generator) generate(typeName string) {
 	// Create<Type>Table func
 	g.Printf("\n\n")
 	tmpl(&g.buf, createTableTemplate, data)
-}
-
-func (g *Generator) genData(typeName string) Data {
-	data := Data{
-		Type:      typeName,
-		TableName: strings.ToLower(typeName) + "s",
-	}
-	return data
 }
 
 type Data struct {
@@ -235,10 +255,8 @@ var findByIdTemplate = `func Find{{.Type}}ById(db *sqlx.DB, ID int64) (*{{.Type}
 }`
 
 var createTableTemplate = `func Create{{.Type}}Table(db *sqlx.DB) error {
-		sql := ` + "`" + `create table {{.Type | tableName}} (
-	id bigserial primary key,
-	{{range .Columns}}
-		{{.Name}} {{.Definition}}{{end}})` + "`" + `
+		sql := ` + "`" + `create table {{.Type | tableName}} ({{ $nbcol := .Columns | len}}{{ $nbcol := minus $nbcol 1 }}{{range $i, $c := .Columns}}
+		{{$c.Name}} {{$c.Definition}}{{if lt $i $nbcol}},{{end}}{{end}})` + "`" + `
 	_, err := db.Exec(sql)
 	return err
 }`
@@ -254,6 +272,9 @@ func tmpl(w io.Writer, text string, data interface{}) {
 			default:
 				return fmt.Sprint(data)
 			}
+		},
+		"minus": func(a, b int) int {
+			return a - b
 		},
 	},
 	)
