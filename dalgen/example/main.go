@@ -21,14 +21,14 @@ func main() {
 
 	// Add a user
 	u := &model.User{Name: "Nathan"}
-	ID, err := u.Insert(db)
+	id, err := u.Insert(db)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error insert", err)
 		os.Exit(2)
 	}
 
 	// Find that user
-	u, err = model.FindUserById(db, ID)
+	u, err = model.FindUserByID(db, id)
 	if err != nil {
 		fmt.Println(os.Stderr, "Error requesting", err)
 		os.Exit(2)
