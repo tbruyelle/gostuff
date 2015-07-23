@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 import "github.com/jmoiron/sqlx"
-import "github.com/tbruyelle/gostuff/daogen/example/model"
+import "github.com/tbruyelle/gostuff/dalgen/example/model"
 import "os"
 
 func main() {
