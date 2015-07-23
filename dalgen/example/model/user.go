@@ -5,7 +5,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//go:generate daogen -type User
+//go:generate dalgen -type User
 type User struct {
 	ID   int64
 	Name string
