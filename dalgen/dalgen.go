@@ -111,17 +111,21 @@ func (f *File) genData(strc *types.Struct) {
 	}
 	for i := 0; i < strc.NumFields(); i++ {
 		field := strc.Field(i)
-		f.data.Columns = append(f.data.Columns, genColumn(field))
+		f.data.Columns = append(f.data.Columns, genColumn(f.data, field))
 	}
 }
 
-func genColumn(field *types.Var) Column {
-	c := Column{Name: strings.ToLower(field.Name())}
+func genColumn(data *Data, field *types.Var) Column {
+	c := Column{
+		Typ:    field.Type().String(),
+		Name:   field.Name(),
+		Parent: data,
+	}
 	if c.Name == "id" {
 		c.Definition = "bigserial primary key"
 		return c
 	}
-	switch field.Type().String() {
+	switch c.Typ {
 	case "string":
 		c.Definition = "TEXT NOT NULL"
 	case "sql.NullString":
@@ -228,13 +232,16 @@ func (g *Generator) generate(typeName string) {
 		}
 	}
 
-	// Find<Type>ById func
-	g.Printf("\n")
-	tmpl(&g.buf, findByIdTemplate, data)
-
 	// Create<Type>Table func
 	g.Printf("\n\n")
 	tmpl(&g.buf, createTableTemplate, data)
+
+	// Find<Type>By<Column> funcs
+	for _, c := range data.Columns {
+		g.Printf("\n\n")
+		tmpl(&g.buf, findByTemplate, c)
+	}
+	g.Printf("\n")
 }
 
 type Data struct {
@@ -244,19 +251,23 @@ type Data struct {
 }
 
 type Column struct {
+	Parent     *Data
+	Typ        string
 	Name       string
 	Definition string
 }
 
-var findByIdTemplate = `func Find{{.Type}}ById(db *sqlx.DB, ID int64) (*{{.Type}}, error) {
-	u := &{{.Type}}{}
-	err := db.Get(u, "select * from {{.TableName}} where id=$1", ID)
-	return u, err
+var findByTemplate = `
+func Find{{.Parent.Type}}By{{.Name}}(db *sqlx.DB, {{$var :=.Name | lowercase}}{{$var}} {{.Typ}}) (*{{.Parent.Type}}, error) {
+	x := &{{.Parent.Type}}{}
+	err := db.Get(x, "select * from {{.Parent.TableName}} where {{.Name}} =$1", {{$var}})
+	return x, err
 }`
 
-var createTableTemplate = `func Create{{.Type}}Table(db *sqlx.DB) error {
+var createTableTemplate = `
+func Create{{.Type}}Table(db *sqlx.DB) error {
 		sql := ` + "`" + `create table {{.Type | tableName}} ({{ $nbcol := .Columns | len}}{{ $nbcol := minus $nbcol 1 }}{{range $i, $c := .Columns}}
-		{{$c.Name}} {{$c.Definition}}{{if lt $i $nbcol}},{{end}}{{end}})` + "`" + `
+		{{$c.Name | lowercase}} {{$c.Definition}}{{if lt $i $nbcol}},{{end}}{{end}})` + "`" + `
 	_, err := db.Exec(sql)
 	return err
 }`
@@ -264,7 +275,8 @@ var createTableTemplate = `func Create{{.Type}}Table(db *sqlx.DB) error {
 func tmpl(w io.Writer, text string, data interface{}) {
 	t := template.New("top")
 	t.Funcs(template.FuncMap{
-		"trim": strings.TrimSpace,
+		"trim":      strings.TrimSpace,
+		"lowercase": strings.ToLower,
 		"tableName": func(data interface{}) string {
 			switch data := data.(type) {
 			case string:

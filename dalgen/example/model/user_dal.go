@@ -5,16 +5,22 @@ package model
 import "github.com/jmoiron/sqlx"
 import _ "github.com/lib/pq"
 
-func FindUserById(db *sqlx.DB, ID int64) (*User, error) {
-	u := &User{}
-	err := db.Get(u, "select * from users where id=$1", ID)
-	return u, err
-}
-
 func CreateUserTable(db *sqlx.DB) error {
 	sql := `create table users (
-		id bigserial primary key,
+		id INT NOT NULL,
 		name TEXT NOT NULL)`
 	_, err := db.Exec(sql)
 	return err
+}
+
+func FindUserByID(db *sqlx.DB, id int64) (*User, error) {
+	x := &User{}
+	err := db.Get(x, "select * from users where ID =$1", id)
+	return x, err
+}
+
+func FindUserByName(db *sqlx.DB, name string) (*User, error) {
+	x := &User{}
+	err := db.Get(x, "select * from users where Name =$1", name)
+	return x, err
 }
