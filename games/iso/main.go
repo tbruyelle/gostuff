@@ -14,7 +14,7 @@ const (
 	BlockWidth       = 110
 	BlockFloorHeight = 65
 	BlockHeight      = 128
-	WindowWidth      = BlockWidth * 4
+	WindowWidth      = BlockWidth * 6
 	WindowHeight     = BlockHeight * 4
 )
 
@@ -136,8 +136,9 @@ func renderThings(renderer *sdl.Renderer) {
 	// show blocks
 	for i := 0; i < len(game.Board); i++ {
 		for j := len(game.Board[i]) - 1; j >= 0; j-- {
-			//x, y := i*BlockWidth, j*BlockFloorHeight
-			showBlock(renderer, i, j, game.Board[i][j])
+			x := i*BlockWidth/2 + j*BlockWidth/2
+			y := i*BlockFloorHeight/2 - j*BlockFloorHeight/2
+			showBlock(renderer, x, y, game.Board[i][j])
 		}
 	}
 	renderer.SetDrawColor(255, 255, 255, 255)
@@ -150,11 +151,11 @@ var (
 	grid   = sdl.Rect{W: BlockWidth, H: BlockHeight, X: (BlockWidth + 1) * 10, Y: (BlockHeight + 1) * 5}
 )
 
-func showBlock(renderer *sdl.Renderer, i, j, t int) {
+func showBlock(renderer *sdl.Renderer, x, y, t int) {
 	//fmt.Printf("showBlock (%d,%d), %d\n", x, y, t)
 	// convert to ISO
-	block.X = int32(i*BlockWidth/2 + j*BlockWidth/2)
-	block.Y = int32(i*BlockFloorHeight/2 - j*BlockFloorHeight/2)
+	block.X = int32(x)
+	block.Y = int32(y)
 	//block.X = int32(x)
 	//block.Y = int32(y)
 	alpha := uint8(255)
