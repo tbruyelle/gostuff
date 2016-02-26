@@ -10,11 +10,12 @@ import (
 )
 
 const (
-	FRAME_RATE   = time.Second / 40
-	BlockWidth   = 110
-	BlockHeight  = 128
-	WindowWidth  = BlockWidth * 4
-	WindowHeight = BlockHeight * 4
+	FRAME_RATE       = time.Second / 40
+	BlockWidth       = 110
+	BlockFloorHeight = 65
+	BlockHeight      = 128
+	WindowWidth      = BlockWidth * 4
+	WindowHeight     = BlockHeight * 4
 )
 
 var (
@@ -133,10 +134,10 @@ func renderThings(renderer *sdl.Renderer) {
 	renderer.Clear()
 
 	// show blocks
-	for i := range game.Board {
-		for j := range game.Board[i] {
-			x, y := i*BlockWidth, j*BlockHeight
-			showBlock(renderer, x, y, game.Board[i][j])
+	for i := 0; i < len(game.Board); i++ {
+		for j := len(game.Board[i]) - 1; j >= 0; j-- {
+			//x, y := i*BlockWidth, j*BlockFloorHeight
+			showBlock(renderer, i, j, game.Board[i][j])
 		}
 	}
 	renderer.SetDrawColor(255, 255, 255, 255)
@@ -146,17 +147,23 @@ func renderThings(renderer *sdl.Renderer) {
 var block = sdl.Rect{W: BlockWidth, H: BlockHeight}
 var source = sdl.Rect{W: BlockWidth, H: BlockHeight}
 
-func showBlock(renderer *sdl.Renderer, x, y, t int) {
+func showBlock(renderer *sdl.Renderer, i, j, t int) {
 	if t == 0 {
 		return
 	}
 	//fmt.Printf("showBlock (%d,%d), %d\n", x, y, t)
-	block.X = int32(x)
-	block.Y = int32(y)
+	// convert to ISO
+	block.X = int32(i*BlockWidth/2 + j*BlockWidth/2)
+	block.Y = int32(i*BlockFloorHeight/2 - j*BlockFloorHeight/2)
+	//block.X = int32(x)
+	//block.Y = int32(y)
 	alpha := uint8(255)
 	switch t {
 	case 1:
 		source.X = 0
+		source.Y = 0
+	case 2:
+		source.X = BlockWidth
 		source.Y = 0
 	}
 
