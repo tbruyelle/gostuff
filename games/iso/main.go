@@ -134,10 +134,16 @@ func renderThings(renderer *sdl.Renderer) {
 	renderer.Clear()
 
 	// show blocks
+	var offsetx int
 	for i := 0; i < len(game.Board); i++ {
-		for j := len(game.Board[i]) - 1; j >= 0; j-- {
-			x := i*BlockWidth/2 + j*BlockWidth/2
-			y := i*BlockFloorHeight/2 - j*BlockFloorHeight/2
+		if i%2 != 0 {
+			offsetx = BlockWidth / 2
+		} else {
+			offsetx = 0
+		}
+		for j := 0; j < len(game.Board[i]); j++ {
+			x := j*BlockWidth + offsetx
+			y := i * BlockFloorHeight / 2
 			showBlock(renderer, x, y, game.Board[i][j])
 		}
 	}
@@ -152,33 +158,28 @@ var (
 )
 
 func showBlock(renderer *sdl.Renderer, x, y, t int) {
-	//fmt.Printf("showBlock (%d,%d), %d\n", x, y, t)
-	// convert to ISO
 	block.X = int32(x)
 	block.Y = int32(y)
-	//block.X = int32(x)
-	//block.Y = int32(y)
-	alpha := uint8(255)
-	switch t {
-	case 0:
-		source.X = (BlockWidth + 1) * 10
-		source.Y = (BlockHeight + 1) * 5
-	case 1:
-		source.X = 0
-		source.Y = 0
-	case 2:
-		source.X = BlockWidth + 1
-		source.Y = 0
+	if t != 0 {
+		switch t {
+		case 1:
+			source.X = 0
+			source.Y = 0
+		case 2:
+			source.X = BlockWidth + 1
+			source.Y = 0
+		}
+
+		alpha := uint8(255)
+		/*if c == game.selected {
+			alpha = uint8(150)
+		} else {
+			alpha = c.sprite.alpha
+		}*/
+
+		tileset.SetAlphaMod(alpha)
+		renderer.Copy(tileset, &source, &block)
 	}
-
-	/*if c == game.selected {
-		alpha = uint8(150)
-	} else {
-		alpha = c.sprite.alpha
-	}*/
-
-	tileset.SetAlphaMod(alpha)
-	renderer.Copy(tileset, &source, &block)
 	if game.ShowGrid {
 		renderer.Copy(tileset, &grid, &block)
 	}
