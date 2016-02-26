@@ -148,7 +148,7 @@ func renderThings(renderer *sdl.Renderer) {
 var (
 	block  = sdl.Rect{W: BlockWidth, H: BlockHeight}
 	source = sdl.Rect{W: BlockWidth, H: BlockHeight}
-	grid   = sdl.Rect{W: BlockWidth, H: BlockHeight, X: (BlockWidth + 1) * 10, Y: (BlockHeight + 1) * 5}
+	grid   = sdl.Rect{W: BlockWidth, H: BlockHeight, X: (BlockWidth + 1) * 10, Y: BlockHeight * 5}
 )
 
 func showBlock(renderer *sdl.Renderer, x, y, t int) {
