@@ -144,13 +144,13 @@ func renderThings(renderer *sdl.Renderer) {
 	renderer.Present()
 }
 
-var block = sdl.Rect{W: BlockWidth, H: BlockHeight}
-var source = sdl.Rect{W: BlockWidth, H: BlockHeight}
+var (
+	block  = sdl.Rect{W: BlockWidth, H: BlockHeight}
+	source = sdl.Rect{W: BlockWidth, H: BlockHeight}
+	grid   = sdl.Rect{W: BlockWidth, H: BlockHeight, X: (BlockWidth + 1) * 10, Y: (BlockHeight + 1) * 5}
+)
 
 func showBlock(renderer *sdl.Renderer, i, j, t int) {
-	if t == 0 {
-		return
-	}
 	//fmt.Printf("showBlock (%d,%d), %d\n", x, y, t)
 	// convert to ISO
 	block.X = int32(i*BlockWidth/2 + j*BlockWidth/2)
@@ -159,11 +159,14 @@ func showBlock(renderer *sdl.Renderer, i, j, t int) {
 	//block.Y = int32(y)
 	alpha := uint8(255)
 	switch t {
+	case 0:
+		source.X = (BlockWidth + 1) * 10
+		source.Y = (BlockHeight + 1) * 5
 	case 1:
 		source.X = 0
 		source.Y = 0
 	case 2:
-		source.X = BlockWidth
+		source.X = BlockWidth + 1
 		source.Y = 0
 	}
 
@@ -175,4 +178,7 @@ func showBlock(renderer *sdl.Renderer, i, j, t int) {
 
 	tileset.SetAlphaMod(alpha)
 	renderer.Copy(tileset, &source, &block)
+	if game.ShowGrid {
+		renderer.Copy(tileset, &grid, &block)
+	}
 }

@@ -1,7 +1,8 @@
 package main
 
 type Game struct {
-	Board [][]int
+	Board    [][]int
+	ShowGrid bool
 }
 
 type Block struct {
@@ -11,12 +12,13 @@ type Block struct {
 
 func NewGame() *Game {
 	g := &Game{}
+	g.ShowGrid = true
 	g.Board = [][]int{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 1, 1, 0},
 		{0, 1, 1, 0},
-		{2, 2, 0, 0},
+		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 	}
 	return g
